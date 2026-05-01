@@ -25,12 +25,12 @@ import {
     SetConfigurationResult,
     Transaction,
 } from '@canton-network/core-signing-lib'
-import { DfnsHandler, DfnsCredentials } from './dfns.js'
+import { DfnsHandler, DfnsCredentials, DfnsSignature } from './dfns.js'
 import { AuthContext } from '@canton-network/core-wallet-auth'
 import _ from 'lodash'
 import { z } from 'zod'
 
-export type { DfnsCredentials } from './dfns.js'
+export type { DfnsCredentials, DfnsKey, DfnsSignature } from './dfns.js'
 export { DfnsHandler } from './dfns.js'
 
 export interface DfnsConfig {
@@ -54,6 +54,16 @@ const DfnsConfigSchema = z.object({
 const createDfnsHandler = (config: DfnsConfig): DfnsHandler =>
     new DfnsHandler(config.orgId, config.baseUrl, config.credentials)
 
+function toTransaction(sig: DfnsSignature, publicKey?: string): Transaction {
+    const tx: Transaction = {
+        txId: sig.id,
+        status: sig.status,
+    }
+    if (sig.signature) tx.signature = sig.signature
+    if (publicKey) tx.publicKey = publicKey
+    return tx
+}
+
 export default class DfnsSigningDriver implements SigningDriverInterface {
     private dfns: DfnsHandler
     private config: DfnsConfig
@@ -66,19 +76,15 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
     public partyMode = PartyMode.EXTERNAL
     public signingProvider = SigningProvider.DFNS
 
-    private async resolveWalletId(keyIdentifier: {
+    private async resolveKeyId(keyIdentifier: {
         id?: string
         publicKey?: string
     }): Promise<string | undefined> {
         if (keyIdentifier.id) return keyIdentifier.id
         if (!keyIdentifier.publicKey) return undefined
 
-        for await (const wallet of this.dfns.iterateWallets()) {
-            if (wallet.address === keyIdentifier.publicKey) {
-                return wallet.id
-            }
-        }
-        return undefined
+        const key = await this.dfns.findKeyByPublicKey(keyIdentifier.publicKey)
+        return key?.id
     }
 
     public controller = (
@@ -90,37 +96,26 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                 params: SignTransactionParams
             ): Promise<SignTransactionResult> => {
                 try {
-                    const walletId = await this.resolveWalletId(
-                        params.keyIdentifier
-                    )
-                    if (!walletId) {
+                    const keyId = await this.resolveKeyId(params.keyIdentifier)
+                    if (!keyId) {
                         return {
                             error: 'key_not_found',
                             error_description:
-                                'No Dfns wallet found for the provided key identifier.',
+                                'No Dfns key found for the provided key identifier.',
                         }
                     }
 
-                    // Dfns requires an idempotency key (externalId). Prefer the
-                    // gateway-supplied internalTxId; fall back to the prepared
-                    // transaction hash so retries are still idempotent.
-                    const externalTxId = params.internalTxId ?? params.txHash
-                    const tx = await this.dfns.signTransaction(
-                        walletId,
-                        params.tx,
-                        externalTxId
-                    )
-
-                    const result: Transaction = {
-                        txId: tx.txId,
-                        status: tx.status,
+                    if (!params.txHash) {
+                        return {
+                            error: 'bad_arguments',
+                            error_description:
+                                'txHash is required to sign with Dfns.',
+                        }
                     }
 
-                    if (tx.publicKey) {
-                        result.publicKey = tx.publicKey
-                    }
+                    const sig = await this.dfns.signHash(keyId, params.txHash)
 
-                    return result
+                    return toTransaction(sig, params.keyIdentifier.publicKey)
                 } catch (error) {
                     return {
                         error: 'signing_error',
@@ -133,25 +128,16 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                 params: GetTransactionParams
             ): Promise<GetTransactionResult> => {
                 try {
-                    for await (const wallet of this.dfns.iterateWallets()) {
-                        const tx = await this.dfns.getTransaction(
-                            wallet.id,
-                            params.txId
-                        )
-                        if (tx) {
-                            const result: Transaction = {
-                                txId: tx.txId,
-                                status: tx.status,
-                                publicKey: wallet.address,
-                            }
-                            return result
+                    const sig = await this.dfns.findSignature(params.txId)
+                    if (!sig) {
+                        return {
+                            error: 'transaction_not_found',
+                            error_description:
+                                'The requested signature does not exist.',
                         }
                     }
-                    return {
-                        error: 'transaction_not_found',
-                        error_description:
-                            'The requested transaction does not exist.',
-                    }
+                    const key = await this.dfns.getKey(sig.keyId)
+                    return toTransaction(sig, key?.publicKey)
                 } catch (error) {
                     return {
                         error: 'fetch_error',
@@ -176,32 +162,19 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                     const publicKeys = new Set(params.publicKeys || [])
                     const transactions: Transaction[] = []
 
-                    for await (const wallet of this.dfns.iterateWallets()) {
+                    for await (const key of this.dfns.iterateKeys()) {
                         if (
                             params.publicKeys &&
-                            !publicKeys.has(wallet.address)
+                            !publicKeys.has(key.publicKey)
                         ) {
                             continue
                         }
 
-                        for await (const tx of this.dfns.listTransactions(
-                            wallet.id
+                        for await (const sig of this.dfns.listSignatures(
+                            key.id
                         )) {
-                            const matchesTxId = txIds.has(tx.txId)
-                            const matchesPubKey = publicKeys.has(wallet.address)
-
-                            if (
-                                (params.txIds && !matchesTxId) ||
-                                (params.publicKeys && !matchesPubKey)
-                            ) {
-                                continue
-                            }
-
-                            transactions.push({
-                                txId: tx.txId,
-                                status: tx.status,
-                                publicKey: wallet.address,
-                            })
+                            if (params.txIds && !txIds.has(sig.id)) continue
+                            transactions.push(toTransaction(sig, key.publicKey))
 
                             if (
                                 params.txIds &&
@@ -224,7 +197,7 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
 
             getKeys: async (): Promise<GetKeysResult> => {
                 try {
-                    const keys = await this.dfns.listWallets()
+                    const keys = await this.dfns.listKeys()
                     return {
                         keys: keys.map((k) => ({
                             id: k.id,
@@ -244,11 +217,11 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                 params: CreateKeyParams
             ): Promise<CreateKeyResult> => {
                 try {
-                    const wallet = await this.dfns.createWallet(params.name)
+                    const key = await this.dfns.createKey(params.name)
                     return {
-                        id: wallet.id,
-                        name: wallet.name,
-                        publicKey: wallet.publicKey,
+                        id: key.id,
+                        name: key.name,
+                        publicKey: key.publicKey,
                     }
                 } catch (error) {
                     return {

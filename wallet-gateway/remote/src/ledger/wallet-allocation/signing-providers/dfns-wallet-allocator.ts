@@ -12,6 +12,7 @@ import { Logger } from 'pino'
 import { PartyAllocationService } from '../../party-allocation-service.js'
 import { PartyHint, Primary } from '../../../user-api/rpc-gen/typings.js'
 import type { WalletAllocator } from '../wallet-allocation-service.js'
+import { WALLET_DISABLED_REASON } from '@canton-network/core-types'
 
 function handleSigningError<T extends object>(result: SigningError | T): T {
     if ('error' in result) {
@@ -23,9 +24,9 @@ function handleSigningError<T extends object>(result: SigningError | T): T {
 }
 
 /**
- * Dfns provisions Canton wallets through its validator integration: when we ask
- * Dfns to create a key it also activates the wallet on Canton, so the Gateway
- * does not run its own topology-transaction flow. We just record the wallet.
+ * Dfns sign-only allocator. The gateway runs the topology flow against its
+ * configured validator; Dfns is asked only to sign the topology hash, mirroring
+ * the bring-your-own-validator pattern used for other external providers.
  */
 export class DfnsWalletAllocator implements WalletAllocator {
     constructor(
@@ -37,11 +38,12 @@ export class DfnsWalletAllocator implements WalletAllocator {
 
     async createWallet(
         userId: UserId,
-        email: string | undefined,
+        _email: string | undefined,
         partyHint: PartyHint,
         primary: Primary = false
     ): Promise<Wallet> {
         const driver = this.signingDriver.controller(userId)
+
         const key = await driver
             .createKey({ name: partyHint })
             .then(handleSigningError)
@@ -49,57 +51,168 @@ export class DfnsWalletAllocator implements WalletAllocator {
         const namespace = this.partyAllocator.createFingerprintFromKey(
             key.publicKey
         )
-        const network = await this.store.getCurrentNetwork()
+        const transactions =
+            await this.partyAllocator.generateTopologyTransactions(
+                partyHint,
+                key.publicKey
+            )
+        const topologyTransactions = transactions.topologyTransactions ?? []
 
-        const wallet: Wallet = {
+        const internalTxId = crypto
+            .randomUUID()
+            .replace(/-/g, '')
+            .substring(0, 16)
+        const txPayload = JSON.stringify(topologyTransactions)
+
+        const { status, txId } = await driver
+            .signTransaction({
+                tx: Buffer.from(txPayload).toString('base64'),
+                txHash: transactions.multiHash,
+                keyIdentifier: { id: key.id, publicKey: key.publicKey },
+                internalTxId,
+            })
+            .then(handleSigningError)
+
+        const network = await this.store.getCurrentNetwork()
+        const walletBase: Omit<Wallet, 'status'> = {
             partyId: `${partyHint}::${namespace}`,
             hint: partyHint,
             namespace,
             signingProviderId: SigningProvider.DFNS,
             networkId: network.id,
-            status: 'allocated',
             primary,
             publicKey: key.publicKey,
-            externalTxId: key.id,
-            topologyTransactions: '',
+            externalTxId: txId,
+            topologyTransactions: topologyTransactions.join(', '),
             rights: [],
         }
-        this.logger.info(
-            { walletId: key.id, partyId: wallet.partyId },
-            'Created Dfns wallet'
+
+        const wallet = await this.finalizeWallet(
+            walletBase,
+            userId,
+            status,
+            txId,
+            topologyTransactions,
+            namespace,
+            driver
         )
+
         await this.store.addWallet(wallet)
         return wallet
     }
 
     async allocateParty(
         userId: UserId,
-        email: string | undefined,
+        _email: string | undefined,
         existingWallet: Wallet
     ): Promise<void> {
-        // Dfns activates the wallet on Canton when it is created, so re-allocation
-        // is just a state refresh — confirm the wallet is still resolvable in Dfns
-        // and ensure its status is `allocated`.
+        if (
+            !existingWallet.externalTxId ||
+            !existingWallet.topologyTransactions
+        ) {
+            throw new Error(
+                'Existing wallet is missing field externalTxId or topologyTransactions'
+            )
+        }
         const driver = this.signingDriver.controller(userId)
-        await driver
-            .getKeys()
-            .then(handleSigningError)
-            .then((res) => {
-                const found = res.keys?.some(
-                    (k) => k.publicKey === existingWallet.publicKey
-                )
-                if (!found) {
-                    throw new Error(
-                        `Dfns wallet for party ${existingWallet.partyId} not found`
-                    )
-                }
-            })
 
-        const update: UpdateWallet = {
+        const { signature, status, metadata } = await driver
+            .getTransaction({ txId: existingWallet.externalTxId })
+            .then(handleSigningError)
+
+        let walletUpdate: UpdateWallet = {
             partyId: existingWallet.partyId,
             networkId: existingWallet.networkId,
-            status: 'allocated',
         }
-        return this.store.updateWallet(update)
+        if (status === 'signed') {
+            if (!signature) {
+                throw new Error(
+                    'Transaction signed but no signature found in result'
+                )
+            }
+            const partyId =
+                await this.partyAllocator.allocatePartyWithExistingWallet(
+                    existingWallet.namespace,
+                    existingWallet.topologyTransactions.split(', '),
+                    signature,
+                    userId
+                )
+            walletUpdate = {
+                ...walletUpdate,
+                partyId,
+                status: 'allocated',
+                reason: '',
+            }
+        } else if (status === 'pending') {
+            walletUpdate = {
+                ...walletUpdate,
+                status: 'initialized',
+                reason: WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_PENDING,
+            }
+        } else {
+            this.logger.warn(
+                `Topology transaction for wallet ${existingWallet.partyId} was ${status} with ${JSON.stringify(metadata)}`
+            )
+            const reason =
+                status === 'rejected'
+                    ? WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_REJECTED
+                    : WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_FAILED
+            walletUpdate = {
+                ...walletUpdate,
+                status: 'removed',
+                disabled: true,
+                reason,
+            }
+        }
+
+        return this.store.updateWallet(walletUpdate)
+    }
+
+    private async finalizeWallet(
+        walletBase: Omit<Wallet, 'status'>,
+        userId: UserId,
+        status: string,
+        txId: string,
+        topologyTransactions: string[],
+        namespace: string,
+        driver: ReturnType<SigningDriverInterface['controller']>
+    ): Promise<Wallet> {
+        if (status === 'signed') {
+            const { signature } = await driver
+                .getTransaction({ txId })
+                .then(handleSigningError)
+            if (!signature) {
+                throw new Error(
+                    'Transaction signed but no signature found in result'
+                )
+            }
+            const partyId =
+                await this.partyAllocator.allocatePartyWithExistingWallet(
+                    namespace,
+                    topologyTransactions,
+                    signature,
+                    userId
+                )
+            return { ...walletBase, partyId, status: 'allocated' }
+        }
+
+        if (status === 'pending') {
+            return {
+                ...walletBase,
+                status: 'initialized',
+                reason: WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_PENDING,
+            }
+        }
+
+        const reason =
+            status === 'rejected'
+                ? WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_REJECTED
+                : WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_FAILED
+        return {
+            ...walletBase,
+            status: 'removed',
+            disabled: true,
+            reason,
+        }
     }
 }
