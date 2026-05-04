@@ -8,7 +8,6 @@ import {
     PartyMode,
     SigningDriverInterface,
     SigningProvider,
-    SignMessageParams,
     SignMessageResult,
 } from '@canton-network/core-signing-lib'
 

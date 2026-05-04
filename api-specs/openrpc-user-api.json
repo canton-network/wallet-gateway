@@ -563,7 +563,7 @@
                         "signature": {
                             "title": "signature",
                             "type": "string",
-                            "description": "Base64-encoded Ed25519 signature over the prefixed message."
+                            "description": "Base64-encoded Ed25519 signature over the message."
                         },
                         "publicKey": {
                             "title": "publicKey",

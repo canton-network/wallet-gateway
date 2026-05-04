@@ -168,7 +168,7 @@ export type TransactionId = string
 export type Message = string
 /**
  *
- * Base64-encoded Ed25519 signature over the prefixed message.
+ * Base64-encoded Ed25519 signature over the message.
  *
  */
 export type Signature = string
