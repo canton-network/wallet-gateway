@@ -22,7 +22,7 @@
         "clean:all": "nx run-many -t clean --parallel && yarn nx reset",
         "test:all": "nx run-many -t test --parallel",
         "test-coverage:all": "nx run-many -t test:coverage --parallel",
-        "postinstall": "husky",
+        "postinstall": "husky && yarn generate:tokenstandard",
         "docs:update-wg-config": "tsx ./scripts/src/docs-update-wg-config.ts",
         "script:cleancoding": "tsx ./scripts/src/clean-coding.ts",
         "script:install:dpm": "tsx --eval \"import { installDPM } from './scripts/src/install-dpm.ts'; installDPM()\"",

@@ -31,6 +31,11 @@ jobs:
               with:
                   name: build-dist-${{ github.run_id }}
                   path: |
+                      .yarn/cache/
+                      .yarn/unplugged/
+                      .yarn/install-state.gz
+                      .pnp.cjs
+                      .pnp.loader.mjs
                       core/*/dist/
                       sdk/*/dist/
                       sdk-support/*/dist/
