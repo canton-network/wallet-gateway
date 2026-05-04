@@ -36,7 +36,6 @@ const {
     alice,
     bob,
     tradingApp,
-    globalSynchronizerId,
     synchronizers,
     amuletAdmin,
 } = setup
