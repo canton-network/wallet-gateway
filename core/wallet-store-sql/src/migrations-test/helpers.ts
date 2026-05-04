@@ -300,3 +300,30 @@ export async function primaryKeyColumns(
     `.execute(db)
     return res.rows.map((r) => r.name.toLowerCase())
 }
+
+export async function indexExists(
+    db: Kysely<DB>,
+    table: string,
+    indexName: string
+): Promise<boolean> {
+    const name = indexName.toLowerCase()
+    const tbl = table.toLowerCase()
+    if (await isPostgres(db)) {
+        const res = await sql<{ exists: boolean }>`
+            SELECT EXISTS (
+                SELECT 1 FROM pg_indexes
+                WHERE schemaname = 'public'
+                  AND lower(tablename) = ${tbl}
+                  AND lower(indexname) = ${name}
+            ) AS exists
+        `.execute(db)
+        return res.rows[0]?.exists ?? false
+    }
+    const res = await sql<{ name: string }>`
+        SELECT name FROM sqlite_master
+        WHERE type = 'index'
+          AND lower(tbl_name) = ${tbl}
+          AND lower(name) = ${name}
+    `.execute(db)
+    return res.rows.length > 0
+}
