@@ -25,7 +25,7 @@ import {
 } from '@canton-network/core-token-standard'
 import {
     EventFilterBySetup,
-    v3_4,
+    type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import { Logger, PartyId } from '@canton-network/core-types'
 import { AcsReader, AcsOptions } from '@canton-network/core-acs-reader'
@@ -49,20 +49,20 @@ import {
 
 const REQUESTED_AT_SKEW_MS = 60_000
 
-export type ExerciseCommand = v3_4.components['schemas']['ExerciseCommand']
-export type DisclosedContract = v3_4.components['schemas']['DisclosedContract']
+export type ExerciseCommand = LedgerCommonSchemas['ExerciseCommand']
+export type DisclosedContract = LedgerCommonSchemas['DisclosedContract']
 const EMPTY_META: Metadata = { values: {} }
 
 type JsGetActiveContractsResponse =
-    v3_4.components['schemas']['JsGetActiveContractsResponse']
-type JsGetUpdatesResponse = v3_4.components['schemas']['JsGetUpdatesResponse']
-type JsGetTransactionResponse =
-    v3_4.components['schemas']['JsGetTransactionResponse']
-type OffsetCheckpoint2 = v3_4.components['schemas']['OffsetCheckpoint2']
-type JsTransaction = v3_4.components['schemas']['JsTransaction']
-type TransactionFormat = v3_4.components['schemas']['TransactionFormat']
+    LedgerCommonSchemas['JsGetActiveContractsResponse']
+type JsGetUpdatesResponse =
+    Ops.PostV2UpdatesFlats['ledgerApi']['result'][number]
+type JsGetTransactionResponse = LedgerCommonSchemas['JsGetTransactionResponse']
+type OffsetCheckpoint2 = LedgerCommonSchemas['OffsetCheckpoint2']
+type JsTransaction = LedgerCommonSchemas['JsTransaction']
+type TransactionFormat = LedgerCommonSchemas['TransactionFormat']
 
-type JsActiveContract = v3_4.components['schemas']['JsActiveContract']
+type JsActiveContract = LedgerCommonSchemas['JsActiveContract']
 
 type OffsetCheckpointUpdate = {
     update: { OffsetCheckpoint: OffsetCheckpoint2 }
@@ -74,7 +74,7 @@ type TransactionUpdate = {
 type JsActiveContractEntryResponse = JsGetActiveContractsResponse & {
     contractEntry: {
         JsActiveContract: {
-            createdEvent: v3_4.components['schemas']['CreatedEvent']
+            createdEvent: LedgerCommonSchemas['CreatedEvent']
         }
     }
 }

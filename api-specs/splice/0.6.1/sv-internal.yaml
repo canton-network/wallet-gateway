@@ -1,0 +1,1722 @@
+openapi: 3.0.0
+info:
+    title: SV API
+    version: 0.0.1
+servers:
+    - url: https://example.com/api/sv
+tags:
+    - name: sv
+paths:
+    /readyz:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isReady
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /livez:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isLive
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /status:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: getHealthStatus
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeStatus'
+    /version:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: getVersion
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Version'
+    /v0/admin/validator/onboarding/ongoing:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listOngoingValidatorOnboardings
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOngoingValidatorOnboardingsResponse'
+    /v0/admin/validator/onboarding/prepare:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: prepareValidatorOnboarding
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PrepareValidatorOnboardingRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PrepareValidatorOnboardingResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/validator/licenses:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listValidatorLicenses
+            parameters:
+                - name: after
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                - name: limit
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int32
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListValidatorLicensesResponse'
+    /v0/admin/domain/cometbft/status:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: getCometBftNodeStatus
+            responses:
+                '200':
+                    description: Response returned by the CometBFT node, or the error if the call failed
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CometBftNodeStatusOrErrorResponse'
+                '404':
+                    description: CometBFT is not configured for this app.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/domain/cometbft/json-rpc:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: cometBftJsonRpcRequest
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CometBftJsonRpcRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CometBftJsonRpcOrErrorResponse'
+                '404':
+                    description: CometBFT is not configured for this app.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/admin/domain/cometbft/debug:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: getCometBftNodeDebugDump
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CometBftNodeDumpOrErrorResponse'
+                '404':
+                    description: CometBFT is not configured for this app.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/domain/sequencer/status:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: getSequencerNodeStatus
+            responses:
+                '200':
+                    description: Status of sequencer node
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeStatus'
+                '404':
+                    description: Sequencer is not configured for this app.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/admin/domain/mediator/status:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: getMediatorNodeStatus
+            responses:
+                '200':
+                    description: Status of mediator node
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeStatus'
+                '404':
+                    description: Mediator is not configured for this app.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/admin/domain/pause:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: pauseDecentralizedSynchronizer
+            responses:
+                '200':
+                    description: ok
+    /v0/admin/domain/unpause:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: unpauseDecentralizedSynchronizer
+            responses:
+                '200':
+                    description: ok
+    /v0/admin/synchronizer/lsu/cancel:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: cancelLogicalSynchronizerUpgrade
+            responses:
+                '200':
+                    description: ok
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/domain/migration-dump:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: getDomainMigrationDump
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDomainMigrationDumpResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: triggerDomainMigrationDump
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TriggerDomainMigrationDumpRequest'
+            responses:
+                '200':
+                    description: ok
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/domain/identities-dump:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: getSynchronizerNodeIdentitiesDump
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSynchronizerNodeIdentitiesDumpResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/domain/data-snapshot:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_admin
+            operationId: getDomainDataSnapshot
+            parameters:
+                - name: timestamp
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: party_id
+                  in: query
+                  schema:
+                      type: string
+                - name: migration_id
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                - name: force
+                  in: query
+                  required: false
+                  schema:
+                      type: boolean
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDomainDataSnapshotResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/sv/voterequests:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listDsoRulesVoteRequests
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListDsoRulesVoteRequestsResponse'
+    /v0/admin/sv/voteresults:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listVoteRequestResults
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ListVoteResultsRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListDsoRulesVoteResultsResponse'
+    /v0/admin/sv/voterequests/{vote_request_contract_id}:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: lookupDsoRulesVoteRequest
+            parameters:
+                - name: vote_request_contract_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LookupDsoRulesVoteRequestResponse'
+                '404':
+                    description: VoteRequest contract not found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/admin/sv/votes:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: castVote
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CastVoteRequest'
+            responses:
+                '201':
+                    description: Created
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/admin/sv/voterequest:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listVoteRequestsByTrackingCid
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BatchListVotesByVoteRequestsRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListVoteRequestByTrackingCidResponse'
+    /v0/admin/sv/voterequest/create:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: createVoteRequest
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateVoteRequest'
+            responses:
+                '200':
+                    description: ok
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/admin/sv/amulet-price/votes:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: ListAmuletPriceVotes
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAmuletPriceVotesResponse'
+    /v0/admin/sv/open-mining-rounds:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: ListOpenMiningRounds
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOpenMiningRoundsResponse'
+    /v0/admin/sv/amulet-price/vote:
+        put:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: UpdateAmuletPriceVote
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateAmuletPriceVoteRequest'
+            responses:
+                '200':
+                    description: ok
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/admin/authorization:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: isAuthorized
+            responses:
+                '200':
+                    description: ok
+                '403':
+                    $ref: '#/components/responses/403'
+    /v0/onboard/validator:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: onboardValidator
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OnboardValidatorRequest'
+            responses:
+                '200':
+                    description: ok
+                '400':
+                    $ref: '#/components/responses/400'
+                '401':
+                    $ref: '#/components/responses/401'
+    /v0/onboard/sv/start:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: startSvOnboarding
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/StartSvOnboardingRequest'
+            responses:
+                '200':
+                    description: ok
+                '400':
+                    $ref: '#/components/responses/400'
+                '401':
+                    $ref: '#/components/responses/401'
+    /v0/onboard/sv/status/{candidate_party_id_or_name}:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: getSvOnboardingStatus
+            parameters:
+                - name: candidate_party_id_or_name
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSvOnboardingStatusResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/onboard/sv/party-migration/authorize:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: onboardSvPartyMigrationAuthorize
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OnboardSvPartyMigrationAuthorizeRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OnboardSvPartyMigrationAuthorizeResponse'
+                '400':
+                    description: system state not yet valid
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OnboardSvPartyMigrationAuthorizeErrorResponse'
+                '401':
+                    $ref: '#/components/responses/401'
+    /v0/onboard/sv/sequencer:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: onboardSvSequencer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OnboardSvSequencerRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OnboardSvSequencerResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/devnet/onboard/validator/prepare:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            description: faucet for validator candidates self-service
+            operationId: devNetOnboardValidatorPrepare
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        text/plain:
+                            schema:
+                                type: string
+                '500':
+                    $ref: '#/components/responses/500'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/dso:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_public
+            operationId: getDsoInfo
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDsoInfoResponse'
+    /v0/synchronizer/{domain_id_prefix}/reconcile-daml-state:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_soft_domain_migration_poc
+            operationId: reconcileSynchronizerDamlState
+            parameters:
+                - name: domain_id_prefix
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+    /v0/synchronizer/{domain_id_prefix}/sign_dso_party_to_participant:
+        post:
+            tags:
+                - sv
+            x-jvm-package: sv_soft_domain_migration_poc
+            operationId: signDsoPartyToParticipant
+            parameters:
+                - name: domain_id_prefix
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+    /v0/admin/sv/party-to-participant/{party_id}:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: getPartyToParticipant
+            parameters:
+                - name: party_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Party is hosted on one or more participants
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetPartyToParticipantResponseV1'
+                '404':
+                    description: Party not found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/admin/sv/featured-app-rights/by-contract-id/{contract_id}:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: lookupFeaturedAppRightByContractId
+            description: |
+                Look up a `FeaturedAppRight` contract by its contract ID.
+            parameters:
+                - name: contract_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Featured app right, if found
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LookupFeaturedAppRightByContractIdResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/admin/sv/featured-app-rights/by-provider/{provider_party_id}:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: listFeaturedAppRightsByProvider
+            description: |
+                Lookup the `FeaturedAppRight` contract for a provider.
+            parameters:
+                - name: provider_party_id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Featured app right for provider
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListFeaturedAppRightsByProviderResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+    /v0/admin/feature-support:
+        get:
+            tags:
+                - sv
+            x-jvm-package: sv_operator
+            operationId: featureSupport
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/FeatureSupportResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+components:
+    schemas:
+        ListOngoingValidatorOnboardingsResponse:
+            type: object
+            required:
+                - ongoing_validator_onboardings
+            properties:
+                ongoing_validator_onboardings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ValidatorOnboarding'
+        ValidatorOnboarding:
+            type: object
+            required:
+                - encoded_secret
+                - contract
+            properties:
+                encoded_secret:
+                    description: |
+                        The encoded secret in a form that can be directly used when making an onboarding request.
+                    type: string
+                contract:
+                    description: |
+                        The contract storing the onboarding secret.
+                    $ref: '#/components/schemas/Contract'
+                party_hint:
+                    description: |
+                        Human-readable alias of the validator party decoded from the stored secret.
+                    type: string
+        PrepareValidatorOnboardingRequest:
+            type: object
+            required:
+                - expires_in
+            properties:
+                expires_in:
+                    type: integer
+                    minimum: 1
+                party_hint:
+                    description: |
+                        Optional alias for the validator party. If provided, it is persisted in the
+                        onboarding secret and stored in the database as the expected party identifier.
+                    type: string
+        PrepareValidatorOnboardingResponse:
+            type: object
+            required:
+                - secret
+            properties:
+                secret:
+                    type: string
+        OnboardValidatorRequest:
+            type: object
+            required:
+                - party_id
+                - secret
+            properties:
+                party_id:
+                    type: string
+                secret:
+                    type: string
+                version:
+                    type: string
+                contact_point:
+                    type: string
+                party_hint:
+                    description: |
+                        Alias of the validator party.
+                        Must match the persisted value in the onboarding secret.
+                    type: string
+        CometBftNodeStatusOrErrorResponse:
+            oneOf:
+                - $ref: '#/components/schemas/CometBftNodeStatusResponse'
+                - $ref: '#/components/schemas/ErrorResponse'
+        CometBftNodeStatusResponse:
+            type: object
+            required:
+                - id
+                - catching_up
+                - voting_power
+            properties:
+                id:
+                    type: string
+                    description: The node-id of the CometBFT node
+                catching_up:
+                    type: boolean
+                    description: Is the node still catching up to the other nodes in the network
+                voting_power:
+                    type: number
+                    description: The voting power assigned to the CometBFT node
+        CometBftNodeDumpOrErrorResponse:
+            oneOf:
+                - $ref: '#/components/schemas/CometBftNodeDumpResponse'
+                - $ref: '#/components/schemas/ErrorResponse'
+        CometBftNodeDumpResponse:
+            type: object
+            required:
+                - status
+                - network_info
+                - abci_info
+                - validators
+            properties:
+                status:
+                    type: object
+                network_info:
+                    type: object
+                abci_info:
+                    type: object
+                validators:
+                    type: object
+        CometBftJsonRpcRequestId:
+            oneOf:
+                - type: string
+                - type: integer
+                  format: int64
+        CometBftJsonRpcRequest:
+            type: object
+            required:
+                - id
+                - method
+            properties:
+                id:
+                    $ref: '#/components/schemas/CometBftJsonRpcRequestId'
+                method:
+                    type: string
+                    enum:
+                        - status
+                        - block
+                        - commit
+                        - validators
+                        - consensus_params
+                        - consensus_state
+                params:
+                    type: object
+                    additionalProperties: true
+        CometBftJsonRpcOrErrorResponse:
+            oneOf:
+                - $ref: '#/components/schemas/CometBftJsonRpcResponse'
+                - $ref: '#/components/schemas/ErrorResponse'
+        CometBftJsonRpcResponse:
+            type: object
+            required:
+                - jsonrpc
+                - id
+                - result
+            properties:
+                jsonrpc:
+                    type: string
+                id:
+                    $ref: '#/components/schemas/CometBftJsonRpcRequestId'
+                result:
+                    type: object
+        CreateVoteRequest:
+            type: object
+            required:
+                - requester
+                - action
+                - url
+                - description
+                - expiration
+            properties:
+                requester:
+                    type: string
+                action:
+                    type: object
+                url:
+                    type: string
+                description:
+                    type: string
+                expiration:
+                    type: object
+                effectiveTime:
+                    type: string
+                    format: date-time
+        ListVotesResponse:
+            type: object
+            required:
+                - dso_rules_votes
+            properties:
+                dso_rules_votes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        CastVoteRequest:
+            type: object
+            required:
+                - vote_request_contract_id
+                - is_accepted
+                - reason_url
+                - reason_description
+            properties:
+                vote_request_contract_id:
+                    type: string
+                is_accepted:
+                    type: boolean
+                reason_url:
+                    type: string
+                reason_description:
+                    type: string
+        ListOpenMiningRoundsResponse:
+            type: object
+            required:
+                - open_mining_rounds
+            properties:
+                open_mining_rounds:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        UpdateAmuletPriceVoteRequest:
+            type: object
+            required:
+                - amulet_price
+            properties:
+                amulet_price:
+                    type: string
+        StartSvOnboardingRequest:
+            type: object
+            required:
+                - token
+            properties:
+                token:
+                    type: string
+        BaseSvOnboardingState:
+            type: object
+            required:
+                - state
+            properties:
+                state:
+                    type: string
+        SvOnboardingStateRequested:
+            allOf:
+                - $ref: '#/components/schemas/BaseSvOnboardingState'
+                - type: object
+                  required:
+                      - name
+                      - contract_id
+                      - confirmed_by
+                      - required_num_confirmations
+                  properties:
+                      name:
+                          type: string
+                      contract_id:
+                          type: string
+                          description: ContractId of the SvOnboardingRequested contract
+                      confirmed_by:
+                          type: array
+                          items:
+                              type: string
+                      required_num_confirmations:
+                          type: integer
+                          format: int32
+                          minimum: 1
+        SvOnboardingStateConfirmed:
+            allOf:
+                - $ref: '#/components/schemas/BaseSvOnboardingState'
+                - type: object
+                  required:
+                      - name
+                      - contract_id
+                  properties:
+                      name:
+                          type: string
+                      contract_id:
+                          type: string
+                          description: ContractId of the SvOnboardingConfirmed contract
+        SvOnboardingStateCompleted:
+            allOf:
+                - $ref: '#/components/schemas/BaseSvOnboardingState'
+                - type: object
+                  required:
+                      - name
+                      - contract_id
+                  properties:
+                      name:
+                          type: string
+                      contract_id:
+                          type: string
+                          description: ContractId of the DsoRules contract
+        SvOnboardingStateUnknown:
+            allOf:
+                - $ref: '#/components/schemas/BaseSvOnboardingState'
+        GetSvOnboardingStatusResponse:
+            oneOf:
+                - $ref: '#/components/schemas/SvOnboardingStateRequested'
+                - $ref: '#/components/schemas/SvOnboardingStateConfirmed'
+                - $ref: '#/components/schemas/SvOnboardingStateCompleted'
+                - $ref: '#/components/schemas/SvOnboardingStateUnknown'
+            discriminator:
+                propertyName: state
+                mapping:
+                    requested: '#/components/schemas/SvOnboardingStateRequested'
+                    confirmed: '#/components/schemas/SvOnboardingStateConfirmed'
+                    completed: '#/components/schemas/SvOnboardingStateCompleted'
+                    unknown: '#/components/schemas/SvOnboardingStateUnknown'
+        OnboardSvPartyMigrationAuthorizeRequest:
+            type: object
+            required:
+                - candidate_party_id
+            properties:
+                candidate_party_id:
+                    type: string
+        OnboardSvPartyMigrationAuthorizeResponse:
+            type: object
+            required:
+                - acs_snapshot
+            properties:
+                acs_snapshot:
+                    type: string
+        OnboardSvPartyMigrationAuthorizeErrorResponse:
+            oneOf:
+                - $ref: '#/components/schemas/AcceptedStateNotFoundErrorResponse'
+                - $ref: '#/components/schemas/ProposalNotFoundErrorResponse'
+        AcceptedStateNotFoundErrorResponse:
+            type: object
+            required:
+                - accepted_state_not_found
+            properties:
+                accepted_state_not_found:
+                    $ref: '#/components/schemas/ErrorResponse'
+        ProposalNotFoundErrorResponse:
+            type: object
+            required:
+                - proposal_not_found
+            properties:
+                proposal_not_found:
+                    type: object
+                    required:
+                        - party_to_participant_base_serial
+                    properties:
+                        party_to_participant_base_serial:
+                            type: integer
+                            description: The serial of the party to participant accepted state as seen by the sponsor
+        OnboardSvSequencerRequest:
+            type: object
+            required:
+                - sequencer_id
+            properties:
+                sequencer_id:
+                    type: string
+        OnboardSvSequencerResponse:
+            type: object
+            required:
+                - onboarding_state
+            properties:
+                onboarding_state:
+                    type: string
+        OnboardSvMediatorRequest:
+            type: object
+            required:
+                - mediator_id
+            properties:
+                mediator_id:
+                    type: string
+        SequencerSnapshot:
+            type: object
+            required:
+                - topology_snapshot
+                - sequencer_snapshot
+            properties:
+                topology_snapshot:
+                    type: string
+                sequencer_snapshot:
+                    type: string
+        TriggerAcsDumpResponse:
+            type: object
+            required:
+                - filename
+                - num_events
+                - offset
+            properties:
+                filename:
+                    type: string
+                num_events:
+                    type: number
+                offset:
+                    type: string
+        GetAcsStoreDumpResponse:
+            type: object
+            required:
+                - offset
+                - contracts
+            properties:
+                offset:
+                    type: string
+                contracts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+                version:
+                    type: string
+        SynchronizerNodeIdentities:
+            type: object
+            required:
+                - sv_party_id
+                - dso_party_id
+                - domain_alias
+                - domain_id
+                - participant
+                - sequencer
+                - mediator
+            properties:
+                sv_party_id:
+                    type: string
+                dso_party_id:
+                    type: string
+                domain_alias:
+                    type: string
+                domain_id:
+                    type: string
+                participant:
+                    $ref: '#/components/schemas/NodeIdentitiesDump'
+                sequencer:
+                    $ref: '#/components/schemas/NodeIdentitiesDump'
+                mediator:
+                    $ref: '#/components/schemas/NodeIdentitiesDump'
+        DomainDataSnapshot:
+            type: object
+            required:
+                - acs_snapshot
+                - acs_timestamp
+                - dars
+            properties:
+                genesis_state:
+                    description: |
+                        base64 encoded string of domain genesis state
+                    type: string
+                acs_snapshot:
+                    description: |
+                        base64 encoded string of acs snapshot for the requested party id, or for the dso and sv parties by default
+                    type: string
+                acs_timestamp:
+                    type: string
+                dars:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Dar'
+                synchronizer_was_paused:
+                    type: boolean
+                separate_payload_files:
+                    type: boolean
+                    description: |
+                        If set to true, genesis_state and acs_snapshot are filenames
+                acs_format:
+                    type: string
+                    enum:
+                        - admin_api
+                        - ledger_api
+        Dar:
+            type: object
+            required:
+                - hash
+                - content
+            properties:
+                hash:
+                    type: string
+                content:
+                    description: |
+                        base64 encoded string of a dar package
+                    type: string
+        TriggerDomainMigrationDumpRequest:
+            type: object
+            required:
+                - migration_id
+            properties:
+                migration_id:
+                    type: integer
+                    format: int64
+                timestamp:
+                    type: string
+        GetDomainMigrationDumpResponse:
+            type: object
+            required:
+                - migration_id
+                - identities
+                - data_snapshot
+                - participant_users
+                - created_at
+            properties:
+                migration_id:
+                    type: integer
+                    format: int64
+                identities:
+                    $ref: '#/components/schemas/SynchronizerNodeIdentities'
+                data_snapshot:
+                    $ref: '#/components/schemas/DomainDataSnapshot'
+                participant_users:
+                    $ref: '#/components/schemas/ParticipantUsersData'
+                created_at:
+                    type: string
+        GetSynchronizerNodeIdentitiesDumpResponse:
+            type: object
+            required:
+                - identities
+            properties:
+                identities:
+                    $ref: '#/components/schemas/SynchronizerNodeIdentities'
+        GetDomainDataSnapshotResponse:
+            type: object
+            required:
+                - created_at
+                - migration_id
+                - data_snapshot
+                - participant_users
+            properties:
+                created_at:
+                    description: |
+                        equal to data_snapshot.acs_timestamp
+                    type: string
+                migration_id:
+                    type: integer
+                    format: int64
+                data_snapshot:
+                    $ref: '#/components/schemas/DomainDataSnapshot'
+                participant_users:
+                    $ref: '#/components/schemas/ParticipantUsersData'
+        LookupFeaturedAppRightByContractIdResponse:
+            description: |
+                A `Splice.Amulet.FeaturedAppRight` contract looked up by contract ID, if it exists.
+            type: object
+            properties:
+                featured_app_right:
+                    $ref: '#/components/schemas/Contract'
+        ListFeaturedAppRightsByProviderResponse:
+            description: |
+                The `Splice.Amulet.FeaturedAppRight` contract for a specific provider, if it exists.
+            type: object
+            required:
+                - featured_app_rights
+            properties:
+                featured_app_rights:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        Status:
+            type: object
+            required:
+                - id
+                - uptime
+                - ports
+                - active
+            properties:
+                id:
+                    type: string
+                uptime:
+                    type: string
+                ports:
+                    type: object
+                    additionalProperties:
+                        type: integer
+                        format: int32
+                extra:
+                    type: string
+                    format: binary
+                active:
+                    type: boolean
+        SuccessStatusResponse:
+            type: object
+            required:
+                - success
+            properties:
+                success:
+                    $ref: '#/components/schemas/Status'
+        NotInitialized:
+            type: object
+            required:
+                - active
+            properties:
+                active:
+                    type: boolean
+        NotInitializedStatusResponse:
+            type: object
+            required:
+                - not_initialized
+            properties:
+                not_initialized:
+                    $ref: '#/components/schemas/NotInitialized'
+        ErrorResponse:
+            type: object
+            required:
+                - error
+            properties:
+                error:
+                    type: string
+        FailureStatusResponse:
+            type: object
+            required:
+                - failed
+            properties:
+                failed:
+                    $ref: '#/components/schemas/ErrorResponse'
+        NodeStatus:
+            oneOf:
+                - $ref: '#/components/schemas/SuccessStatusResponse'
+                - $ref: '#/components/schemas/NotInitializedStatusResponse'
+                - $ref: '#/components/schemas/FailureStatusResponse'
+        Version:
+            type: object
+            required:
+                - version
+                - commit_ts
+            properties:
+                version:
+                    type: string
+                commit_ts:
+                    type: string
+                    format: date-time
+        Contract:
+            type: object
+            properties:
+                template_id:
+                    type: string
+                contract_id:
+                    type: string
+                payload:
+                    type: object
+                created_event_blob:
+                    type: string
+                created_at:
+                    type: string
+            required:
+                - template_id
+                - contract_id
+                - payload
+                - created_event_blob
+                - created_at
+        ListValidatorLicensesResponse:
+            type: object
+            required:
+                - validator_licenses
+            properties:
+                validator_licenses:
+                    description: Contracts of Daml template `Splice.ValidatorLicense:ValidatorLicense`.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+                next_page_token:
+                    type: integer
+                    format: int64
+                    description: |
+                        When requesting the next page of results, pass this as URL query parameter `after`.
+                        If absent or `null`, there are no more pages.
+        KeyPair:
+            type: object
+            required:
+                - keyPair
+            properties:
+                keyPair:
+                    type: string
+                name:
+                    type: string
+        KmsKeyId:
+            type: object
+            required:
+                - type
+                - keyId
+            properties:
+                type:
+                    type: string
+                    enum:
+                        - signing
+                        - encryption
+                keyId:
+                    type: string
+                name:
+                    type: string
+        NodeKey:
+            oneOf:
+                - $ref: '#/components/schemas/KeyPair'
+                - $ref: '#/components/schemas/KmsKeyId'
+        NodeIdentitiesDump:
+            type: object
+            required:
+                - id
+                - keys
+                - authorizedStoreSnapshot
+            properties:
+                id:
+                    type: string
+                keys:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NodeKey'
+                authorizedStoreSnapshot:
+                    description: |
+                        base64 encoded string of authorized store snapshot
+                    type: string
+                version:
+                    type: string
+        ParticipantIdentityProvider:
+            type: object
+            required:
+                - id
+                - isDeactivated
+                - jwksUrl
+                - issuer
+                - audience
+            properties:
+                id:
+                    type: string
+                isDeactivated:
+                    type: boolean
+                    default: false
+                jwksUrl:
+                    type: string
+                issuer:
+                    type: string
+                audience:
+                    type: string
+        ParticipantUserRight:
+            type: object
+            required:
+                - kind
+            properties:
+                kind:
+                    type: string
+                    enum:
+                        - participantAdmin
+                        - canActAs
+                        - canReadAs
+                        - canExecuteAs
+                        - identityProviderAdmin
+                        - canReadAsAnyParty
+                        - canExecuteAsAnyParty
+                party:
+                    type: string
+        ParticipantUserAnnotation:
+            type: object
+            required:
+                - key
+                - value
+            properties:
+                key:
+                    type: string
+                value:
+                    type: string
+        ParticipantUser:
+            type: object
+            required:
+                - id
+                - rights
+                - isDeactivated
+                - annotations
+            properties:
+                id:
+                    type: string
+                primaryParty:
+                    type: string
+                rights:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserRight'
+                isDeactivated:
+                    type: boolean
+                    default: false
+                annotations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserAnnotation'
+                identityProviderId:
+                    type: string
+                    default: ''
+        ParticipantUsersData:
+            type: object
+            required:
+                - identityProviders
+                - users
+            properties:
+                identityProviders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantIdentityProvider'
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUser'
+        ListDsoRulesVoteRequestsResponse:
+            description: Contracts of Daml template `Splice.DsoRules:VoteRequest`.
+            type: object
+            required:
+                - dso_rules_vote_requests
+            properties:
+                dso_rules_vote_requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListVoteResultsRequest:
+            type: object
+            required:
+                - limit
+            properties:
+                actionName:
+                    type: string
+                accepted:
+                    type: boolean
+                requester:
+                    type: string
+                effectiveFrom:
+                    type: string
+                effectiveTo:
+                    type: string
+                limit:
+                    type: integer
+        ListDsoRulesVoteResultsResponse:
+            type: object
+            required:
+                - dso_rules_vote_results
+            properties:
+                dso_rules_vote_results:
+                    type: array
+                    items:
+                        type: object
+        LookupDsoRulesVoteRequestResponse:
+            description: A contract of Daml template `Splice.DsoRules:VoteRequest`.
+            type: object
+            required:
+                - dso_rules_vote_request
+            properties:
+                dso_rules_vote_request:
+                    $ref: '#/components/schemas/Contract'
+        BatchListVotesByVoteRequestsRequest:
+            type: object
+            required:
+                - vote_request_contract_ids
+            properties:
+                vote_request_contract_ids:
+                    description: Contract IDs of Daml template `Splice.DsoRules:VoteRequest`.
+                    type: array
+                    items:
+                        type: string
+        ListVoteRequestByTrackingCidResponse:
+            type: object
+            required:
+                - vote_requests
+            properties:
+                vote_requests:
+                    description: |
+                        Contracts of Daml template `Splice.DsoRules:VoteRequest` that match
+                        `vote_request_contract_ids` in the request.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListAmuletPriceVotesResponse:
+            description: Contracts of Daml template `Splice.DSO:AmuletPrice:AmuletPriceVote`.
+            type: object
+            required:
+                - amulet_price_votes
+            properties:
+                amulet_price_votes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+        GetDsoInfoResponse:
+            type: object
+            required:
+                - sv_user
+                - sv_party_id
+                - dso_party_id
+                - voting_threshold
+                - latest_mining_round
+                - amulet_rules
+                - dso_rules
+                - sv_node_states
+            properties:
+                sv_user:
+                    description: User ID representing the SV
+                    type: string
+                sv_party_id:
+                    description: Party representing the SV
+                    type: string
+                dso_party_id:
+                    description: |
+                        Party representing the whole DSO; for Scan only, also returned by
+                        `/v0/dso-party-id`
+                    type: string
+                voting_threshold:
+                    description: |
+                        Threshold required to pass vote requests; also known as the
+                        "governance threshold", it is always derived from the number of
+                        `svs` in `dso_rules`
+                    type: integer
+                latest_mining_round:
+                    description: |
+                        Contract of the Daml template `Splice.Round.OpenMiningRound`, the
+                        one with the highest round number on the ledger that has been signed
+                        by `dso_party_id`. The round may not be usable as it may not be
+                        opened yet, in accordance with its `opensAt` template field
+                    $ref: '#/components/schemas/ContractWithState'
+                amulet_rules:
+                    description: |
+                        Contract of the Daml template `Splice.AmuletRules.AmuletRules`,
+                        including the full schedule of `AmuletConfig` changes approved by
+                        the DSO. Callers should not assume that `initialValue` is up-to-date,
+                        and should instead search `futureValues` for the latest configuration
+                        valid as of now
+                    $ref: '#/components/schemas/ContractWithState'
+                dso_rules:
+                    description: |
+                        Contract of the Daml template `Splice.DsoRules.DsoRules`, listing
+                        the governance rules approved by the DSO governing this Splice network.
+                    $ref: '#/components/schemas/ContractWithState'
+                sv_node_states:
+                    description: |
+                        For every one of `svs` listed in `dso_rules`, a contract of the Daml
+                        template `Splice.DSO.SvState.SvNodeState`. This does not include
+                        states for offboarded SVs, though they may still have an on-ledger
+                        state contract
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+                initial_round:
+                    description: |
+                        Initial round from which the network bootstraps
+                    type: string
+        GetPartyToParticipantResponseV1:
+            type: object
+            required:
+                - participant_ids
+            properties:
+                participant_ids:
+                    description: |
+                        IDs of the participants hosting the provided party, each in the form
+                        `PAR::id::fingerprint`
+                    type: array
+                    items:
+                        type: string
+        FeatureSupportResponse:
+            type: object
+            required: []
+            properties:
+                dummy:
+                    type: boolean
+    responses:
+        '400':
+            description: bad request
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '401':
+            description: unauthorized
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '403':
+            description: forbidden
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '500':
+            description: internal server error
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '501':
+            description: not implemented
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'

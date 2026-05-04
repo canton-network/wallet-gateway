@@ -25,22 +25,30 @@ export class OTCTrade {
     private venue: PartyId
     private alice: PartyId
     private bob: PartyId
+    private charlie: PartyId
     private logger: Logger
     private sdk: SDKInterface<'asset'> | null = null
+    private expectedAllocationCount = 0
 
     constructor(args: {
         logger: Logger
         venue: PartyId
         alice: PartyId
         bob: PartyId
+        charlie: PartyId
     }) {
         this.venue = args.venue
         this.alice = args.alice
         this.bob = args.bob
+        this.charlie = args.charlie
         this.logger = args.logger
     }
 
-    async setup(): Promise<{ otcTradeCid: string }> {
+    async setup(): Promise<{
+        otcTradeCid: string
+        expectedAllocationCount: number
+        settlementRefCid: string
+    }> {
         this.logger.info('SDK initialized')
 
         const localNetStaticAuth: TokenProviderConfig = {
@@ -99,7 +107,23 @@ export class OTCTrade {
                 instrumentId: { admin: amuletAsset.admin, id: 'Amulet' },
                 meta: { values: {} },
             },
+            leg2: {
+                sender: this.alice,
+                receiver: this.charlie,
+                amount: '50',
+                instrumentId: { admin: amuletAsset.admin, id: 'Amulet' },
+                meta: { values: {} },
+            },
+            leg3: {
+                sender: this.charlie,
+                receiver: this.alice,
+                amount: '80',
+                instrumentId: { admin: amuletAsset.admin, id: 'Amulet' },
+                meta: { values: {} },
+            },
         }
+
+        this.expectedAllocationCount = Object.keys(transferLegs).length
 
         const createProposal = {
             CreateCommand: {
@@ -122,39 +146,9 @@ export class OTCTrade {
 
         this.logger.info('Alice created OTCTradeProposal')
 
-        // Bob accepts the OTCTradeProposal
-
-        const activeTradeProposals = await this.sdk.ledger.acs.read({
-            templateIds: [
-                '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
-            ],
-            parties: [this.bob],
-            filterByParty: true,
-        })
-
-        const otcpCid = activeTradeProposals[0].contractId
-
-        if (otcpCid === undefined) {
-            throw new Error('Unexpected lack of OTCTradeProposal contract')
-        }
-        const acceptCmd = [
-            {
-                ExerciseCommand: {
-                    templateId:
-                        '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
-                    contractId: otcpCid,
-                    choice: 'OTCTradeProposal_Accept',
-                    choiceArgument: { approver: this.bob },
-                },
-            },
-        ]
-
-        await this.sdk.ledger.internal.submit({
-            commands: acceptCmd,
-            actAs: [this.bob],
-        })
-
-        this.logger.info('Bob accepted OTCTradeProposal')
+        // Bob and Charlie accept the OTCTradeProposal
+        const settlementRefCid = await this.acceptProposal(this.bob, 'Bob')
+        await this.acceptProposal(this.charlie, 'Charlie')
 
         // Venue initiates settlement of OTCTradeProposal
         const activeTradeProposals2 = await this.sdk.ledger.acs.read({
@@ -205,10 +199,59 @@ export class OTCTrade {
 
         if (!otcTradeCid) throw new Error('OTCTrade not found for venue')
 
-        return { otcTradeCid }
+        return {
+            otcTradeCid,
+            expectedAllocationCount: this.expectedAllocationCount,
+            settlementRefCid,
+        }
     }
 
-    async settle(args: { otcTradeCid: string }): Promise<void> {
+    private async acceptProposal(
+        approver: PartyId,
+        approverName: string
+    ): Promise<string> {
+        if (!this.sdk) throw new Error('SDK not initialized')
+
+        const activeTradeProposals = await this.sdk.ledger.acs.read({
+            templateIds: [
+                '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
+            ],
+            parties: [approver],
+            filterByParty: true,
+        })
+
+        const otcpCid = activeTradeProposals[0].contractId
+
+        if (otcpCid === undefined) {
+            throw new Error('Unexpected lack of OTCTradeProposal contract')
+        }
+
+        const acceptCmd = [
+            {
+                ExerciseCommand: {
+                    templateId:
+                        '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
+                    contractId: otcpCid,
+                    choice: 'OTCTradeProposal_Accept',
+                    choiceArgument: { approver },
+                },
+            },
+        ]
+
+        await this.sdk.ledger.internal.submit({
+            commands: acceptCmd,
+            actAs: [approver],
+        })
+
+        this.logger.info(`${approverName} accepted OTCTradeProposal`)
+
+        return otcpCid
+    }
+
+    async settle(args: {
+        otcTradeCid: string
+        settlementRefCid?: string
+    }): Promise<void> {
         // Once the legs have been allocated, venue settles the trade triggering transfer of holdings
 
         const localNetStaticAuth: TokenProviderConfig = {
@@ -250,16 +293,20 @@ export class OTCTrade {
 
         // Poll until all allocations are visible
         const maxAttempts = 10
-        const expectedLegs = 2
+        const expectedLegs = this.expectedAllocationCount
+
+        if (!expectedLegs) {
+            throw new Error('Expected allocation count is unknown')
+        }
 
         // TODO: check settlementRefId?
         const fetchRelevantAllocations = async () => {
-            const all = await extendedSDK.token.allocation.pending(this.venue)
-            return all.filter(
-                (a) =>
-                    a.interfaceViewValue.allocation.settlement.executor ===
-                    this.venue
-            )
+            const allocationContracts =
+                await extendedSDK.token.allocation.pending(this.venue)
+            return allocationContracts.filter((a) => {
+                const { settlement } = a.interfaceViewValue.allocation
+                return settlement.executor === this.venue
+            })
         }
 
         let relevantAllocations = await fetchRelevantAllocations()
@@ -271,8 +318,11 @@ export class OTCTrade {
             await new Promise((resolve) => setTimeout(resolve, 1000))
             relevantAllocations = await fetchRelevantAllocations()
         }
-        if (relevantAllocations.length === 0)
-            throw new Error('No matching allocations for this trade')
+        if (relevantAllocations.length < expectedLegs) {
+            throw new Error(
+                `Expected ${expectedLegs} matching allocations for this trade, found ${relevantAllocations.length}`
+            )
+        }
 
         const allocationEntries = await Promise.all(
             relevantAllocations.map(async (a) => {
@@ -336,7 +386,7 @@ export class OTCTrade {
         })
 
         this.logger.info(
-            'Venue settled the OTCTrade, holdings are transfered to Alice and Bob'
+            'Venue settled the OTCTrade, holdings are transferred to Alice, Bob, and Charlie'
         )
     }
 }

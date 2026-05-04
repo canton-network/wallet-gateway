@@ -255,11 +255,52 @@ export interface paths {
             path?: never
             cookie?: never
         }
-        /** @description List vetted packages */
+        /**
+         * @deprecated
+         * @description Lists which participant node vetted what packages on which synchronizer.
+         *     This endpoint (GET /package-vetting) is deprecated and will be removed in a future release. Please use POST /package-vetting/list instead.
+         */
         get: operations['getV2Package-vetting']
         put?: never
-        /** @description Update vetted packages */
+        /**
+         * @deprecated
+         * @description Update the vetted packages of this participant
+         *     This endpoint (POST /package-vetting) is deprecated and will be removed in a future release. Please use POST /package-vetting/update instead.
+         */
         post: operations['postV2Package-vetting']
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v2/package-vetting/list': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        get?: never
+        put?: never
+        post: operations['postV2Package-vettingList']
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v2/package-vetting/update': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        get?: never
+        put?: never
+        /** @description Update vetted packages */
+        post: operations['postV2Package-vettingUpdate']
         delete?: never
         options?: never
         head?: never
@@ -3041,6 +3082,16 @@ export interface components {
              *     Optional: can be empty
              */
             prefetchContractKeys?: components['schemas']['PrefetchContractKey'][]
+            /**
+             * Format: int32
+             * @description The maximum number of passes for the Topology-Aware Package Selection (TAPS).
+             *     Higher values can increase the chance of successful package selection for routing of interpreted transactions.
+             *     If unset, this defaults to the value defined in the participant configuration.
+             *     The provided value must not exceed the limit specified in the participant configuration.
+             *
+             *     Optional
+             */
+            tapsMaxPasses?: number
         }
         /**
          * JsContractEntry
@@ -3484,6 +3535,16 @@ export interface components {
              *     Optional
              */
             estimateTrafficCost?: components['schemas']['CostEstimationHints']
+            /**
+             * Format: int32
+             * @description The maximum number of passes for the Topology-Aware Package Selection (TAPS).
+             *     Higher values can increase the chance of successful package selection for routing of interpreted transactions.
+             *     If unset, this defaults to the value defined in the participant configuration.
+             *     The provided value must not exceed the limit specified in the participant configuration.
+             *
+             *     Optional
+             */
+            tapsMaxPasses?: number
         }
         /**
          * JsPrepareSubmissionResponse
@@ -6223,6 +6284,86 @@ export interface operations {
         }
     }
     'postV2Package-vetting': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody: {
+            content: {
+                'application/json': components['schemas']['UpdateVettedPackagesRequest']
+            }
+        }
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['UpdateVettedPackagesResponse']
+                }
+            }
+            /** @description Invalid value for: body, Invalid value for: headers */
+            400: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'text/plain': string
+                }
+            }
+            default: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['JsCantonError']
+                }
+            }
+        }
+    }
+    'postV2Package-vettingList': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody: {
+            content: {
+                'application/json': components['schemas']['ListVettedPackagesRequest']
+            }
+        }
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['ListVettedPackagesResponse']
+                }
+            }
+            /** @description Invalid value for: body, Invalid value for: headers */
+            400: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'text/plain': string
+                }
+            }
+            default: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['JsCantonError']
+                }
+            }
+        }
+    }
+    'postV2Package-vettingUpdate': {
         parameters: {
             query?: never
             header?: never

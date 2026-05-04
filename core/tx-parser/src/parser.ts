@@ -35,7 +35,7 @@ import { InstrumentMap } from './instrumentmap.js'
 
 import {
     EventFilterBySetup,
-    v3_4,
+    type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import BigNumber from 'bignumber.js'
 import { PartyId } from '@canton-network/core-types'
@@ -49,13 +49,13 @@ import {
     Ops,
 } from '@canton-network/core-provider-ledger'
 
-type ArchivedEvent = v3_4.components['schemas']['ArchivedEvent']
-type CreatedEvent = v3_4.components['schemas']['CreatedEvent']
-type ExercisedEvent = v3_4.components['schemas']['ExercisedEvent']
-type Event = v3_4.components['schemas']['Event']
-type JsTransaction = v3_4.components['schemas']['JsTransaction']
+type ArchivedEvent = LedgerCommonSchemas['ArchivedEvent']
+type CreatedEvent = LedgerCommonSchemas['CreatedEvent']
+type ExercisedEvent = LedgerCommonSchemas['ExercisedEvent']
+type Event = LedgerCommonSchemas['Event']
+type JsTransaction = LedgerCommonSchemas['JsTransaction']
 type JsGetEventsByContractIdResponse =
-    v3_4.components['schemas']['JsGetEventsByContractIdResponse']
+    LedgerCommonSchemas['JsGetEventsByContractIdResponse']
 
 function currentStatusFromChoiceOrResult(
     choice?: string | undefined,

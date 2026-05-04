@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-types",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Types and transport-agnostic parsers for data sent across Wallet components.",
     "license": "Apache-2.0",

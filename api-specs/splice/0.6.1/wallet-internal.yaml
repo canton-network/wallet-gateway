@@ -1,0 +1,2039 @@
+openapi: 3.0.0
+info:
+    title: Wallet API
+    version: 0.0.1
+servers:
+    - url: https://example.com/api/validator
+tags:
+    - name: wallet
+paths:
+    /v0/wallet/user-status:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: status.wallet
+            operationId: userStatus
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserStatusResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/amulets:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: list
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/tap:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: tap
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TapRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TapResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '429':
+                    $ref: '#/components/responses/429'
+                '500':
+                    $ref: '#/components/responses/500'
+                '503':
+                    $ref: '#/components/responses/503'
+    /v0/wallet/self-grant-feature-app-right:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: selfGrantFeatureAppRight
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SelfGrantFeaturedAppRightRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SelfGrantFeaturedAppRightResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/balance:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: getBalance
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetBalanceResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/app-payment-requests:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAppPaymentRequests
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAppPaymentRequestsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/app-payment-requests/{contract_id}:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: getAppPaymentRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ContractWithState'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/app-payment-requests/{contract_id}/accept:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: acceptAppPaymentRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AcceptAppPaymentRequestResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '429':
+                    $ref: '#/components/responses/429'
+                '500':
+                    $ref: '#/components/responses/500'
+                '503':
+                    $ref: '#/components/responses/503'
+    /v0/wallet/app-payment-requests/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectAppPaymentRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/accepted-app-payments:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAcceptedAppPayments
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAcceptedAppPaymentsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/subscription-requests:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listSubscriptionRequests
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSubscriptionRequestsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/subscription-initial-payments:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listSubscriptionInitialPayments
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSubscriptionInitialPaymentsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/subscriptions:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listSubscriptions
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSubscriptionsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/subscription-requests/{contract_id}/accept:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: acceptSubscriptionRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AcceptSubscriptionRequestResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '429':
+                    $ref: '#/components/responses/429'
+                '500':
+                    $ref: '#/components/responses/500'
+                '503':
+                    $ref: '#/components/responses/503'
+    /v0/wallet/subscription-requests/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectSubscriptionRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/subscription-requests/{contract_id}:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: getSubscriptionRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Contract'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+        delete:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: cancelSubscriptionRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/transfer-offers/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectTransferOffer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/transfer-offers/{contract_id}/accept:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: acceptTransferOffer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AcceptTransferOfferResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/transfer-offers/{contract_id}/withdraw:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: withdrawTransferOffer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/accepted-transfer-offers:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAcceptedTransferOffers
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAcceptedTransferOffersResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/app-reward-coupons:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAppRewardCoupons
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAppRewardCouponsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/validator-reward-coupons:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listValidatorRewardCoupons
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListValidatorRewardCouponsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/validator-faucet-coupons:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listValidatorFaucetCoupons
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListValidatorFaucetCouponsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/validator-liveness-activity-records:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listValidatorLivenessActivityRecords
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListValidatorLivenessActivityRecordsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/sv-reward-coupons:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listSvRewardCoupons
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSvRewardCouponsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/cancel-featured-app-rights:
+        delete:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: cancelFeaturedAppRights
+            responses:
+                '200':
+                    description: ok
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/transactions:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listTransactions
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ListTransactionsRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListTransactionsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/transfer-preapproval:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: createTransferPreapproval
+            responses:
+                '200':
+                    description: Transfer preapproval was created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateTransferPreapprovalResponse'
+                '409':
+                    description: Transfer preapproval already exists
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateTransferPreapprovalResponse'
+                '429':
+                    description: Request to create transfer pre-approval is currently being processed, which may or may not succeed. Retry submitting the request with exponential backoff.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+    /v0/wallet/transfer-preapproval/send:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: transferPreapprovalSend
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TransferPreapprovalSendRequest'
+            responses:
+                '200':
+                    description: ok
+    /v0/wallet/token-standard/transfers:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: createTokenStandardTransfer
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateTokenStandardTransferRequest'
+            responses:
+                '200':
+                    description: The transfer has been created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TransferInstructionResultResponse'
+                '400':
+                    description: |
+                        Invalid request, check the error response for details.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '404':
+                    description: |
+                        The submitter’s wallet could not be found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '409':
+                    description: A transfer with the same tracking id has been created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '429':
+                    description: A transfer with the same tracking id is currently being processed, which may or may not succeed. Retry submitting the request with exponential back-off.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+        get:
+            description: List all open transfers where the user is either sender or receiver.
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listTokenStandardTransfers
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListTokenStandardTransfersResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/token-standard/transfers/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectTokenStandardTransfer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TransferInstructionResultResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/token-standard/transfers/{contract_id}/accept:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: acceptTokenStandardTransfer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TransferInstructionResultResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/token-standard/transfers/{contract_id}/withdraw:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: withdrawTokenStandardTransfer
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TransferInstructionResultResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/token-standard/allocation-requests:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAllocationRequests
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAllocationRequestsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/token-standard/allocation-requests/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectAllocationRequest
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: The AllocationRequest has been rejected
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ChoiceExecutionMetadata'
+                '404':
+                    description: |
+                        The AllocationRequest or the submitter’s wallet could not be found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '429':
+                    description: A reject for the AllocationRequest is currently being processed, which may or may not succeed. Retry submitting the request with exponential back-off.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/feature-support:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: status.wallet
+            operationId: featureSupport
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/WalletFeatureSupportResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/allocations:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listAmuletAllocations
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAllocationsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: allocateAmulet
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AllocateAmuletRequest'
+            responses:
+                '200':
+                    description: The AmuletAllocation has been created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AllocateAmuletResponse'
+                '400':
+                    description: |
+                        Invalid request, check the error response for details.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '404':
+                    description: |
+                        The submitter’s wallet could not be found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '409':
+                    description: A transfer with the same tracking id has been created.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '429':
+                    description: A transfer with the same tracking id is currently being processed, which may or may not succeed. Retry submitting the request with exponential back-off.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/allocations/{contract_id}/withdraw:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: withdrawAmuletAllocation
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: The AmuletAllocation has been withdrawn
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AmuletAllocationWithdrawResult'
+                '404':
+                    description: |
+                        The allocation or the submitter’s wallet could not be found.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '429':
+                    description: A withdraw for the allocation is currently being processed, which may or may not succeed. Retry submitting the request with exponential back-off.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/development-fund-coupons/allocate:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: allocateDevelopmentFundCoupon
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AllocateDevelopmentFundCouponRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AllocateDevelopmentFundCouponResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/development-fund-coupons:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listActiveDevelopmentFundCoupons
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListActiveDevelopmentFundCouponsResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/development-fund-coupons/history:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listDevelopmentFundCouponHistory
+            parameters:
+                - name: after
+                  description: |
+                      A `next_page_token` from a prior response; if absent, return the first page.
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                - name: limit
+                  description: Maximum number of elements to return.
+                  in: query
+                  required: true
+                  schema:
+                      type: integer
+                      format: int32
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListDevelopmentFundCouponHistoryResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/development-fund-coupons/{contract_id}/withdraw:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: withdrawDevelopmentFundCoupon
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/WithdrawDevelopmentFundCouponRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/WithdrawDevelopmentFundCouponResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/minting-delegation-proposals:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listMintingDelegationProposals
+            description: |
+                List all MintingDelegationProposal contracts where the user is the delegate.
+            parameters:
+                - name: after
+                  description: |
+                      A `next_page_token` from a prior response; if absent, return the first page.
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                - name: limit
+                  description: Maximum number of elements to return, 1000 by default.
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int32
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListMintingDelegationProposalsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/minting-delegation-proposals/{contract_id}/accept:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: acceptMintingDelegationProposal
+            description: |
+                As the delegate, accept a MintingDelegationProposal, creating a MintingDelegation contract.
+                If an existing MintingDelegation contract exists with the same beneficiary it will
+                be archived while accepting this proposal.
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AcceptMintingDelegationProposalResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/minting-delegation-proposals/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectMintingDelegationProposal
+            description: |
+                As the delegate, reject a MintingDelegationProposal.
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/minting-delegations:
+        get:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: listMintingDelegations
+            description: |
+                List all MintingDelegation contracts where the user is the delegate.
+            parameters:
+                - name: after
+                  description: |
+                      A `next_page_token` from a prior response; if absent, return the first page.
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                - name: limit
+                  description: Maximum number of elements to return, 1000 by default.
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int32
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListMintingDelegationsResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/wallet/minting-delegations/{contract_id}/reject:
+        post:
+            tags:
+                - wallet
+            x-jvm-package: wallet
+            operationId: rejectMintingDelegation
+            description: |
+                As the delegate, reject/terminate a MintingDelegation contract.
+            parameters:
+                - in: path
+                  name: contract_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+                '500':
+                    $ref: '#/components/responses/500'
+components:
+    schemas:
+        UserStatusResponse:
+            type: object
+            required:
+                - party_id
+                - user_onboarded
+                - user_wallet_installed
+                - has_featured_app_right
+            properties:
+                party_id:
+                    type: string
+                user_onboarded:
+                    type: boolean
+                user_wallet_installed:
+                    type: boolean
+                has_featured_app_right:
+                    type: boolean
+        ListResponse:
+            type: object
+            required:
+                - amulets
+                - locked_amulets
+            properties:
+                amulets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AmuletPosition'
+                locked_amulets:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AmuletPosition'
+        AmuletPosition:
+            type: object
+            required:
+                - contract
+                - round
+                - accrued_holding_fee
+                - effective_amount
+            properties:
+                contract:
+                    $ref: '#/components/schemas/ContractWithState'
+                round:
+                    type: integer
+                    format: int64
+                accrued_holding_fee:
+                    type: string
+                effective_amount:
+                    type: string
+        TapRequest:
+            type: object
+            required:
+                - amount
+            properties:
+                amount:
+                    type: string
+                command_id:
+                    description: Command id used for deduplication, if not specified a random UUID is used
+                    type: string
+        TapResponse:
+            type: object
+            required:
+                - contract_id
+            properties:
+                contract_id:
+                    type: string
+        SelfGrantFeaturedAppRightRequest:
+            type: object
+            nullable: true
+        SelfGrantFeaturedAppRightResponse:
+            type: object
+            required:
+                - contract_id
+            properties:
+                contract_id:
+                    type: string
+        GetBalanceResponse:
+            type: object
+            required:
+                - round
+                - effective_unlocked_qty
+                - effective_locked_qty
+                - total_holding_fees
+            properties:
+                round:
+                    type: integer
+                    format: int64
+                effective_unlocked_qty:
+                    type: string
+                effective_locked_qty:
+                    type: string
+                total_holding_fees:
+                    type: string
+        ListAppPaymentRequestsResponse:
+            type: object
+            required:
+                - payment_requests
+            properties:
+                payment_requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        AcceptAppPaymentRequestRequest:
+            type: object
+            required:
+                - request_contract_id
+            properties:
+                request_contract_id:
+                    type: string
+        AcceptAppPaymentRequestResponse:
+            type: object
+            required:
+                - accepted_payment_contract_id
+            properties:
+                accepted_payment_contract_id:
+                    type: string
+        RejectAppPaymentRequestRequest:
+            type: object
+            required:
+                - request_contract_id
+            properties:
+                request_contract_id:
+                    type: string
+        ListAcceptedAppPaymentsResponse:
+            type: object
+            required:
+                - accepted_app_payments
+            properties:
+                accepted_app_payments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        ListSubscriptionRequestsResponse:
+            type: object
+            required:
+                - subscription_requests
+            properties:
+                subscription_requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListSubscriptionInitialPaymentsResponse:
+            type: object
+            required:
+                - initial_payments
+            properties:
+                initial_payments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        Subscription:
+            type: object
+            required:
+                - subscription
+                - state
+            properties:
+                subscription:
+                    $ref: '#/components/schemas/Contract'
+                state:
+                    $ref: '#/components/schemas/SubscriptionState'
+        SubscriptionState:
+            oneOf:
+                - $ref: '#/components/schemas/SubscriptionIdleState'
+                - $ref: '#/components/schemas/SubscriptionPaymentState'
+        SubscriptionIdleState:
+            type: object
+            required:
+                - idle
+            properties:
+                idle:
+                    $ref: '#/components/schemas/Contract'
+        SubscriptionPaymentState:
+            type: object
+            required:
+                - payment
+            properties:
+                payment:
+                    $ref: '#/components/schemas/Contract'
+        ListSubscriptionsResponse:
+            type: object
+            required:
+                - subscriptions
+            properties:
+                subscriptions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Subscription'
+        AcceptSubscriptionRequestResponse:
+            type: object
+            required:
+                - initial_payment_contract_id
+            properties:
+                initial_payment_contract_id:
+                    type: string
+        AcceptTransferOfferResponse:
+            type: object
+            required:
+                - accepted_offer_contract_id
+            properties:
+                accepted_offer_contract_id:
+                    type: string
+        ListAcceptedTransferOffersResponse:
+            type: object
+            required:
+                - accepted_offers
+            properties:
+                accepted_offers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListAppRewardCouponsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - app_reward_coupons
+            properties:
+                app_reward_coupons:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListValidatorRewardCouponsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - validator_reward_coupons
+            properties:
+                validator_reward_coupons:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListValidatorFaucetCouponsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - validator_faucet_coupons
+            properties:
+                validator_faucet_coupons:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListValidatorLivenessActivityRecordsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - validator_liveness_activity_records
+            properties:
+                validator_liveness_activity_records:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListSvRewardCouponsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - sv_reward_coupons
+            properties:
+                sv_reward_coupons:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListTransactionsRequest:
+            type: object
+            required:
+                - page_size
+            properties:
+                begin_after_id:
+                    type: string
+                page_size:
+                    type: integer
+                    format: int64
+        PartyAndAmount:
+            type: object
+            required:
+                - party
+                - amount
+            properties:
+                party:
+                    type: string
+                amount:
+                    type: string
+        TransactionSubtype:
+            type: object
+            required:
+                - template_id
+                - choice
+            properties:
+                template_id:
+                    type: string
+                choice:
+                    type: string
+                amulet_operation:
+                    type: string
+                interface_id:
+                    type: string
+        BaseListTransactionsResponseItem:
+            type: object
+            required:
+                - transaction_type
+                - transaction_subtype
+                - event_id
+                - date
+            properties:
+                transaction_type:
+                    type: string
+                transaction_subtype:
+                    $ref: '#/components/schemas/TransactionSubtype'
+                event_id:
+                    type: string
+                date:
+                    type: string
+                    format: date-time
+        TransferResponseItem:
+            allOf:
+                - $ref: '#/components/schemas/BaseListTransactionsResponseItem'
+                - type: object
+                  required:
+                      - sender
+                      - receivers
+                      - holding_fees
+                      - app_rewards_used
+                      - validator_rewards_used
+                      - sv_rewards_used
+                      - development_fund_coupons_used
+                  properties:
+                      sender:
+                          $ref: '#/components/schemas/PartyAndAmount'
+                      receivers:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/PartyAndAmount'
+                      holding_fees:
+                          type: string
+                      app_rewards_used:
+                          type: string
+                      validator_rewards_used:
+                          type: string
+                      sv_rewards_used:
+                          type: string
+                      development_fund_coupons_used:
+                          type: string
+                      transfer_instruction_receiver:
+                          type: string
+                      transfer_instruction_amount:
+                          type: string
+                      transfer_instruction_cid:
+                          type: string
+                      description:
+                          type: string
+        BalanceChangeResponseItem:
+            allOf:
+                - $ref: '#/components/schemas/BaseListTransactionsResponseItem'
+                - type: object
+                  required:
+                      - receivers
+                  properties:
+                      receivers:
+                          type: array
+                          items:
+                              $ref: '#/components/schemas/PartyAndAmount'
+                      transfer_instruction_cid:
+                          type: string
+        NotificationResponseItem:
+            allOf:
+                - $ref: '#/components/schemas/BaseListTransactionsResponseItem'
+                - type: object
+                  required:
+                      - details
+                  properties:
+                      details:
+                          type: string
+        UnknownResponseItem:
+            allOf:
+                - $ref: '#/components/schemas/BaseListTransactionsResponseItem'
+        ListTransactionsResponseItem:
+            oneOf:
+                - $ref: '#/components/schemas/TransferResponseItem'
+                - $ref: '#/components/schemas/BalanceChangeResponseItem'
+                - $ref: '#/components/schemas/NotificationResponseItem'
+                - $ref: '#/components/schemas/UnknownResponseItem'
+            discriminator:
+                propertyName: transaction_type
+                mapping:
+                    transfer: '#/components/schemas/TransferResponseItem'
+                    balance_change: '#/components/schemas/BalanceChangeResponseItem'
+                    notification: '#/components/schemas/NotificationResponseItem'
+                    unknown: '#/components/schemas/UnknownResponseItem'
+        ListTransactionsResponse:
+            type: object
+            required:
+                - items
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ListTransactionsResponseItem'
+        CreateTransferPreapprovalResponse:
+            type: object
+            required:
+                - transfer_preapproval_contract_id
+            properties:
+                transfer_preapproval_contract_id:
+                    type: string
+        TransferPreapprovalSendRequest:
+            type: object
+            required:
+                - receiver_party_id
+                - amount
+                - deduplication_id
+            properties:
+                receiver_party_id:
+                    type: string
+                amount:
+                    type: string
+                deduplication_id:
+                    description: |
+                        Deduplication id, only one successful transfer with this id
+                        will be accepted within a 24h period.
+                    type: string
+                description:
+                    type: string
+        CreateTokenStandardTransferRequest:
+            type: object
+            required:
+                - receiver_party_id
+                - amount
+                - description
+                - expires_at
+                - tracking_id
+            properties:
+                receiver_party_id:
+                    description: |
+                        The party id of the receiver.
+                    type: string
+                amount:
+                    description: |
+                        The amount of Amulet to transfer.
+                    type: string
+                description:
+                    description: |
+                        An arbitrary, user chosen text.
+                        This should be a human readable string that describes the purpose of the transfer.
+                        It will be shown to the receiver when they decide whether to accept the offer.
+                    type: string
+                expires_at:
+                    description: |
+                        Expiry time of the transfer offer as unix timestamp in microseconds. After this time, the offer can no longer be accepted
+                        and automation in the wallet will eventually expire the transfer offer.
+                        Note that this time is compared against the ledger effective time of the Daml transaction accepting or expiring an offer, and can skew from the wall clock
+                        time measured on the caller's machine. See https://docs.daml.com/concepts/time.html
+                        for how ledger effective time is bound to the record time of a transaction on a domain.
+                    type: integer
+                    format: int64
+                tracking_id:
+                    description: |
+                        Tracking id to support exactly once submission. Once submitted, all successive calls with the same tracking id
+                        will get rejected with a 409 or 429 status code unless the command fails and the transfer did not get created.
+                        Clients should create a fresh tracking id when they try to create a new transfer. If that command submission fails
+                        with a retryable error or the application crashed and got restarted, successive command submissions must reuse the same
+                        tracking id to ensure they don't create the same transfer multiple times.
+                    type: string
+        TransferInstructionResultResponse:
+            type: object
+            required:
+                - output
+                - sender_change_cids
+                - meta
+            properties:
+                output:
+                    $ref: '#/components/schemas/TransferInstructionResultOutput'
+                sender_change_cids:
+                    type: array
+                    items:
+                        type: string
+                meta:
+                    type: object
+                    additionalProperties:
+                        type: string
+        TransferInstructionResultOutput:
+            oneOf:
+                - $ref: '#/components/schemas/TransferInstructionPending'
+                - $ref: '#/components/schemas/TransferInstructionCompleted'
+                - $ref: '#/components/schemas/TransferInstructionFailed'
+        TransferInstructionPending:
+            type: object
+            required:
+                - transfer_instruction_cid
+            properties:
+                transfer_instruction_cid:
+                    type: string
+        TransferInstructionCompleted:
+            type: object
+            required:
+                - receiver_holding_cids
+            properties:
+                receiver_holding_cids:
+                    type: array
+                    items:
+                        type: string
+        TransferInstructionFailed:
+            type: object
+            properties:
+                dummy:
+                    type: object
+        ListTokenStandardTransfersResponse:
+            type: object
+            required:
+                - transfers
+            properties:
+                transfers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        WalletFeatureSupportResponse:
+            type: object
+            required:
+                - token_standard
+                - transfer_preapproval_description
+            properties:
+                token_standard:
+                    type: boolean
+                transfer_preapproval_description:
+                    type: boolean
+        AllocateAmuletRequest:
+            type: object
+            required:
+                - settlement
+                - transfer_leg_id
+                - transfer_leg
+            properties:
+                settlement:
+                    type: object
+                    required:
+                        - executor
+                        - settlement_ref
+                        - requested_at
+                        - allocate_before
+                        - settle_before
+                    properties:
+                        executor:
+                            type: string
+                        settlement_ref:
+                            type: object
+                            required:
+                                - id
+                            properties:
+                                id:
+                                    type: string
+                                cid:
+                                    type: string
+                        requested_at:
+                            type: integer
+                            format: int64
+                        allocate_before:
+                            type: integer
+                            format: int64
+                        settle_before:
+                            type: integer
+                            format: int64
+                        meta:
+                            type: object
+                            additionalProperties:
+                                type: string
+                transfer_leg_id:
+                    type: string
+                transfer_leg:
+                    type: object
+                    required:
+                        - receiver
+                        - amount
+                    properties:
+                        receiver:
+                            type: string
+                        amount:
+                            type: string
+                        meta:
+                            type: object
+                            additionalProperties:
+                                type: string
+        AllocateAmuletResponse:
+            type: object
+            required:
+                - output
+                - sender_change_cids
+                - meta
+            properties:
+                output:
+                    $ref: '#/components/schemas/AllocationInstructionResultOutput'
+                sender_change_cids:
+                    type: array
+                    items:
+                        type: string
+                meta:
+                    type: object
+                    additionalProperties:
+                        type: string
+        AllocationInstructionResultOutput:
+            oneOf:
+                - $ref: '#/components/schemas/AllocationInstructionResultPending'
+                - $ref: '#/components/schemas/AllocationInstructionResultCompleted'
+                - $ref: '#/components/schemas/AllocationInstructionResultFailed'
+        AllocationInstructionResultPending:
+            type: object
+            required:
+                - allocation_instruction_cid
+            properties:
+                allocation_instruction_cid:
+                    type: string
+        AllocationInstructionResultCompleted:
+            type: object
+            required:
+                - allocation_cid
+            properties:
+                allocation_cid:
+                    type: string
+        AllocationInstructionResultFailed:
+            type: object
+            properties:
+                dummy:
+                    type: object
+        ListAllocationsResponse:
+            type: object
+            description: Includes all Allocation views where the user is a sender of one of the transferLegs and where the involved instrument's admin is the DSO party.
+            required:
+                - allocations
+            properties:
+                allocations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Allocation'
+        Allocation:
+            type: object
+            required:
+                - contract
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+        ListAllocationRequestsResponse:
+            type: object
+            description: Includes all AllocationRequest views where the user is in one of the transferLegs and where the involved instrument's admin is the DSO party.
+            required:
+                - allocation_requests
+            properties:
+                allocation_requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AllocationRequest'
+        AllocationRequest:
+            type: object
+            required:
+                - contract
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+        AmuletAllocationWithdrawResult:
+            type: object
+            required:
+                - sender_holding_cids
+                - meta
+            properties:
+                sender_holding_cids:
+                    type: array
+                    items:
+                        type: string
+                meta:
+                    type: object
+                    additionalProperties:
+                        type: string
+        ChoiceExecutionMetadata:
+            type: object
+            required:
+                - meta
+            properties:
+                meta:
+                    type: object
+                    additionalProperties:
+                        type: string
+        AllocateDevelopmentFundCouponRequest:
+            type: object
+            required:
+                - beneficiary
+                - amount
+                - expiresAt
+                - reason
+            properties:
+                beneficiary:
+                    type: string
+                amount:
+                    type: string
+                expiresAt:
+                    type: integer
+                    format: int64
+                reason:
+                    type: string
+        AllocateDevelopmentFundCouponResponse:
+            type: object
+            required:
+                - development_fund_coupon_contract_id
+            properties:
+                development_fund_coupon_contract_id:
+                    type: string
+                unclaimed_development_fund_coupon_contract_id:
+                    type: string
+        ListActiveDevelopmentFundCouponsResponse:
+            type: object
+            description: Includes only up to 1000 elements.
+            required:
+                - active_development_fund_coupons
+            properties:
+                active_development_fund_coupons:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListDevelopmentFundCouponHistoryResponse:
+            type: object
+            required:
+                - development_fund_coupon_history
+            properties:
+                development_fund_coupon_history:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ArchivedDevelopmentFundCoupon'
+                next_page_token:
+                    type: integer
+                    format: int64
+                    description: |
+                        Cursor for pagination. Use as `after` to continue.
+                        The end is reached when a page returns no results.
+        ArchivedDevelopmentFundCoupon:
+            type: object
+            required:
+                - createdAt
+                - archivedAt
+                - beneficiary
+                - fund_manager
+                - amount
+                - expiresAt
+                - reason
+                - status
+            properties:
+                createdAt:
+                    type: string
+                    format: date-time
+                archivedAt:
+                    type: string
+                    format: date-time
+                beneficiary:
+                    type: string
+                fund_manager:
+                    type: string
+                amount:
+                    type: string
+                expiresAt:
+                    type: string
+                    format: date-time
+                reason:
+                    type: string
+                status:
+                    type: string
+                    enum:
+                        - withdrawn
+                        - rejected
+                        - claimed
+                        - expired
+                rejection_or_withdrawal_reason:
+                    type: string
+                    description: |
+                        Explanation for why the coupon was rejected or withdrawn.
+                        This field is present only when status is 'rejected' or 'withdrawn'
+                        and must be omitted when status is 'claimed' or 'expired'.
+        WithdrawDevelopmentFundCouponRequest:
+            type: object
+            required:
+                - reason
+            properties:
+                reason:
+                    type: string
+        WithdrawDevelopmentFundCouponResponse:
+            type: object
+            required:
+                - unclaimed_development_fund_coupon_contract_id
+            properties:
+                unclaimed_development_fund_coupon_contract_id:
+                    type: string
+        MintingDelegationProposalWithStatus:
+            type: object
+            required:
+                - contract
+                - beneficiary_hosted
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                beneficiary_hosted:
+                    type: boolean
+                    description: Whether the beneficiary party is currently hosted on this validator
+        ListMintingDelegationProposalsResponse:
+            type: object
+            required:
+                - proposals
+            properties:
+                proposals:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MintingDelegationProposalWithStatus'
+                next_page_token:
+                    type: integer
+                    format: int64
+                    description: |
+                        When requesting the next page of results, pass this as URL query parameter `after`.
+                        If absent or `null`, there are no more pages.
+        AcceptMintingDelegationProposalResponse:
+            type: object
+            required:
+                - contract_id
+            properties:
+                contract_id:
+                    type: string
+                    description: Contract ID of the created MintingDelegation
+        MintingDelegationWithStatus:
+            type: object
+            required:
+                - contract
+                - beneficiary_hosted
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                beneficiary_hosted:
+                    type: boolean
+                    description: Whether the beneficiary party is currently hosted on this validator
+        ListMintingDelegationsResponse:
+            type: object
+            required:
+                - delegations
+            properties:
+                delegations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/MintingDelegationWithStatus'
+                next_page_token:
+                    type: integer
+                    format: int64
+                    description: |
+                        When requesting the next page of results, pass this as URL query parameter `after`.
+                        If absent or `null`, there are no more pages.
+        ErrorResponse:
+            type: object
+            required:
+                - error
+            properties:
+                error:
+                    type: string
+        Contract:
+            type: object
+            properties:
+                template_id:
+                    type: string
+                contract_id:
+                    type: string
+                payload:
+                    type: object
+                created_event_blob:
+                    type: string
+                created_at:
+                    type: string
+            required:
+                - template_id
+                - contract_id
+                - payload
+                - created_event_blob
+                - created_at
+        ContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+    responses:
+        '400':
+            description: bad request
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '404':
+            description: not found
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '429':
+            description: too many requests
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '500':
+            description: internal server error
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '503':
+            description: service unavailable
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'

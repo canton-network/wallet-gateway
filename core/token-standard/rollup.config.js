@@ -5,25 +5,38 @@ import typescript from '@rollup/plugin-typescript'
 import commonjs from '@rollup/plugin-commonjs'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import json from '@rollup/plugin-json'
+import alias from '@rollup/plugin-alias'
 
 import fs from 'node:fs'
 import path from 'node:path'
 import dts from 'rollup-plugin-dts'
-import { createRequire } from 'node:module'
-const require = createRequire(import.meta.url)
 
-const DAML_JS_PACKAGES = [
-    '@daml.js/token-standard-models-1.0.0',
-    '@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0',
-    '@daml.js/daml-stdlib-DA-Time-Types-1.0.0',
-]
+const DAML_JS_BASE = path.resolve(
+    import.meta.dirname,
+    '../../damljs/token-standard-models'
+)
 
-function buildPathsMap(pkgs) {
+const DAML_JS_PACKAGES = {
+    '@daml.js/token-standard-models-1.0.0': path.join(
+        DAML_JS_BASE,
+        'token-standard-models-1.0.0'
+    ),
+    '@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0': path.join(
+        DAML_JS_BASE,
+        'ghc-stdlib-DA-Internal-Template-1.0.0'
+    ),
+    '@daml.js/daml-stdlib-DA-Time-Types-1.0.0': path.join(
+        DAML_JS_BASE,
+        'daml-stdlib-DA-Time-Types-1.0.0'
+    ),
+}
+
+function buildPathsMap(packageDirs) {
     const map = {}
-    for (const name of pkgs) {
-        const pkgJsonPath = require.resolve(path.join(name, 'package.json'))
-        const pkgDir = path.dirname(pkgJsonPath)
-        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'))
+    for (const [name, pkgDir] of Object.entries(packageDirs)) {
+        const pkgJson = JSON.parse(
+            fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')
+        )
         const typesRel = pkgJson.types || pkgJson.typings || 'lib/index.d.ts'
         const typesAbs = path.resolve(pkgDir, typesRel)
         const libDir = path.resolve(pkgDir, 'lib')
@@ -36,13 +49,42 @@ function buildPathsMap(pkgs) {
     }
     return map
 }
+
+function buildAliasEntries(packageDirs) {
+    const entries = []
+    for (const [name, pkgDir] of Object.entries(packageDirs)) {
+        const pkgJson = JSON.parse(
+            fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')
+        )
+        const mainAbs = path.resolve(pkgDir, pkgJson.main || 'lib/index.js')
+        const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        // Sub-path must come before main to avoid premature matching
+        entries.push({
+            find: new RegExp(`^${escapedName}/(.+)$`),
+            replacement: `${pkgDir}/$1`,
+        })
+        entries.push({ find: name, replacement: mainAbs })
+    }
+    return entries
+}
+
 const pathsMap = buildPathsMap(DAML_JS_PACKAGES)
+const damlJsAlias = alias({ entries: buildAliasEntries(DAML_JS_PACKAGES) })
+const commonjsPlugin = commonjs({
+    transformMixedEsModules: true,
+    esmExternals: true,
+    requireReturnsDefault: false,
+})
 
 const pkgPath = path.resolve(process.cwd(), 'package.json')
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
 
-// Collect deps + peerDeps (but not devDeps, or excepeted ones)
-const exceptions = ['@daml/types', '@daml/ledger']
+// Collect deps + peerDeps (but not devDeps, or excepted ones)
+const exceptions = [
+    '@daml/types',
+    '@daml/ledger',
+    '@mojotech/json-type-validation',
+]
 const external = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
@@ -53,12 +95,7 @@ const codeEsm = {
     input: 'src/index.ts',
     output: { file: 'dist/index.js', format: 'es', sourcemap: true },
     external,
-    plugins: [
-        json(),
-        commonjs({ transformMixedEsModules: true }),
-        nodeResolve(),
-        typescript(),
-    ],
+    plugins: [damlJsAlias, json(), commonjsPlugin, nodeResolve(), typescript()],
 }
 
 // bundle CJS
@@ -72,12 +109,7 @@ const codeCjs = {
         exports: 'named',
     },
     external,
-    plugins: [
-        json(),
-        commonjs({ transformMixedEsModules: true }),
-        nodeResolve(),
-        typescript(),
-    ],
+    plugins: [damlJsAlias, json(), commonjsPlugin, nodeResolve(), typescript()],
 }
 
 // bundle for browser
@@ -90,8 +122,9 @@ const codeBrowser = {
     },
     external,
     plugins: [
+        damlJsAlias,
         json(),
-        commonjs({ transformMixedEsModules: true }),
+        commonjsPlugin,
         nodeResolve({
             browser: true, // Prefer browser entrypoints
             preferBuiltins: false, // Do NOT use Node builtins

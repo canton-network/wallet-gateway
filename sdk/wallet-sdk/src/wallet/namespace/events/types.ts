@@ -3,7 +3,7 @@
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import { PartyId } from '@canton-network/core-types'
-import { JsGetUpdatesResponse } from '@canton-network/core-ledger-client-types'
+import { type LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
 import { SDKContext } from '../../sdk.js'
 
 export type UpdatesOptions = {
@@ -33,4 +33,4 @@ export type EventsContext = {
     websocketURL: string
 }
 
-export type Event = JsGetUpdatesResponse
+export type Event = LedgerCommonSchemas['JsGetUpdatesResponse']

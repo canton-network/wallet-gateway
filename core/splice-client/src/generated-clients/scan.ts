@@ -180,6 +180,40 @@ export interface paths {
         patch?: never
         trace?: never
     }
+    '/v0/roll-forward-lsu': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /** @description Retrieve information on a roll-forward LSU */
+        get: operations['getRollForwardLsu']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/active-synchronizer-serial': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /** @description Get the current physical synchronizer serial as reported by the SV participant. */
+        get: operations['getActivePhysicalSynchronizerSerial']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     '/v0/domains/{domain_id}/parties/{party_id}/participant-id': {
         parameters: {
             query?: never
@@ -385,6 +419,32 @@ export interface paths {
         patch?: never
         trace?: never
     }
+    '/v2/updates/hash/{hash}': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description Returns the update associated with the given hash of the prepared transaction.
+         *
+         *     This endpoint is not always BFT safe.
+         *     For transactions committed before a scan instance started indexing hashes, the instance will return a 404 error.
+         *     For transactions committed around the time different scans started indexing hashes,
+         *     some scan instances might return a 404 error while others return the matching update.
+         *
+         *     This is in contrast to the `v2/updates` and `v2/updates/{update_id}` endpoints, which are guaranteed to be always BFT safe.
+         */
+        get: operations['getUpdateByHash']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     '/v0/state/acs/snapshot-timestamp': {
         parameters: {
             query?: never
@@ -431,8 +491,34 @@ export interface paths {
         }
         get?: never
         put?: never
-        /** @description Returns the ACS in creation date ascending order, paged, for a given migration id and record time. */
+        /**
+         * @deprecated
+         * @description Deprecated. Please use /v1/state/acs instead. Returns the ACS in creation date ascending order, paged, for a given migration id and record time.
+         */
         post: operations['getAcsSnapshotAt']
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v1/state/acs': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        get?: never
+        put?: never
+        /**
+         * @description Returns the ACS in creation date ascending order, paged, for a given migration id and record time.
+         *     Unlike /v0/state/acs, every contract is identified by an (optional) update_id
+         *     (as opposed to the event ID in /v0/state/acs, which was not BFT-safe).
+         *     The update_id is the ID of the update in which the contract was created, and can be used to correlate with updates returned by /v2/updates.
+         *     For contracts created in an earlier migration ID, the update_id will be absent.
+         */
+        post: operations['getAcsSnapshotAtV1']
         delete?: never
         options?: never
         head?: never
@@ -471,8 +557,25 @@ export interface paths {
         }
         get?: never
         put?: never
-        /** @description Returns the active amulet contracts for a given migration id and record time, in creation date ascending order, paged. */
+        /** @description Deprecated. Please use /v1/holdings/state instead. Returns the active amulet contracts for a given migration id and record time, in creation date ascending order, paged. */
         post: operations['getHoldingsStateAt']
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v1/holdings/state': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        get?: never
+        put?: never
+        /** @description Returns the active amulet contracts for a given migration id and record time, in creation date ascending order, paged. */
+        post: operations['getHoldingsStateAtV1']
         delete?: never
         options?: never
         head?: never
@@ -650,6 +753,43 @@ export interface paths {
          *     return it; `featured_app_right` will be empty otherwise.
          */
         get: operations['lookupFeaturedAppRight']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/featured-apps/by-provider/{provider_party_id}': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /** @description List all `FeaturedAppRight` contracts for the given provider. */
+        get: operations['listFeaturedAppRightsByProvider']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/featured-apps/by-contract-id/{contract_id}': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description Look up a `FeaturedAppRight` contract by its contract ID.
+         *     Returns `featured_app_right` if found, empty otherwise.
+         */
+        get: operations['lookupFeaturedAppRightByContractId']
         put?: never
         post?: never
         delete?: never
@@ -1317,6 +1457,90 @@ export interface paths {
         patch?: never
         trace?: never
     }
+    '/v0/reward-accounting-process/rounds/earliest-available': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description SV node internal API (CIP-0104, subject to change).
+         *     Returns the earliest round for which CIP-0104 reward accounting activity
+         *     records are complete.
+         */
+        get: operations['getRewardAccountingEarliestAvailableRound']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/reward-accounting-process/rounds/{round_number}/activity-totals': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description SV node internal API (CIP-0104, subject to change).
+         *     Return the CIP-0104 per-round activity totals for the
+         *     specified round number.
+         */
+        get: operations['getRewardAccountingActivityTotals']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/reward-accounting-process/rounds/{round_number}/root-hash': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description SV node internal API (CIP-0104, subject to change).
+         *     Returns the root hash computed for the specified round.
+         */
+        get: operations['getRewardAccountingRootHash']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/reward-accounting-process/rounds/{round_number}/batches/{batch_hash}': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        /**
+         * @description SV node internal API (CIP-0104, subject to change).
+         *     Returns the contents of a reward batch identified by its hash.
+         *     The response is either a list of child batch hashes (for internal nodes)
+         *     or a list of minting allowances (for leaf nodes).
+         */
+        get: operations['getRewardAccountingBatch']
+        put?: never
+        post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
     '/v0/history/bulk/acs': {
         parameters: {
             query?: never
@@ -1328,6 +1552,27 @@ export interface paths {
         get: operations['listBulkAcsSnapshotObjects']
         put?: never
         post?: never
+        delete?: never
+        options?: never
+        head?: never
+        patch?: never
+        trace?: never
+    }
+    '/v0/history/bulk/updates': {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        get?: never
+        put?: never
+        /**
+         * @description **Under Development, do not use in production yet** Get download URLs and metadata for update history objects available for bulk download, between two record times.
+         *     Note that the returned objects may include also updates outside of the requested record time range (since only full objects are served from storage), but guaranteed
+         *     to include all updates in the requested range.
+         */
+        post: operations['listBulkUpdateHistoryObjects']
         delete?: never
         options?: never
         head?: never
@@ -1504,9 +1749,9 @@ export interface components {
         SynchronizerBftSequencer: {
             /**
              * Format: int64
-             * @description The synchronizer migration id corresponding to this sequencer.
+             * @description The synchronizer serial corresponding to this sequencer.
              */
-            migrationId: number
+            serialId: number
             /** @description The id of the sequencer. */
             id: string
             /** @description The public accessible P2P url of the sequencer, use for inter sequencer communication. */
@@ -1525,8 +1770,15 @@ export interface components {
             /**
              * Format: int64
              * @description The synchronizer migration id corresponding to this sequencer.
+             *     Set to -1 if serial is set.
              */
             migrationId: number
+            /**
+             * Format: int64
+             * @description The synchronizer serial corresponding to this sequencer.
+             *     One of migrationId or serialId will be set.
+             */
+            synchronizerSerial?: number
             /** @description The id of the sequencer. */
             id: string
             /** @description The public accessible url of the sequencer. */
@@ -1538,6 +1790,26 @@ export interface components {
              * @description Any participant should subscribe to this sequencer after this time.
              */
             availableAfter: string
+        }
+        GetRollForwardLsuResponse: {
+            /** @description Info on a roll-forward LSU */
+            rollForwardLsu?: components['schemas']['RollForwardLsu']
+        }
+        RollForwardLsu: {
+            /**
+             * Format: date-time
+             * @description The time at which to upgrade
+             */
+            upgradeTime: string
+            currentPhysicalSynchronizerId: string
+            successorPhysicalSynchronizerId: string
+        }
+        GetActivePhysicalSynchronizerSerialResponse: {
+            /**
+             * Format: int64
+             * @description The current physical synchronizer serial as reported by the SV participant.
+             */
+            serial: number
         }
         ListDsoScansResponse: {
             scans: components['schemas']['DomainScans'][]
@@ -1686,6 +1958,10 @@ export interface components {
             transactions: components['schemas']['UpdateHistoryItem'][]
         }
         /** @description An individual item in the update history. May be a transaction or a contract reassignment. */
+        UpdateHistoryItemV2WithHash:
+            | components['schemas']['UpdateHistoryTransactionV2WithHash']
+            | components['schemas']['UpdateHistoryReassignment']
+        /** @description An individual item in the update history. May be a transaction or a contract reassignment. */
         UpdateHistoryItemV2:
             | components['schemas']['UpdateHistoryTransactionV2']
             | components['schemas']['UpdateHistoryReassignment']
@@ -1804,12 +2080,13 @@ export interface components {
                 [key: string]: components['schemas']['TreeEvent']
             }
             /**
-             * @description For transaction externally signed, contains the external transaction hash
+             * @description For an externally signed transaction, contains the external transaction hash
              *     signed by the external party. Can be used to correlate an external submission with a committed transaction.
+             *     This field is conditionally omitted from JSON when null (see OmitNullString).
              */
             external_transaction_hash?: string
         }
-        UpdateHistoryTransactionV2: {
+        BaseUpdateHistoryTransaction: {
             /** @description The id of the update. */
             update_id: string
             /**
@@ -1849,11 +2126,21 @@ export interface components {
             events_by_id: {
                 [key: string]: components['schemas']['TreeEvent']
             }
+        }
+        UpdateHistoryTransactionV2: components['schemas']['BaseUpdateHistoryTransaction'] & {
             /**
-             * @description For transaction externally signed, contains the external transaction hash
+             * @description For an externally signed transaction, contains the external transaction hash
              *     signed by the external party. Can be used to correlate an external submission with a committed transaction.
+             *     This field is conditionally omitted from JSON when null (see OmitNullString).
              */
             external_transaction_hash?: string
+        }
+        UpdateHistoryTransactionV2WithHash: components['schemas']['BaseUpdateHistoryTransaction'] & {
+            /**
+             * @description For an externally signed transaction, contains the external transaction hash
+             *     signed by the external party. Can be used to correlate an external submission with a committed transaction.
+             */
+            external_transaction_hash: string
         }
         /** @description Either a creation or an exercise of a contract. */
         TreeEvent:
@@ -1870,6 +2157,33 @@ export interface components {
              *     the containing `events_by_id` if this is part of a `TreeEvent`.
              */
             event_id: string
+            /** @description The ID of the created contract. */
+            contract_id: string
+            /** @description The template of the created contract. */
+            template_id: string
+            /** @description The package name of the created contract. */
+            package_name: string
+            /**
+             * @description The arguments that have been used to create the contract, in the
+             *     form of JSON representation of a Daml record.
+             */
+            create_arguments: Record<string, never>
+            /**
+             * Format: date-time
+             * @description Ledger effective time of the transaction that created the contract.
+             */
+            created_at: string
+            /** @description Signatories to the contract, in the form of party IDs. */
+            signatories: string[]
+            /** @description Observers to the contract, in the form of party IDs. */
+            observers: string[]
+        }
+        ActiveContract: {
+            /**
+             * @description The id of the update in which this contract was created.
+             *     Optional and will be absent for contracts created in prior migration IDs.
+             */
+            created_in_update_id?: string
             /** @description The ID of the created contract. */
             contract_id: string
             /** @description The template of the created contract. */
@@ -2075,6 +2389,30 @@ export interface components {
              *     `create_arguments` are always encoded as `compact_json`.
              */
             created_events: components['schemas']['CreatedEvent'][]
+            /**
+             * Format: int64
+             * @description When requesting the next page of results, pass this as `after`
+             *     to the `AcsRequest` or `HoldingsStateRequest`.
+             *     Will be absent when there are no more pages.
+             */
+            next_page_token?: number
+        }
+        AcsResponseV1: {
+            /**
+             * Format: date-time
+             * @description The same `record_time` as in the request.
+             */
+            record_time: string
+            /**
+             * Format: int64
+             * @description The same `migration_id` as in the request.
+             */
+            migration_id: number
+            /**
+             * @description Up to `page_size` contracts in the ACS.
+             *     `create_arguments` are always encoded as `compact_json`.
+             */
+            created_events: components['schemas']['ActiveContract'][]
             /**
              * Format: int64
              * @description When requesting the next page of results, pass this as `after`
@@ -2780,11 +3118,95 @@ export interface components {
             /** @description The list of references to the bulk storage objects containing the ACS snapshot data. */
             object_refs: components['schemas']['BulkStorageObjectRef'][]
         }
+        ListBulkUpdateHistoryObjectsRequest: {
+            /**
+             * Format: date-time
+             * @description The returned objects must include all updates with record time greater than start_record_time (but may also include updates before it).
+             */
+            start_record_time: string
+            /**
+             * Format: date-time
+             * @description The returned objects must include all updates with record time at most end_record_time (but may also include updates after it).
+             */
+            end_record_time: string
+            /** @description The pagination token returned from a previous call to this endpoint with the same arguments. */
+            next_page_token?: string
+            /**
+             * Format: int32
+             * @description The maximum number of objects returned for this request.
+             */
+            page_size: number
+        }
+        ListBulkUpdateHistoryObjectsResponse: {
+            /** @description The list of references to the bulk storage objects containing the updates. */
+            object_refs: components['schemas']['BulkStorageObjectRef'][]
+            /**
+             * @description When requesting the next page of results, pass this as `after`
+             *     to the next `ListBulkUpdateHistoryObjectsRequest` invocation.
+             *     Will be absent when there are no more pages.
+             */
+            next_page_token?: string
+        }
         BulkStorageObjectRef: {
             /** @description The URL from which the bulk storage object can be downloaded. */
             url: string
             /** @description The sha256 digest of the bulk storage object, for verification of integrity and consistency across SVs. */
             digest: string
+        }
+        GetRewardAccountingEarliestAvailableRoundResponse: {
+            /** Format: int64 */
+            earliest_round: number
+        }
+        GetRewardAccountingActivityTotalsResponse: {
+            /** Format: int64 */
+            round_number: number
+            /** Format: int64 */
+            total_app_activity_weight: number
+            /** Format: int64 */
+            active_parties_count: number
+            /** Format: int64 */
+            activity_records_count: number
+        }
+        GetRewardAccountingRootHashResponse: {
+            /** Format: int64 */
+            round_number: number
+            /** @description Hex-encoded root hash */
+            root_hash: string
+        }
+        GetRewardAccountingBatchResponse:
+            | components['schemas']['RewardAccountingBatchOfBatches']
+            | components['schemas']['RewardAccountingBatchOfMintingAllowances']
+        BaseRewardAccountingBatch: {
+            /**
+             * @description The type of batch.
+             *     BatchOfBatches: Contains child batch hashes.
+             *     BatchOfMintingAllowances: Contains party + amount pairs.
+             */
+            batch_type: string
+        }
+        RewardAccountingBatchOfBatches: components['schemas']['BaseRewardAccountingBatch'] & {
+            /** @description Hex-encoded child batch hashes */
+            child_hashes: string[]
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            batch_type: 'BatchOfBatches'
+        }
+        RewardAccountingBatchOfMintingAllowances: components['schemas']['BaseRewardAccountingBatch'] & {
+            /** @description Party + amount pairs */
+            minting_allowances: components['schemas']['RewardAccountingMintingAllowance'][]
+        } & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            batch_type: 'BatchOfMintingAllowances'
+        }
+        RewardAccountingMintingAllowance: {
+            provider: string
+            amount: string
         }
         Status: {
             id: string
@@ -3210,6 +3632,48 @@ export interface operations {
             }
         }
     }
+    getRollForwardLsu: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetRollForwardLsuResponse']
+                }
+            }
+        }
+    }
+    getActivePhysicalSynchronizerSerial: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetActivePhysicalSynchronizerSerialResponse']
+                }
+            }
+            404: components['responses']['404']
+            500: components['responses']['500']
+        }
+    }
     getPartyToParticipant: {
         parameters: {
             query?: never
@@ -3445,6 +3909,33 @@ export interface operations {
             500: components['responses']['500']
         }
     }
+    getUpdateByHash: {
+        parameters: {
+            query?: {
+                daml_value_encoding?: components['schemas']['DamlValueEncoding']
+            }
+            header?: never
+            path: {
+                hash: string
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['UpdateHistoryItemV2WithHash']
+                }
+            }
+            400: components['responses']['400']
+            404: components['responses']['404']
+            500: components['responses']['500']
+        }
+    }
     getDateOfMostRecentSnapshotBefore: {
         parameters: {
             query: {
@@ -3524,6 +4015,33 @@ export interface operations {
             500: components['responses']['500']
         }
     }
+    getAcsSnapshotAtV1: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody: {
+            content: {
+                'application/json': components['schemas']['AcsRequest']
+            }
+        }
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['AcsResponseV1']
+                }
+            }
+            400: components['responses']['400']
+            404: components['responses']['404']
+            500: components['responses']['500']
+        }
+    }
     forceAcsSnapshotNow: {
         parameters: {
             query?: never
@@ -3566,6 +4084,33 @@ export interface operations {
                 }
                 content: {
                     'application/json': components['schemas']['AcsResponse']
+                }
+            }
+            400: components['responses']['400']
+            404: components['responses']['404']
+            500: components['responses']['500']
+        }
+    }
+    getHoldingsStateAtV1: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody: {
+            content: {
+                'application/json': components['schemas']['HoldingsStateRequest']
+            }
+        }
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['AcsResponseV1']
                 }
             }
             400: components['responses']['400']
@@ -3797,6 +4342,50 @@ export interface operations {
             header?: never
             path: {
                 provider_party_id: string
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['LookupFeaturedAppRightResponse']
+                }
+            }
+        }
+    }
+    listFeaturedAppRightsByProvider: {
+        parameters: {
+            query?: never
+            header?: never
+            path: {
+                provider_party_id: string
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['ListFeaturedAppRightsResponse']
+                }
+            }
+        }
+    }
+    lookupFeaturedAppRightByContractId: {
+        parameters: {
+            query?: never
+            header?: never
+            path: {
+                contract_id: string
             }
             cookie?: never
         }
@@ -4668,6 +5257,97 @@ export interface operations {
             500: components['responses']['500']
         }
     }
+    getRewardAccountingEarliestAvailableRound: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetRewardAccountingEarliestAvailableRoundResponse']
+                }
+            }
+            404: components['responses']['404']
+        }
+    }
+    getRewardAccountingActivityTotals: {
+        parameters: {
+            query?: never
+            header?: never
+            path: {
+                round_number: number
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetRewardAccountingActivityTotalsResponse']
+                }
+            }
+            404: components['responses']['404']
+        }
+    }
+    getRewardAccountingRootHash: {
+        parameters: {
+            query?: never
+            header?: never
+            path: {
+                round_number: number
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetRewardAccountingRootHashResponse']
+                }
+            }
+            404: components['responses']['404']
+        }
+    }
+    getRewardAccountingBatch: {
+        parameters: {
+            query?: never
+            header?: never
+            path: {
+                round_number: number
+                batch_hash: string
+            }
+            cookie?: never
+        }
+        requestBody?: never
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['GetRewardAccountingBatchResponse']
+                }
+            }
+            404: components['responses']['404']
+        }
+    }
     listBulkAcsSnapshotObjects: {
         parameters: {
             query: {
@@ -4688,6 +5368,33 @@ export interface operations {
                     'application/json': components['schemas']['ListBulkAcsSnapshotObjectsResponse']
                 }
             }
+            404: components['responses']['404']
+            501: components['responses']['501']
+        }
+    }
+    listBulkUpdateHistoryObjects: {
+        parameters: {
+            query?: never
+            header?: never
+            path?: never
+            cookie?: never
+        }
+        requestBody: {
+            content: {
+                'application/json': components['schemas']['ListBulkUpdateHistoryObjectsRequest']
+            }
+        }
+        responses: {
+            /** @description ok */
+            200: {
+                headers: {
+                    [name: string]: unknown
+                }
+                content: {
+                    'application/json': components['schemas']['ListBulkUpdateHistoryObjectsResponse']
+                }
+            }
+            400: components['responses']['404']
             404: components['responses']['404']
             501: components['responses']['501']
         }

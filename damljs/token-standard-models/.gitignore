@@ -1,2 +1,5 @@
-daml/
-.daml/
+*
+!.gitignore
+!daml.yaml
+!daml/
+!daml/**

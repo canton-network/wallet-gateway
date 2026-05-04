@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-token-standard-service",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Provides a service layer that wraps the token-standard-client and contains higher level functions for interacting with token standard contracts on Canton.",
     "license": "Apache-2.0",

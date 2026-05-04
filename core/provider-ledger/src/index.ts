@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export * from './LedgerProvider'
-import { Provider as Ops } from '@canton-network/core-ledger-client-types'
+import type { Provider as Ops } from '@canton-network/core-ledger-client-types'
 
 export { Ops }

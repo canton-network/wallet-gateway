@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-wallet-auth",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Provides authentication middleware and user management for the Wallet Gateway",
     "license": "Apache-2.0",

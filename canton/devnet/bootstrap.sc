@@ -18,7 +18,7 @@ import com.digitalasset.canton.version.ProtocolVersion._
 import com.digitalasset.canton.topology.{SynchronizerId, UniqueIdentifier}
 import com.digitalasset.canton.console.commands.ConsoleCommandGroup
 import com.digitalasset.canton.util.BinaryFileUtil
-import com.digitalasset.canton.sequencing.{SequencerConnections, SubmissionRequestAmplification, SequencerConnectionPoolDelays}
+import com.digitalasset.canton.admin.api.client.data.{SequencerConnections, SubmissionRequestAmplification, SequencerConnectionPoolDelays}
 
 
 val cantonDir = "canton"
@@ -66,7 +66,7 @@ logger.info("Importing sequencer/mediator data ")
 val synchronizerId = SynchronizerId.tryFromString(better.files.File(s"$synchronizerDir/synchronizer-id").contentAsString)
 logger.info(s"synchronizer id is $synchronizerId")
 
-val testedProtocolVersion = ProtocolVersion.v34
+val testedProtocolVersion = ProtocolVersion.v35
 
 
 val newStaticSynchronizerParameters =

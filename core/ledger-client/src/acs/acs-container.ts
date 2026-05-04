@@ -254,7 +254,7 @@ export class ACSContainer {
         eventFormat: EventFormat,
         api: LedgerClient
     ): Promise<Array<JsGetUpdatesResponse>> {
-        const request: GetUpdatesRequest = {
+        const request = {
             beginExclusive: startOffset,
             endInclusive: endOffset,
             updateFormat: {
@@ -264,7 +264,7 @@ export class ACSContainer {
                 },
             },
             verbose: false,
-        } as GetUpdatesRequest
+        } satisfies GetUpdatesRequest
 
         const params: Record<string, unknown> = {
             query: {
@@ -326,7 +326,7 @@ export class ACSContainer {
                 activeAtOffset: offset,
                 verbose: false,
                 eventFormat: format,
-            } as GetActiveContractsRequest,
+            } satisfies GetActiveContractsRequest,
             defaultRetryableOptions
         )
         return {
@@ -344,11 +344,11 @@ export class ACSContainer {
     ): Promise<ACSSet> {
         const wsACSURL = `${wsSupport.baseUrl}/v2/state/active-contracts`
         const format = this.createEventFormat(key)
-        const request: GetActiveContractsRequest = {
+        const request = {
             activeAtOffset: offset,
             verbose: false,
             eventFormat: format,
-        } as GetActiveContractsRequest
+        } satisfies GetActiveContractsRequest
         return new Promise((resolve, reject) => {
             const ws = new WebSocket(wsACSURL, wsSupport.extractProtocols())
             const results: JsGetActiveContractsResponse[] = []

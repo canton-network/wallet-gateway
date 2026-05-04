@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-provider-dapp",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "CIP-0103 provider for web dApps, covering both Sync and Async APIs.",
     "license": "Apache-2.0",
