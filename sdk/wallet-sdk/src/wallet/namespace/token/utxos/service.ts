@@ -85,7 +85,12 @@ export class UtxoNamespace {
                     const inputUtxos = group.slice(start, end)
 
                     const accumulatedAmount = inputUtxos.reduce(
-                        (a, b) => a.plus(b.interfaceViewValue.amount),
+                        (a, b) =>
+                            a.plus(
+                                new Decimal(
+                                    b.interfaceViewValue.amount
+                                ).toDecimalPlaces(10)
+                            ),
                         new Decimal(0)
                     )
 
