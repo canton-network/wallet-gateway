@@ -113,7 +113,7 @@ runs:
           run: yarn start:localnet -- --network=${{ inputs.network }}
 
         - name: Save Docker images to cache
-          if: ${{ always() && inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
+          if: ${{ inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
           shell: bash
           run: |
               mkdir -p /tmp/docker-images
@@ -125,14 +125,14 @@ runs:
               fi
 
         - name: Save Canton cache
-          if: ${{ always() && inputs.instance == 'canton' && steps.canton-cache.outputs.cache-hit != 'true' }}
+          if: ${{ inputs.instance == 'canton' && steps.canton-cache.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
 
         - name: Save Localnet cache
-          if: ${{ always() && inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
+          if: ${{ inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: |
