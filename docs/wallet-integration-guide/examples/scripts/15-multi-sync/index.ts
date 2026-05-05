@@ -76,11 +76,10 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
 // Step 10: Bob allocates Token for leg-1 (global-domain; TokenRules + Token moved there in step 6c)
-const [legIdAlice, { legId: legIdBob, tokenRulesCid, tokenRulesContract }] =
-    await Promise.all([
-        allocateAmuletForAlice(setup, logger),
-        allocateTokenForBob(setup, logger),
-    ])
+const [legIdAlice, { legId: legIdBob, tokenRulesCid }] = await Promise.all([
+    allocateAmuletForAlice(setup, logger),
+    allocateTokenForBob(setup, logger),
+])
 logger.info('Contracts after allocations:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
