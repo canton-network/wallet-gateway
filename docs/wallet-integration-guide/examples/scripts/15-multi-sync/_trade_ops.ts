@@ -323,7 +323,7 @@ export async function allocateAmuletForAlice(
             transferLegId: legId,
             transferLeg: requestView.transferLegs[legId],
         },
-        requestedAt: new Date().toISOString(),
+        requestedAt: new Date(Date.now() - 60_000).toISOString(),
         inputHoldingCids: [amuletHoldingCid],
         extraArgs: {
             context: { values: {} as Record<string, unknown> },
@@ -419,7 +419,9 @@ export async function allocateTokenForBob(
                                 transferLegId: legId,
                                 transferLeg: requestView.transferLegs[legId],
                             },
-                            requestedAt: new Date().toISOString(),
+                            requestedAt: new Date(
+                                Date.now() - 60_000
+                            ).toISOString(),
                             inputHoldingCids: [tokenHoldingCid],
                             extraArgs: {
                                 context: { values: {} },
