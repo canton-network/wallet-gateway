@@ -577,6 +577,35 @@
             "description": "Signs an arbitrary UTF-8 message with the wallet's private key (Ed25519). The message bytes are signed as-is; callers are expected to embed any application-level domain separation (e.g. EIP-4361 / SIWX text) in the message itself. Only supported for WALLET_KERNEL wallets."
         },
         {
+            "name": "deleteMessageToSign",
+            "params": [
+                {
+                    "name": "params",
+                    "schema": {
+                        "title": "DeleteMessageToSignParams",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "messageId": {
+                                "title": "messageId",
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "The internal identifier of the pending message-signing request."
+                            }
+                        },
+                        "required": ["messageId"]
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/schemas/Null"
+                }
+            },
+            "description": "Rejects a pending message signing request."
+        },
+        {
             "name": "execute",
             "params": [
                 {

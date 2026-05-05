@@ -112,6 +112,7 @@
             "params": [
                 {
                     "name": "params",
+                    "required": true,
                     "schema": {
                         "title": "signMessageParams",
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageRequest"

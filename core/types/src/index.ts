@@ -78,6 +78,8 @@ export enum WalletEvent {
     // Auth events
     SPLICE_WALLET_IDP_AUTH_SUCCESS = 'SPLICE_WALLET_IDP_AUTH_SUCCESS',
     SPLICE_WALLET_LOGOUT = 'SPLICE_WALLET_LOGOUT',
+    // Message signing events (remote gateway UI -> dApp)
+    SPLICE_WALLET_SIGN_MESSAGE_RESULT = 'SPLICE_WALLET_SIGN_MESSAGE_RESULT',
 }
 
 export type SpliceMessageEvent = MessageEvent<SpliceMessage>
@@ -116,6 +118,13 @@ export const SpliceMessage = z.discriminatedUnion('type', [
         type: z.literal(WalletEvent.SPLICE_WALLET_IDP_AUTH_SUCCESS),
         token: z.string(),
         sessionId: z.string(),
+    }),
+    z.object({
+        type: z.literal(WalletEvent.SPLICE_WALLET_SIGN_MESSAGE_RESULT),
+        messageId: z.string().min(1),
+        status: z.enum(['signed', 'rejected', 'failed']),
+        signature: z.string().optional(),
+        publicKey: z.string().optional(),
     }),
 ])
 export type SpliceMessage = z.infer<typeof SpliceMessage>

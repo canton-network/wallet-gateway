@@ -431,8 +431,35 @@ export interface SignParams {
     partyId: PartyId
 }
 export interface SignMessageParams {
+    messageId: string
+}
+
+export interface GetMessageToSignParams {
+    messageId: string
+}
+
+export interface DeleteMessageToSignParams {
+    messageId: string
+}
+
+export interface MessageToSign {
+    id: string
+    status: Status
+    partyId: PartyId
+    publicKey: PublicKey
     message: Message
-    partyId?: PartyId
+    createdAt?: CreatedAt
+    signedAt?: SignedAt
+    origin?: Origin
+    signature?: Signature
+}
+
+export interface GetMessageToSignResult {
+    message: MessageToSign
+}
+
+export interface ListMessagesToSignResult {
+    messages: MessageToSign[]
 }
 export interface ExecuteParams {
     signature: Signature
@@ -568,6 +595,13 @@ export type Sign = (params: SignParams) => Promise<SignResult>
 export type SignMessage = (
     params: SignMessageParams
 ) => Promise<SignMessageResult>
+export type GetMessageToSign = (
+    params: GetMessageToSignParams
+) => Promise<GetMessageToSignResult>
+export type ListMessagesToSign = () => Promise<ListMessagesToSignResult>
+export type DeleteMessageToSign = (
+    params: DeleteMessageToSignParams
+) => Promise<Null>
 export type Execute = (params: ExecuteParams) => Promise<ExecuteResult>
 export type AddSession = (params: AddSessionParams) => Promise<AddSessionResult>
 export type RemoveSession = () => Promise<Null>
@@ -663,6 +697,21 @@ export type RpcTypes = {
     signMessage: {
         params: Params<SignMessage>
         result: Result<SignMessage>
+    }
+
+    getMessageToSign: {
+        params: Params<GetMessageToSign>
+        result: Result<GetMessageToSign>
+    }
+
+    listMessagesToSign: {
+        params: Params<ListMessagesToSign>
+        result: Result<ListMessagesToSign>
+    }
+
+    deleteMessageToSign: {
+        params: Params<DeleteMessageToSign>
+        result: Result<DeleteMessageToSign>
     }
 
     execute: {

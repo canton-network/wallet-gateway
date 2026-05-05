@@ -162,6 +162,12 @@ export interface WalletFilter {
 export type TransactionId = string
 /**
  *
+ * The internal message identifier.
+ *
+ */
+export type MessageId = string
+/**
+ *
  * Arbitrary UTF-8 message to sign.
  *
  */
@@ -430,8 +436,15 @@ export interface SignParams {
     partyId: PartyId
 }
 export interface SignMessageParams {
-    message: Message
-    partyId?: PartyId
+    messageId: MessageId
+}
+
+export interface GetMessageToSignParams {
+    messageId: MessageId
+}
+
+export interface DeleteMessageToSignParams {
+    messageId: MessageId
 }
 export interface ExecuteParams {
     signature: Signature
@@ -496,6 +509,26 @@ export type SignResult =
 export interface SignMessageResult {
     signature: Signature
     publicKey: PublicKey
+}
+
+export interface MessageToSign {
+    id: MessageId
+    status: Status
+    partyId: PartyId
+    publicKey: PublicKey
+    message: Message
+    createdAt?: CreatedAt
+    signedAt?: SignedAt
+    origin?: Origin
+    signature?: Signature
+}
+
+export interface GetMessageToSignResult {
+    message: MessageToSign
+}
+
+export interface ListMessagesToSignResult {
+    messages: MessageToSign[]
 }
 export interface ExecuteResult {
     [key: string]: any
@@ -567,6 +600,13 @@ export type Sign = (params: SignParams) => Promise<SignResult>
 export type SignMessage = (
     params: SignMessageParams
 ) => Promise<SignMessageResult>
+export type GetMessageToSign = (
+    params: GetMessageToSignParams
+) => Promise<GetMessageToSignResult>
+export type ListMessagesToSign = () => Promise<ListMessagesToSignResult>
+export type DeleteMessageToSign = (
+    params: DeleteMessageToSignParams
+) => Promise<Null>
 export type Execute = (params: ExecuteParams) => Promise<ExecuteResult>
 export type AddSession = (params: AddSessionParams) => Promise<AddSessionResult>
 export type RemoveSession = () => Promise<Null>

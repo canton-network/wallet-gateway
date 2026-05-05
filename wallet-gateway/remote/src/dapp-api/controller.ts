@@ -13,6 +13,7 @@ import {
     LedgerApiResult,
     Network,
     PrepareExecuteParams,
+    SignMessageParams,
     SignMessageResult,
     StatusEvent,
     Wallet,
@@ -335,8 +336,36 @@ export const dappController = (
                     : {}),
             }
         },
-        signMessage: function (): Promise<SignMessageResult> {
-            throw new Error('Function not implemented.')
+        signMessage: async (
+            params: SignMessageParams
+        ): Promise<SignMessageResult> => {
+            if (!params?.message) throw new Error('Message is required')
+
+            const wallet = await store.getPrimaryWallet()
+
+            if (context === undefined) {
+                throw new Error('Unauthenticated context')
+            }
+
+            if (wallet === undefined) {
+                throw new Error('No primary wallet found')
+            }
+
+            const messageId = v4()
+            await store.setMessageRaw({
+                id: messageId,
+                status: 'pending',
+                userId: context.userId,
+                partyId: wallet.partyId,
+                publicKey: wallet.publicKey,
+                message: params.message,
+                origin: origin || null,
+                createdAt: new Date(),
+            })
+
+            return {
+                userUrl: `${userUrl}/sign-message/index.html?messageId=${messageId}&closeafteraction`,
+            }
         },
         getPrimaryAccount: async function (): Promise<Wallet> {
             const wallet = await store.getPrimaryWallet()

@@ -230,12 +230,6 @@ export interface Session {
 }
 /**
  *
- * The signature of the transaction.
- *
- */
-export type Signature = string
-/**
- *
  * Set as primary wallet for dApp usage.
  *
  */
@@ -342,6 +336,12 @@ export interface TxChangedPendingEvent {
  *
  */
 export type StatusSigned = 'signed'
+/**
+ *
+ * The signature of the transaction.
+ *
+ */
+export type Signature = string
 /**
  *
  * The identifier of the provider that signed the transaction.
@@ -464,13 +464,8 @@ export type Null = null
 export interface PrepareExecuteResult {
     userUrl: UserUrl
 }
-/**
- *
- * Result of signing a message.
- *
- */
 export interface SignMessageResult {
-    signature: Signature
+    userUrl: UserUrl
 }
 /**
  *

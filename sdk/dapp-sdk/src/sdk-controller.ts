@@ -16,6 +16,7 @@ import {
 import { ErrorCode } from './error'
 import { popup } from '@canton-network/core-wallet-ui-components'
 import * as dappAsyncAPI from '@canton-network/core-wallet-dapp-remote-rpc-client'
+import { WalletEvent } from '@canton-network/core-types'
 
 const withTimeout = (
     reject: (reason?: unknown) => void,
@@ -154,11 +155,83 @@ export const dappSDKController = (provider: DappAsyncProvider) =>
             }),
         signMessage: async (
             params: SignMessageParams
-        ): Promise<SignMessageResult> =>
-            provider.request({
+        ): Promise<SignMessageResult> => {
+            const response = await provider.request({
                 method: 'signMessage',
                 params,
-            }),
+            })
+
+            // Remote gateways return a userUrl for interactive confirmation.
+            // Non-remote providers may return the signature directly.
+            if (
+                typeof (response as unknown as { userUrl?: unknown })
+                    .userUrl === 'string'
+            ) {
+                const { userUrl } = response as unknown as { userUrl: string }
+                popup.open(userUrl)
+
+                const messageId = new URL(userUrl).searchParams.get('messageId')
+                if (!messageId) {
+                    throw new Error(
+                        'Remote signMessage userUrl is missing messageId query param'
+                    )
+                }
+
+                return await new Promise<SignMessageResult>(
+                    (resolve, reject) => {
+                        const timeout = withTimeout(
+                            reject,
+                            'Timed out waiting for message signing approval'
+                        )
+
+                        const listener = (event: MessageEvent) => {
+                            if (
+                                event.data?.type !==
+                                WalletEvent.SPLICE_WALLET_SIGN_MESSAGE_RESULT
+                            ) {
+                                return
+                            }
+                            if (event.data?.messageId !== messageId) {
+                                return
+                            }
+
+                            window.removeEventListener('message', listener)
+                            clearTimeout(timeout)
+
+                            if (event.data.status !== 'signed') {
+                                reject({
+                                    status: 'error',
+                                    error: ErrorCode.TransactionFailed,
+                                    details:
+                                        event.data.status === 'rejected'
+                                            ? 'Message signing was rejected.'
+                                            : 'Message signing failed.',
+                                })
+                                return
+                            }
+
+                            if (!event.data.signature) {
+                                reject({
+                                    status: 'error',
+                                    error: ErrorCode.TransactionFailed,
+                                    details:
+                                        'Missing signature in signMessage result.',
+                                })
+                                return
+                            }
+
+                            resolve({
+                                signature: event.data.signature,
+                            })
+                        }
+
+                        window.addEventListener('message', listener)
+                    }
+                )
+            }
+
+            return response as unknown as SignMessageResult
+        },
         getPrimaryAccount: async (): Promise<Wallet> =>
             provider.request({
                 method: 'getPrimaryAccount',

@@ -102,10 +102,18 @@
             "result": {
                 "name": "result",
                 "schema": {
-                    "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageResult"
+                    "title": "signMessageResult",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "userUrl": {
+                            "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/UserUrl"
+                        }
+                    },
+                    "required": ["userUrl"]
                 }
             },
-            "description": "Signs a message."
+            "description": "Requests a message signature. The wallet will prompt the user for confirmation and return the signature via the UI."
         },
         {
             "name": "ledgerApi",

@@ -12,6 +12,10 @@ import {
     SignParams,
     SignMessageParams,
     SignMessageResult,
+    GetMessageToSignParams,
+    GetMessageToSignResult,
+    ListMessagesToSignResult,
+    DeleteMessageToSignParams,
     AddSessionParams,
     AddSessionResult,
     ListSessionsResult,
@@ -465,19 +469,39 @@ export const userController = (
         signMessage: async (
             params: SignMessageParams
         ): Promise<SignMessageResult> => {
-            const wallet = params.partyId
-                ? (await store.getWallets()).find(
-                      (w) => w.partyId === params.partyId
-                  )
-                : await store.getPrimaryWallet()
-
-            if (!wallet) {
+            const pending = await store.getMessageRaw(params.messageId)
+            if (!pending) {
                 throw new Error(
-                    params.partyId
-                        ? `No wallet found for partyId ${params.partyId}`
-                        : 'No primary wallet configured'
+                    `Message signing request not found with id: ${params.messageId}`
                 )
             }
+            if (pending.status !== 'pending') {
+                throw new Error(
+                    `Cannot sign message with status '${pending.status}'. Only pending messages can be signed.`
+                )
+            }
+
+            const userId = assertConnected(authContext).userId
+            if (pending.userId !== userId) {
+                throw new Error(
+                    `Message signing request ${pending.id} is not owned by user ${userId}`
+                )
+            }
+
+            const wallet = (await store.getWallets()).find(
+                (w) => w.partyId === pending.partyId
+            )
+            if (!wallet) {
+                throw new Error(
+                    `No wallet found for partyId ${pending.partyId} (from message request ${pending.id})`
+                )
+            }
+            if (wallet.publicKey !== pending.publicKey) {
+                throw new Error(
+                    `Wallet public key changed for partyId ${pending.partyId}; refusing to sign message request ${pending.id}`
+                )
+            }
+
             // TODO: support other signing providers
             if (wallet.signingProviderId !== SigningProvider.WALLET_KERNEL) {
                 throw new Error(
@@ -485,7 +509,6 @@ export const userController = (
                 )
             }
 
-            const userId = assertConnected(authContext).userId
             const driver =
                 drivers[SigningProvider.WALLET_KERNEL]?.controller(userId)
             if (!driver) {
@@ -493,22 +516,99 @@ export const userController = (
             }
 
             const result = await driver.signMessage({
-                message: params.message,
+                message: pending.message,
                 keyIdentifier: { publicKey: wallet.publicKey },
             })
 
             if (isRpcError(result)) {
+                await store.setMessageRawStatus(pending.id, 'failed')
                 throw new Error(result.error_description)
             }
 
             if (!result?.signature) {
+                await store.setMessageRawStatus(pending.id, 'failed')
                 throw new Error(`signMessage failed`)
             }
+
+            await store.setMessageRawStatus(pending.id, 'signed', {
+                signedAt: new Date(),
+                signature: result.signature,
+            })
 
             return {
                 signature: result.signature,
                 publicKey: wallet.publicKey,
             }
+        },
+        getMessageToSign: async (
+            params: GetMessageToSignParams
+        ): Promise<GetMessageToSignResult> => {
+            const message = await store.getMessageRaw(params.messageId)
+            if (!message) {
+                throw new Error(
+                    `Message signing request not found with id: ${params.messageId}`
+                )
+            }
+            return {
+                message: {
+                    id: message.id,
+                    status: message.status,
+                    partyId: message.partyId,
+                    publicKey: message.publicKey,
+                    message: message.message,
+                    ...(message.origin !== null && { origin: message.origin }),
+                    ...(message.createdAt && {
+                        createdAt: message.createdAt.toISOString(),
+                    }),
+                    ...(message.signedAt && {
+                        signedAt: message.signedAt.toISOString(),
+                    }),
+                    ...(message.signature && { signature: message.signature }),
+                },
+            }
+        },
+        listMessagesToSign: async (): Promise<ListMessagesToSignResult> => {
+            const messages = await store.listMessageRaws()
+            return {
+                messages: messages.map((message) => ({
+                    id: message.id,
+                    status: message.status,
+                    partyId: message.partyId,
+                    publicKey: message.publicKey,
+                    message: message.message,
+                    ...(message.origin !== null && { origin: message.origin }),
+                    ...(message.createdAt && {
+                        createdAt: message.createdAt.toISOString(),
+                    }),
+                    ...(message.signedAt && {
+                        signedAt: message.signedAt.toISOString(),
+                    }),
+                    ...(message.signature && { signature: message.signature }),
+                })),
+            }
+        },
+        deleteMessageToSign: async (
+            params: DeleteMessageToSignParams
+        ): Promise<Null> => {
+            const message = await store.getMessageRaw(params.messageId)
+            if (!message) {
+                throw new Error(
+                    `Message signing request not found with id: ${params.messageId}`
+                )
+            }
+            if (message.status !== 'pending') {
+                throw new Error(
+                    `Cannot delete message with status '${message.status}'. Only pending messages can be deleted.`
+                )
+            }
+            const userId = assertConnected(authContext).userId
+            if (message.userId !== userId) {
+                throw new Error(
+                    `Message signing request ${message.id} is not owned by user ${userId}`
+                )
+            }
+            await store.removeMessageRaw(message.id)
+            return null
         },
         execute: async (executeParams: ExecuteParams) => {
             const wallets = await store.getWallets()
