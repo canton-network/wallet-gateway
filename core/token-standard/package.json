@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-token-standard",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "type": "module",
     "description": "daml codegen js for core token standard",
     "license": "Apache-2.0",
@@ -59,7 +59,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "core/token-standard"
     }
 }

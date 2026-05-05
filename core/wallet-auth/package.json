@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-wallet-auth",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "type": "module",
     "description": "Provides authentication middleware and user management for the Wallet Gateway",
     "license": "Apache-2.0",
@@ -47,7 +47,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "core/wallet-auth"
     }
 }

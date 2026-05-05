@@ -261,7 +261,7 @@ and secondly there is an upper limit of 100 inputs per transaction so to facilit
 * merge utxos delegation
 
 *instead of manually monitor and act you can set up utxos merge delegation as described at* `merge-delegation <https://docs.dev.sync.global/app_dev/token_standard/index.html#setting-up-mergedelegations>`__
-*using the new functionality like. An example of the complete setup can be found here:* `Wallet SDK example 18 <https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/docs/wallet-integration-guide/examples/scripts/18-merge-delegation-proposal.ts>`__
+*using the new functionality like. An example of the complete setup can be found here:* `Wallet SDK example 18 <https://github.com/canton-network/wallet-gateway/blob/main/docs/wallet-integration-guide/examples/scripts/18-merge-delegation-proposal.ts>`__
 
 * create party with preapproval
 
@@ -1391,7 +1391,7 @@ now instead using ledger api:
     const allUtxos = await sdk.tokenStandard?.listHoldingUtxos()
 
 * Include some small bug fixes. The most noteable are:
-    * ``Contract not found`` error when listing holdings (https://github.com/hyperledger-labs/splice-wallet-kernel/issues/357)
+    * ``Contract not found`` error when listing holdings (https://github.com/canton-network/wallet-gateway/issues/357)
     * Requirements to have extra import (like @protobuf-ts/runtime-rpc) resolved
 
 

@@ -18,9 +18,13 @@ import {
     migrator as signingMigrator,
 } from '@canton-network/core-signing-store-sql'
 import { ConfigUtils } from './config/ConfigUtils.js'
-import { SigningProvider } from '@canton-network/core-signing-lib'
+import {
+    SigningDriverInterface,
+    SigningProvider,
+} from '@canton-network/core-signing-lib'
 import { ParticipantSigningDriver } from '@canton-network/core-signing-participant'
 import { InternalSigningDriver } from '@canton-network/core-signing-internal'
+import DfnsSigningProvider from '@canton-network/core-signing-dfns'
 import FireblocksSigningProvider from '@canton-network/core-signing-fireblocks'
 import BlockdaemonSigningProvider, {
     CantonCaip2,
@@ -223,7 +227,7 @@ export async function initialize(opts: CliOptions, logger: Logger) {
     const keyInfo = { apiKey, apiSecret }
     const userApiKeys = new Map([['user', keyInfo]])
 
-    const drivers = {
+    const drivers: Partial<Record<SigningProvider, SigningDriverInterface>> = {
         [SigningProvider.PARTICIPANT]: new ParticipantSigningDriver(),
         [SigningProvider.WALLET_KERNEL]: new InternalSigningDriver(
             signingStore
@@ -239,6 +243,27 @@ export async function initialize(opts: CliOptions, logger: Logger) {
             apiKey: Env.BLOCKDAEMON_API_KEY(''),
             caip2: Env.BLOCKDAEMON_CAIP2('canton:testnet') as CantonCaip2,
         }),
+    }
+
+    if (
+        Env.DFNS_ORG_ID() &&
+        Env.DFNS_CRED_ID() &&
+        Env.DFNS_PRIVATE_KEY() &&
+        Env.DFNS_AUTH_TOKEN()
+    ) {
+        drivers[SigningProvider.DFNS] = new DfnsSigningProvider({
+            orgId: Env.DFNS_ORG_ID()!,
+            baseUrl: Env.DFNS_BASE_URL('https://api.dfns.io'),
+            credentials: {
+                credId: Env.DFNS_CRED_ID()!,
+                privateKey: Env.DFNS_PRIVATE_KEY()!,
+                authToken: Env.DFNS_AUTH_TOKEN()!,
+            },
+        })
+    } else {
+        logger.warn(
+            'Dfns env vars not fully set — Dfns signing provider will be unavailable'
+        )
     }
 
     const allowedPaths = {
