@@ -9,9 +9,6 @@
  *   3975 — app-provider (P2): global + app-synchronizer
  *   4975 — sv           (P3): global + app-synchronizer
  *
- * TODO: Once Splice is upgraded to 0.6.0 remove this file and the
- * bundled .dar files from this folder (they will be in the standard
- * localnet bundle).
  */
 
 // bob-participant JSON API (3 + PARTICIPANT_JSON_API_PORT_SUFFIX 975)
