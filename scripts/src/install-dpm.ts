@@ -13,12 +13,22 @@ import {
     warn,
 } from './lib/utils.js'
 
+function getDpmHomeDir(): string {
+    const configuredDpmHome = process.env.DPM_HOME?.trim()
+    if (configuredDpmHome) {
+        return configuredDpmHome
+    }
+
+    return path.join(os.homedir(), '.dpm')
+}
+
 /**
  * Ensure DPM is in PATH for the current process and future shells
  */
 function ensureDpmInPath(): void {
     const homeDir = os.homedir()
-    const dpmBinPath = path.join(homeDir, '.dpm', 'bin')
+    const dpmHomeDir = getDpmHomeDir()
+    const dpmBinPath = path.join(dpmHomeDir, 'bin')
 
     // Check if dpm bin directory exists
     if (!fs.existsSync(dpmBinPath)) {
@@ -32,6 +42,10 @@ function ensureDpmInPath(): void {
         console.log(info(`Added ${dpmBinPath} to PATH for current session`))
     }
 
+    if (process.env.CI === 'true') {
+        return
+    }
+
     // Update shell config files for future sessions
     const shellConfigFiles = [
         path.join(homeDir, '.bashrc'),
@@ -39,7 +53,7 @@ function ensureDpmInPath(): void {
         path.join(homeDir, '.profile'),
     ]
 
-    const pathExport = `export PATH="$HOME/.dpm/bin:$PATH"`
+    const pathExport = `export PATH="${dpmBinPath}:$PATH"`
 
     for (const configFile of shellConfigFiles) {
         if (fs.existsSync(configFile)) {
@@ -47,6 +61,7 @@ function ensureDpmInPath(): void {
 
             // Check if PATH export already exists
             if (
+                !content.includes(dpmBinPath) &&
                 !content.includes('.dpm/bin') &&
                 !content.includes('$HOME/.dpm/bin')
             ) {
@@ -131,11 +146,13 @@ export async function installDPM() {
             ensureDpmInPath()
 
             console.log(success('== DPM installation complete =='))
-            console.log(
-                warn(
-                    'Note: You may need to restart your terminal or run "source ~/.bashrc" (or ~/.zshrc) for PATH changes to take effect in new shells.'
+            if (process.env.CI !== 'true') {
+                console.log(
+                    warn(
+                        'Note: You may need to restart your terminal or run "source ~/.bashrc" (or ~/.zshrc) for PATH changes to take effect in new shells.'
+                    )
                 )
-            )
+            }
         } else if (osType === 'win32') {
             console.log(
                 info(

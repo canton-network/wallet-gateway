@@ -136,7 +136,8 @@ export const switchWallet = async (
 export const tapAndCreateAllocation = async (
     page: Page,
     wg: WalletGateway,
-    amount: string
+    amount: string,
+    allocationsToCreate = 1
 ): Promise<void> => {
     await tap(page, wg, amount)
 
@@ -151,9 +152,20 @@ export const tapAndCreateAllocation = async (
     // Open allocation dialog
     await page.getByText('Allocation', { exact: true }).first().click()
 
-    // Create allocation via dialog button
-    await wg.approveTransaction(() =>
-        page.getByRole('button', { name: 'Create Allocation' }).first().click()
-    )
+    const createAllocationButtons = page.getByRole('button', {
+        name: 'Create Allocation',
+    })
+    await expect(createAllocationButtons).toHaveCount(allocationsToCreate)
+
+    for (let i = 0; i < allocationsToCreate; i++) {
+        await wg.approveTransaction(() =>
+            createAllocationButtons.first().click()
+        )
+        await expect(createAllocationButtons).toHaveCount(
+            allocationsToCreate - i - 1,
+            { timeout: 10000 }
+        )
+    }
+
     await page.getByRole('button', { name: 'Close' }).click()
 }
