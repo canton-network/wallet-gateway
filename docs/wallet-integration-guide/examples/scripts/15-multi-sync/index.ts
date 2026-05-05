@@ -27,15 +27,7 @@ const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 // Step 3: Allocate parties for Alice (P1), Bob (P2), and TradingApp (P3)
 // Step 4: Discover Token interface on app synchronizer for Bob's token (used in Steps 6b and 10)
 const setup = await setupMultiSyncTrade(logger)
-const {
-    p1Sdk,
-    p3Sdk,
-    tokenP2,
-    alice,
-    bob,
-    synchronizers,
-    amuletAdmin,
-} = setup
+const { p1Sdk, tokenP2, alice, bob, synchronizers, amuletAdmin } = setup
 
 const allPartySpecs = buildAllPartySpecs(setup)
 
