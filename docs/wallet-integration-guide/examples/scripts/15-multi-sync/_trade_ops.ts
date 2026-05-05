@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Logger } from 'pino'
+import type { ContractSpec } from '../utils/index.js'
 import type { MultiSyncSetup } from './_setup.js'
 
 // ── ACS contract entry (as returned by ledger.acs.read) ───────────────────────
@@ -25,6 +26,42 @@ const ALLOCATION_FACTORY_IFACE =
     '#splice-api-token-allocation-instruction-v1:Splice.Api.Token.AllocationInstructionV1:AllocationFactory'
 const TRANSFER_FACTORY_IFACE =
     '#splice-api-token-transfer-instruction-v1:Splice.Api.Token.TransferInstructionV1:TransferFactory'
+
+export function buildAllPartySpecs(setup: MultiSyncSetup): ContractSpec[] {
+    const { p1Sdk, p2Sdk, p3Sdk, alice, bob, tradingApp } = setup
+    return [
+        {
+            label: 'Alice',
+            sdk: p1Sdk,
+            templateIds: [
+                AMULET_TEMPLATE_ID,
+                `${TEST_TOKEN_PREFIX}:Token`,
+                `${TRADING_APP_PREFIX}:OTCTradeProposal`,
+                `${TRADING_APP_PREFIX}:OTCTrade`,
+            ],
+            parties: [alice.partyId],
+        },
+        {
+            label: 'Bob',
+            sdk: p2Sdk,
+            templateIds: [
+                AMULET_TEMPLATE_ID,
+                `${TEST_TOKEN_PREFIX}:TokenRules`,
+                `${TEST_TOKEN_PREFIX}:Token`,
+            ],
+            parties: [bob.partyId],
+        },
+        {
+            label: 'TradingApp',
+            sdk: p3Sdk,
+            templateIds: [
+                `${TRADING_APP_PREFIX}:OTCTradeProposal`,
+                `${TRADING_APP_PREFIX}:OTCTrade`,
+            ],
+            parties: [tradingApp.partyId],
+        },
+    ]
+}
 
 export const ALICE_AMULET_TAP_AMOUNT = '2000000'
 export const BOB_TOKEN_MINT_AMOUNT = '500'

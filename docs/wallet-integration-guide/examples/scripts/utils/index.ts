@@ -11,10 +11,10 @@ import {
 
 export {
     syncAlias,
-    logContracts,
+    logAllContracts,
     resolvePreferredSynchronizerId,
 } from './synchronizer.js'
-export type { SynchronizerMap } from './synchronizer.js'
+export type { SynchronizerMap, ContractSpec } from './synchronizer.js'
 export { registerPartyOnSynchronizer } from './party.js'
 export type { PartyInfo } from './party.js'
 export { vetDar } from './dar.js'

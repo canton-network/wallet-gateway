@@ -44,33 +44,77 @@ export function syncAlias(
     throw new Error(`Unknown synchronizer ID ${syncId}`)
 }
 
+export type ContractSpec = {
+    label: string
+    sdk: SDKInterface
+    templateIds: string[]
+    parties: string[]
+}
+
 /**
- * Read contracts from ACS and log each contract's template name,
- * CID prefix, and synchronizer location.
+ * Query contracts for all given specs in parallel, then log the results as a
+ * formatted ASCII table. Queries run concurrently; rows are printed in
+ * declaration order.
  */
-export async function logContracts(
-    sdk: SDKInterface,
+export async function logAllContracts(
     logger: Logger,
     synchronizers: SynchronizerMap,
-    label: string,
-    templateIds: string[],
-    parties: string[]
-) {
-    const contracts = await sdk.ledger.acs.read({
-        templateIds,
-        parties,
-        filterByParty: true,
-    })
-    if (contracts.length === 0) {
-        logger.info(`  [${label}] (none)`)
-        return contracts
-    }
-    for (const c of contracts) {
-        const tplParts = (c.templateId ?? '').split(':')
-        const templateName = tplParts[tplParts.length - 1] || c.templateId
-        logger.info(
-            `  [${label}] ${templateName} cid=${c.contractId.substring(0, 16)}... on [${syncAlias(c.synchronizerId, synchronizers)}]`
+    specs: ContractSpec[]
+): Promise<void> {
+    const results = await Promise.all(
+        specs.map(({ sdk, templateIds, parties }) =>
+            sdk.ledger.acs.read({ templateIds, parties, filterByParty: true })
         )
+    )
+
+    type Row = { label: string; template: string; cid: string; sync: string }
+    const rows: Row[] = []
+
+    for (let i = 0; i < specs.length; i++) {
+        const { label } = specs[i]
+        const contracts = results[i]
+        if (contracts.length === 0) {
+            rows.push({ label, template: '(none)', cid: '-', sync: '-' })
+            continue
+        }
+        for (const c of contracts) {
+            const tplParts = (c.templateId ?? '').split(':')
+            const template = tplParts[tplParts.length - 1] || c.templateId
+            rows.push({
+                label,
+                template,
+                cid: `${c.contractId.substring(0, 16)}...`,
+                sync: syncAlias(c.synchronizerId, synchronizers),
+            })
+        }
     }
-    return contracts
+
+    const HEADERS = [
+        'Party / Label',
+        'Template',
+        'Contract ID',
+        'Synchronizer',
+    ] as const
+    const KEYS = ['label', 'template', 'cid', 'sync'] as const
+
+    const colWidths = HEADERS.map((h, i) =>
+        Math.max(h.length, ...rows.map((r) => r[KEYS[i]].length))
+    )
+
+    const pad = (s: string, w: number) => s.padEnd(w)
+    const sep = '+' + colWidths.map((w) => '-'.repeat(w + 2)).join('+') + '+'
+    const headerRow =
+        '|' + HEADERS.map((h, i) => ` ${pad(h, colWidths[i])} `).join('|') + '|'
+
+    logger.info(sep)
+    logger.info(headerRow)
+    logger.info(sep)
+    for (const r of rows) {
+        const line =
+            '|' +
+            KEYS.map((k, i) => ` ${pad(r[k], colWidths[i])} `).join('|') +
+            '|'
+        logger.info(line)
+    }
+    logger.info(sep)
 }

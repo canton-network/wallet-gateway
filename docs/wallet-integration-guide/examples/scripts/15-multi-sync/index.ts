@@ -1,5 +1,5 @@
 import pino from 'pino'
-import { logContracts } from '../utils/index.js'
+import { logAllContracts } from '../utils/index.js'
 import { setupMultiSyncTrade } from './_setup.js'
 import {
     AMULET_TEMPLATE_ID,
@@ -14,6 +14,7 @@ import {
     allocateTokenForBob,
     settleOtcTrade,
     selfTransferToken,
+    buildAllPartySpecs,
 } from './_trade_ops.js'
 
 // Multi-Synchronizer DvP: Alice pays 100 Amulet on global; Bob delivers 20 TestToken from app-sync.
@@ -40,6 +41,8 @@ const {
     amuletAdmin,
 } = setup
 
+const allPartySpecs = buildAllPartySpecs(setup)
+
 // ── Steps 5–6: Init holdings ────────────────────────────────────────────────
 // Step 5:  Mint Amulet for Alice (global synchronizer)
 // Steps 6a+6b: TokenRules + Token for Bob (global synchronizer)
@@ -48,30 +51,7 @@ await Promise.all([
     createTokenRulesAndMintForBob(setup, logger),
 ])
 logger.info('Contracts after setup:')
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Amulet',
-    [AMULET_TEMPLATE_ID],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob TokenRules',
-    [`${TEST_TOKEN_PREFIX}:TokenRules`],
-    [bob.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [bob.partyId]
-)
+await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── OTC trade terms ───────────────────────────────────────────────────────────
 const transferLegs = {
@@ -94,14 +74,7 @@ const transferLegs = {
 // ── Steps 7a–7c + 8: Propose → Accept → Initiate settlement → Read OTCTrade ─
 const otcTradeCid = await createAndInitiateOtcTrade(setup, transferLegs, logger)
 logger.info('Contracts after trade initiation:')
-await logContracts(
-    p3Sdk,
-    logger,
-    synchronizers,
-    'OTCTrade',
-    [`${TRADING_APP_PREFIX}:OTCTrade`],
-    [tradingApp.partyId]
-)
+await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
@@ -112,22 +85,7 @@ const [legIdAlice, { legId: legIdBob, tokenRulesCid, tokenRulesContract }] =
         allocateTokenForBob(setup, logger),
     ])
 logger.info('Contracts after allocations:')
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Amulet',
-    [AMULET_TEMPLATE_ID],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [bob.partyId]
-)
+await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 11a: Locate Bob's TestToken allocation ────────────────────────────────────
 const allocationsBob = await tokenP2.allocation.pending(bob.partyId)
@@ -144,38 +102,7 @@ await settleOtcTrade(
     logger
 )
 logger.info('Contracts after settlement:')
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Amulet',
-    [AMULET_TEMPLATE_ID],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Amulet',
-    [AMULET_TEMPLATE_ID],
-    [bob.partyId]
-)
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [bob.partyId]
-)
+await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 12: Alice self-transfers Token on global synchronizer ─────────────────
 const aliceTokenContracts = await p1Sdk.ledger.acs.read({
@@ -193,43 +120,4 @@ await selfTransferToken(
     logger
 )
 logger.info('Final contract state:')
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Amulet',
-    [AMULET_TEMPLATE_ID],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Amulet',
-    [AMULET_TEMPLATE_ID],
-    [bob.partyId]
-)
-await logContracts(
-    p1Sdk,
-    logger,
-    synchronizers,
-    'Alice Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [alice.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob Token',
-    [`${TEST_TOKEN_PREFIX}:Token`],
-    [bob.partyId]
-)
-await logContracts(
-    p2Sdk,
-    logger,
-    synchronizers,
-    'Bob TokenRules',
-    [`${TEST_TOKEN_PREFIX}:TokenRules`],
-    [bob.partyId]
-)
+await logAllContracts(logger, synchronizers, allPartySpecs)
