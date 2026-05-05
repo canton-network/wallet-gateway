@@ -144,7 +144,8 @@ async function main() {
             process.env.BLOCKDAEMON_API_EMAIL ||
             'phillip.olesen@digitalasset.com'
         token.payload.aud = aud
-        token.payload.scope = 'daml_ledger_api'
+        //alternative to scope claim
+        token.payload.scp = ['daml_ledger_api']
 
         // Set token expiration to 1 hour from now
         const now = Math.floor(Date.now() / 1000)

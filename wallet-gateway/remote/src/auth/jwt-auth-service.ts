@@ -45,10 +45,14 @@ export const jwtAuthService = (store: Store, logger: Logger): AuthService => ({
                 return undefined
             }
 
-            const scope = decoded.scope
+            let scope = decoded.scope
             if (!scope) {
-                logger.warn('JWT does not contain a scope')
-                return undefined
+                const scopeAlternate = decoded.scp
+                if (!scopeAlternate) {
+                    logger.warn('JWT does not contain a scope claim')
+                    return undefined
+                }
+                scope = scopeAlternate
             }
 
             if (idp.type == 'self_signed') {
