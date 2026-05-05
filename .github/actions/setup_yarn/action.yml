@@ -13,6 +13,40 @@ runs:
               node-version: 'v24.9.0'
               cache: 'yarn'
 
+        - name: Resolve DAML release version
+          id: daml_release_version
+          shell: bash
+          run: |
+              VERSION=$(jq -r '.DAML_RELEASE_VERSION' scripts/src/lib/version-config.json)
+              echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+        - name: Restore DPM cache
+          id: dpm_cache
+          uses: actions/cache/restore@v5
+          with:
+              path: |
+                  ~/.dpm
+                  ~/.cache/daml
+              key: dpm-${{ runner.os }}-${{ steps.daml_release_version.outputs.value }}
+
+        - name: Add DPM to PATH
+          shell: bash
+          run: echo "$HOME/.dpm/bin" >> "$GITHUB_PATH"
+
+        - name: Install dependencies
+          shell: bash
+          run: yarn install --immutable
+
+        - name: Save DPM cache
+          if: ${{ steps.dpm_cache.outputs.cache-hit != 'true' }}
+          uses: actions/cache/save@v5
+          with:
+              path: |
+                  ~/.dpm
+                  ~/.cache/daml
+              key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
+
+
         - name: Download build artifacts
           id: download_build_artifacts
           continue-on-error: true
