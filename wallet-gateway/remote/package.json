@@ -42,6 +42,7 @@
         "@canton-network/core-rpc-errors": "workspace:^",
         "@canton-network/core-rpc-transport": "workspace:^",
         "@canton-network/core-signing-blockdaemon": "workspace:^",
+        "@canton-network/core-signing-dfns": "workspace:^",
         "@canton-network/core-signing-fireblocks": "workspace:^",
         "@canton-network/core-signing-internal": "workspace:^",
         "@canton-network/core-signing-lib": "workspace:^",

@@ -78,6 +78,36 @@ Set the following environment variables:
 - Cloud-native applications
 - Environments leveraging Blockdaemon's services
 
+## Dfns
+
+Dfns is a crypto custody platform that provides programmable key management and signing infrastructure.
+
+**Configuration:**
+
+Set the following environment variables:
+
+- `DFNS_ORG_ID` - Your Dfns organization ID
+- `DFNS_BASE_URL` - The Dfns API URL (defaults to `https://api.dfns.io`)
+- `DFNS_CRED_ID` - Your service account credential ID
+- `DFNS_PRIVATE_KEY` - Your service account private key (PEM format)
+- `DFNS_AUTH_TOKEN` - Your service account authentication token
+
+**Prerequisites:**
+
+1. Set up a service account with appropriate permissions in Dfns
+2. Generate and download the service account credentials
+
+**Use Cases:**
+
+- Enterprise deployments requiring MPC-based key management
+- Programmable custody with policy controls
+- Multi-party approval workflows
+- High-security production environments
+
+**How it Works:**
+
+Dfns creates and activates Canton wallets directly through its validator integration. When the Gateway requests a wallet, Dfns provisions a Canton-formatted key, registers the party on the network, and returns the wallet ready for use. When signing a prepared transaction, Dfns broadcasts it to Canton in a single step and returns the resulting update ID. Only `Canton` and `CantonTestnet` network wallets are supported.
+
 ## Selecting a Provider
 
 When creating a new party through the User API or web UI, you can select which signing provider to use. The choice depends on your security requirements, infrastructure setup, and compliance needs.
@@ -85,8 +115,8 @@ When creating a new party through the User API or web UI, you can select which s
 **Recommendations:**
 
 - **Development/Testing**: Use Wallet Kernel (internal) or Participant-based signing
-- **Production (Enterprise)**: Use Fireblocks or Participant-based signing
-- **Production (Managed)**: Use Blockdaemon or Participant-based signing
+- **Production (Enterprise)**: Use Fireblocks, Dfns, or Participant-based signing
+- **Production (Managed)**: Use Blockdaemon, Dfns, or Participant-based signing
 
 The signing provider is selected per-party, so you can have different parties using different providers within the same Gateway instance.
 
@@ -98,6 +128,7 @@ Each provider handles key management differently:
 - **Participant**: Keys are managed by the Canton participant node
 - **Fireblocks**: Keys are stored in Fireblocks' secure infrastructure (HSM-backed)
 - **Blockdaemon**: Keys are managed by Blockdaemon's infrastructure
+- **Dfns**: Keys are managed by Dfns' secure infrastructure
 
 When migrating between providers, keys cannot be directly transferred. You'll need to:
 

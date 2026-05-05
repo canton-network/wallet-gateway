@@ -44,6 +44,19 @@ wallet-gateway --config-schema
 
 The JSON-RPC API specs from `api-specs/` are generated into strongly-typed method builders for the remote RPC server. To update the codegen, run `yarn generate:dapp`.
 
+## Dfns
+
+1. Create a service account in the Dfns dashboard with permissions to create and sign with Canton wallets, then download its credentials.
+
+2. Set the following environment variables before starting the Gateway:
+    - `DFNS_ORG_ID` — your Dfns organization ID (required; the driver is skipped if unset)
+    - `DFNS_BASE_URL` — Dfns API base URL (defaults to `https://api.dfns.io`)
+    - `DFNS_CRED_ID` — service account credential ID
+    - `DFNS_PRIVATE_KEY` — service account private key (PEM)
+    - `DFNS_AUTH_TOKEN` — service account auth token
+
+Dfns provisions and activates Canton wallets through its validator integration, so no additional Gateway configuration is required. Only `Canton` and `CantonTestnet` network wallets are supported. See [`@canton-network/core-signing-dfns`](../../core/signing-dfns/README.md) for full driver details.
+
 ## Fireblocks
 
 1. Complete steps 1–3 from the instructions at https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/core/signing-fireblocks

@@ -453,6 +453,13 @@ export const userController = (
                         signParams
                     )
                 }
+                case SigningProvider.DFNS: {
+                    return transactionService.signWithDfns(
+                        userId,
+                        wallet,
+                        signParams
+                    )
+                }
                 default:
                     throw new Error(
                         `Unsupported signing provider: ${wallet.signingProviderId}`
@@ -528,6 +535,9 @@ export const userController = (
                         transaction,
                         ledgerClient
                     )
+                }
+                case SigningProvider.DFNS: {
+                    return transactionService.executeWithDfns(transaction)
                 }
                 default:
                     throw new Error(

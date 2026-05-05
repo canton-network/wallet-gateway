@@ -1,0 +1,58 @@
+{
+    "name": "@canton-network/core-signing-dfns",
+    "version": "0.1.0",
+    "type": "module",
+    "description": "Dfns signing driver for Canton Network Wallet Gateway",
+    "license": "Apache-2.0",
+    "packageManager": "yarn@4.9.4",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "default": "./dist/index.js"
+        }
+    },
+    "scripts": {
+        "build": "tsup && tsc -p tsconfig.types.json",
+        "dev": "tsup --watch --onSuccess \"tsc -p tsconfig.types.json\"",
+        "clean": "tsc -b --clean; rm -rf dist",
+        "flatpack": "yarn pack --out \"$FLATPACK_OUTDIR\"",
+        "test": "jest"
+    },
+    "dependencies": {
+        "@canton-network/core-signing-lib": "workspace:^",
+        "@canton-network/core-wallet-auth": "workspace:^",
+        "@dfns/sdk": "^0.8.9",
+        "@dfns/sdk-keysigner": "^0.8.9",
+        "lodash": "^4.17.21",
+        "pino": "^10.2.1",
+        "zod": "^4.3.5"
+    },
+    "devDependencies": {
+        "@jest/globals": "^30.2.0",
+        "@swc/core": "^1.15.10",
+        "@swc/jest": "^0.2.39",
+        "@types/jest": "^30.0.0",
+        "@types/lodash": "^4.17.16",
+        "@types/node": "^25.0.10",
+        "jest": "^30.2.0",
+        "ts-jest-resolver": "^2.0.1",
+        "tsup": "^8.5.1",
+        "typescript": "^5.9.3"
+    },
+    "files": [
+        "dist/**"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "directory": "core/signing-dfns"
+    }
+}

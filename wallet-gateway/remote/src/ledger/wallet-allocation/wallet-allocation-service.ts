@@ -14,6 +14,7 @@ import { ParticipantWalletAllocator } from './signing-providers/participant-wall
 import { KernelWalletAllocator } from './signing-providers/kernel-wallet-allocator.js'
 import { FireblocksWalletAllocator } from './signing-providers/fireblocks-wallet-allocator.js'
 import { BlockdaemonWalletAllocator } from './signing-providers/blockdaemon-wallet-allocator.js'
+import { DfnsWalletAllocator } from './signing-providers/dfns-wallet-allocator.js'
 
 export interface WalletAllocator {
     createWallet(
@@ -34,6 +35,7 @@ export class WalletAllocationService {
     private readonly kernelAllocator?: KernelWalletAllocator
     private readonly fireblocksAllocator?: FireblocksWalletAllocator
     private readonly blockdaemonAllocator?: BlockdaemonWalletAllocator
+    private readonly dfnsAllocator?: DfnsWalletAllocator
 
     constructor(
         store: Store,
@@ -76,6 +78,16 @@ export class WalletAllocationService {
                 logger,
                 partyAllocator,
                 blockdaemonDriver
+            )
+        }
+
+        const dfnsDriver = signingDrivers[SigningProvider.DFNS]
+        if (dfnsDriver) {
+            this.dfnsAllocator = new DfnsWalletAllocator(
+                store,
+                logger,
+                partyAllocator,
+                dfnsDriver
             )
         }
     }
@@ -132,6 +144,16 @@ export class WalletAllocationService {
                     partyHint,
                     primary
                 )
+            case SigningProvider.DFNS:
+                if (!this.dfnsAllocator) {
+                    throw new Error('Dfns signing driver not available')
+                }
+                return this.dfnsAllocator.createWallet(
+                    userId,
+                    email,
+                    partyHint,
+                    primary
+                )
             default:
                 throw new Error(
                     `Unsupported signing provider: ${signingProviderId}`
@@ -182,6 +204,15 @@ export class WalletAllocationService {
                     )
                 }
                 return this.blockdaemonAllocator.allocateParty(
+                    userId,
+                    email,
+                    existingWallet
+                )
+            case SigningProvider.DFNS:
+                if (!this.dfnsAllocator) {
+                    throw new Error('Dfns signing driver not available')
+                }
+                return this.dfnsAllocator.allocateParty(
                     userId,
                     email,
                     existingWallet
