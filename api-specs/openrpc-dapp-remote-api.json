@@ -93,6 +93,7 @@
             "params": [
                 {
                     "name": "params",
+                    "required": true,
                     "schema": {
                         "title": "signMessageParams",
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageRequest"
@@ -113,7 +114,7 @@
                     "required": ["userUrl"]
                 }
             },
-            "description": "Requests a message signature. The wallet will prompt the user for confirmation and return the signature via the UI."
+            "description": "Requests a message signature. The wallet will prompt the user for confirmation."
         },
         {
             "name": "ledgerApi",
