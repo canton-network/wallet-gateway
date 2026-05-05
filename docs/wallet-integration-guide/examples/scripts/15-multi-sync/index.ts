@@ -31,7 +31,6 @@ const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 const setup = await setupMultiSyncTrade(logger)
 const {
     p1Sdk,
-    p2Sdk,
     p3Sdk,
     tokenP2,
     alice,
