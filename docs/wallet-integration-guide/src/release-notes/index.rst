@@ -3,6 +3,17 @@ Wallet SDK Release Notes
 
 Below are the release notes for the Wallet SDK versions, detailing new features, improvements, and bug fixes in each version.
 
+1.1.0
+-----
+
+**Released on April 28th, 2026**
+
+* Added support for Canton 3.5.X & Splice 0.6.X
+* Backwards compatibility with Canton 3.4X and Splice 0.5.X
+* Allow offline SDK signing without ledger access
+* Few improvments to the amulet fetch status to handle easier expectations like (expect cancelled or expired) 
+
+
 1.0.0
 -----
 

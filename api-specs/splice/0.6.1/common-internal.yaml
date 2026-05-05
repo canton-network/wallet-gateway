@@ -1,0 +1,367 @@
+openapi: 3.0.0
+info:
+    title: Common schemas for Splice API definitions
+    version: 0.0.1
+paths: {}
+components:
+    schemas:
+        ContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+        AssignedContract:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+                - domain_id
+        MaybeCachedContract:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+        MaybeCachedContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+        MaybeCachedContractMap:
+            type: object
+            additionalProperties:
+                $ref: '#/components/schemas/MaybeCachedContract'
+        MaybeCachedContractWithStateMap:
+            description: |
+                Always created with respect to an input set of contract IDs. If an input
+                contract ID is absent from the keys of this map, that contract should be
+                considered removed by the caller; if present, `contract` may be empty,
+                reflecting that the caller should already have the full contract data
+                for that contract ID. Contracts not present in the input set will have
+                full contract data. `domain_id` is always up-to-date; if undefined the
+                contract is currently unassigned to a synchronizer, i.e. "in-flight".
+            type: object
+            additionalProperties:
+                $ref: '#/components/schemas/MaybeCachedContractWithState'
+        NodeIdentitiesDump:
+            type: object
+            required:
+                - id
+                - keys
+                - authorizedStoreSnapshot
+            properties:
+                id:
+                    type: string
+                keys:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NodeKey'
+                authorizedStoreSnapshot:
+                    description: |
+                        base64 encoded string of authorized store snapshot
+                    type: string
+                version:
+                    type: string
+        NodeKey:
+            oneOf:
+                - $ref: '#/components/schemas/KeyPair'
+                - $ref: '#/components/schemas/KmsKeyId'
+        KeyPair:
+            type: object
+            required:
+                - keyPair
+            properties:
+                keyPair:
+                    type: string
+                name:
+                    type: string
+        KmsKeyId:
+            type: object
+            required:
+                - type
+                - keyId
+            properties:
+                type:
+                    type: string
+                    enum:
+                        - signing
+                        - encryption
+                keyId:
+                    type: string
+                name:
+                    type: string
+        ParticipantUsersData:
+            type: object
+            required:
+                - identityProviders
+                - users
+            properties:
+                identityProviders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantIdentityProvider'
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUser'
+        ParticipantIdentityProvider:
+            type: object
+            required:
+                - id
+                - isDeactivated
+                - jwksUrl
+                - issuer
+                - audience
+            properties:
+                id:
+                    type: string
+                isDeactivated:
+                    type: boolean
+                    default: false
+                jwksUrl:
+                    type: string
+                issuer:
+                    type: string
+                audience:
+                    type: string
+        ParticipantUser:
+            type: object
+            required:
+                - id
+                - rights
+                - isDeactivated
+                - annotations
+            properties:
+                id:
+                    type: string
+                primaryParty:
+                    type: string
+                rights:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserRight'
+                isDeactivated:
+                    type: boolean
+                    default: false
+                annotations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserAnnotation'
+                identityProviderId:
+                    type: string
+                    default: ''
+        ParticipantUserRight:
+            type: object
+            required:
+                - kind
+            properties:
+                kind:
+                    type: string
+                    enum:
+                        - participantAdmin
+                        - canActAs
+                        - canReadAs
+                        - canExecuteAs
+                        - identityProviderAdmin
+                        - canReadAsAnyParty
+                        - canExecuteAsAnyParty
+                party:
+                    type: string
+        ParticipantUserAnnotation:
+            type: object
+            required:
+                - key
+                - value
+            properties:
+                key:
+                    type: string
+                value:
+                    type: string
+        GetDsoInfoResponse:
+            type: object
+            required:
+                - sv_user
+                - sv_party_id
+                - dso_party_id
+                - voting_threshold
+                - latest_mining_round
+                - amulet_rules
+                - dso_rules
+                - sv_node_states
+            properties:
+                sv_user:
+                    description: User ID representing the SV
+                    type: string
+                sv_party_id:
+                    description: Party representing the SV
+                    type: string
+                dso_party_id:
+                    description: |
+                        Party representing the whole DSO; for Scan only, also returned by
+                        `/v0/dso-party-id`
+                    type: string
+                voting_threshold:
+                    description: |
+                        Threshold required to pass vote requests; also known as the
+                        "governance threshold", it is always derived from the number of
+                        `svs` in `dso_rules`
+                    type: integer
+                latest_mining_round:
+                    description: |
+                        Contract of the Daml template `Splice.Round.OpenMiningRound`, the
+                        one with the highest round number on the ledger that has been signed
+                        by `dso_party_id`. The round may not be usable as it may not be
+                        opened yet, in accordance with its `opensAt` template field
+                    $ref: '#/components/schemas/ContractWithState'
+                amulet_rules:
+                    description: |
+                        Contract of the Daml template `Splice.AmuletRules.AmuletRules`,
+                        including the full schedule of `AmuletConfig` changes approved by
+                        the DSO. Callers should not assume that `initialValue` is up-to-date,
+                        and should instead search `futureValues` for the latest configuration
+                        valid as of now
+                    $ref: '#/components/schemas/ContractWithState'
+                dso_rules:
+                    description: |
+                        Contract of the Daml template `Splice.DsoRules.DsoRules`, listing
+                        the governance rules approved by the DSO governing this Splice network.
+                    $ref: '#/components/schemas/ContractWithState'
+                sv_node_states:
+                    description: |
+                        For every one of `svs` listed in `dso_rules`, a contract of the Daml
+                        template `Splice.DSO.SvState.SvNodeState`. This does not include
+                        states for offboarded SVs, though they may still have an on-ledger
+                        state contract
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+                initial_round:
+                    description: |
+                        Initial round from which the network bootstraps
+                    type: string
+        BatchListVotesByVoteRequestsRequest:
+            type: object
+            required:
+                - vote_request_contract_ids
+            properties:
+                vote_request_contract_ids:
+                    description: Contract IDs of Daml template `Splice.DsoRules:VoteRequest`.
+                    type: array
+                    items:
+                        type: string
+        ListVoteRequestByTrackingCidResponse:
+            type: object
+            required:
+                - vote_requests
+            properties:
+                vote_requests:
+                    description: |
+                        Contracts of Daml template `Splice.DsoRules:VoteRequest` that match
+                        `vote_request_contract_ids` in the request.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        LookupDsoRulesVoteRequestResponse:
+            description: A contract of Daml template `Splice.DsoRules:VoteRequest`.
+            type: object
+            required:
+                - dso_rules_vote_request
+            properties:
+                dso_rules_vote_request:
+                    $ref: '#/components/schemas/Contract'
+        ListDsoRulesVoteRequestsResponse:
+            description: Contracts of Daml template `Splice.DsoRules:VoteRequest`.
+            type: object
+            required:
+                - dso_rules_vote_requests
+            properties:
+                dso_rules_vote_requests:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListAmuletPriceVotesResponse:
+            description: Contracts of Daml template `Splice.DSO:AmuletPrice:AmuletPriceVote`.
+            type: object
+            required:
+                - amulet_price_votes
+            properties:
+                amulet_price_votes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListVoteResultsRequest:
+            type: object
+            required:
+                - limit
+            properties:
+                actionName:
+                    type: string
+                accepted:
+                    type: boolean
+                requester:
+                    type: string
+                effectiveFrom:
+                    type: string
+                effectiveTo:
+                    type: string
+                limit:
+                    type: integer
+        ListDsoRulesVoteResultsResponse:
+            type: object
+            required:
+                - dso_rules_vote_results
+            properties:
+                dso_rules_vote_results:
+                    type: array
+                    items:
+                        type: object
+        ListValidatorLicensesResponse:
+            type: object
+            required:
+                - validator_licenses
+            properties:
+                validator_licenses:
+                    description: Contracts of Daml template `Splice.ValidatorLicense:ValidatorLicense`.
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+                next_page_token:
+                    type: integer
+                    format: int64
+                    description: |
+                        When requesting the next page of results, pass this as URL query parameter `after`.
+                        If absent or `null`, there are no more pages.
+        FeatureSupportResponse:
+            type: object
+            required: []
+            properties:
+                dummy:
+                    type: boolean
+        Contract:
+            type: object
+            properties:
+                template_id:
+                    type: string
+                contract_id:
+                    type: string
+                payload:
+                    type: object
+                created_event_blob:
+                    type: string
+                created_at:
+                    type: string
+            required:
+                - template_id
+                - contract_id
+                - payload
+                - created_event_blob
+                - created_at

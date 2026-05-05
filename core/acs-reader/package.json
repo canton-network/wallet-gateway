@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-acs-reader",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "type": "module",
     "description": "Reader for active contract set (ACS) data from the Canton ledger, providing functions to retrieve and process active contract information for specified filters.",
     "license": "Apache-2.0",

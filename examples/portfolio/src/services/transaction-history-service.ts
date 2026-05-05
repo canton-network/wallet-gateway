@@ -10,11 +10,11 @@ import {
     TokenStandardTransactionInterfaces,
 } from '@canton-network/core-tx-parser'
 import { type Transaction } from '@canton-network/core-tx-parser'
-import { LedgerProvider, Ops } from '@canton-network/core-provider-ledger'
+import { LedgerProvider, type Ops } from '@canton-network/core-provider-ledger'
 
 type FiltersByParty = Types['Map_Filters']
 
-type Update = Types['JsGetUpdatesResponse']
+type Update = Ops.PostV2UpdatesFlats['ledgerApi']['result'][number]
 type JsTransaction = Types['JsTransaction']
 
 const updateOffset = (update: Update): number => {

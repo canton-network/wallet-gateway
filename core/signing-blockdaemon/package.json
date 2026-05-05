@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-signing-blockdaemon",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Wallet Gateway signing driver for Blockdaemon",
     "license": "Apache-2.0",

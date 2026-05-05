@@ -68,7 +68,9 @@ logger.info(`Tapped holdings for alice`)
 
 const trafficStatusBeforePurchase = await sdk.amulet.traffic.status()
 
-logger.info(`Traffic status before purchase: ${trafficStatusBeforePurchase}`)
+logger.info(
+    `Traffic status before purchase: ${JSON.stringify(trafficStatusBeforePurchase)}`
+)
 
 const ccAmount = 200000
 

@@ -1,17 +1,17 @@
 {
-    "DAML_RELEASE_VERSION": "3.4.12-snapshot.20260402.17647.0.v8f5238eb",
+    "DAML_RELEASE_VERSION": "3.4.11",
     "SUPPORTED_VERSIONS": {
         "devnet": {
             "canton": {
-                "version": "3.4.12-snapshot.20260402.17647.0.v8f5238eb",
-                "hash": "5ef3fe08d5ce96db9bba24e1146ae7da558e70acf2a13eaaf9bf65ea5a981895"
+                "version": "3.5.1-snapshot.20260423.18760.0.v0d74e51b",
+                "hash": "3debf0d5f3a79ea5e29ab682e31428f9f853a5236d56bf9bd1d3af45673a6ca7"
             },
             "splice": {
-                "version": "0.5.18",
+                "version": "0.6.1",
                 "hashes": {
-                    "localnet": "4639977f854f3c3c032d7dbe93a933f74644bd410a128f1e7d5371bc988653e1",
-                    "splice": "7babdfb642513a11205baa99866b407c6233b14c30f2f2edd9a41c567bf81f67",
-                    "spliceSpec": "86a507526739ff8a1abee6acc1fdd83b5b141cdada7e55505ddce678191c5b5d"
+                    "localnet": "1873f3b630823d8b71b6e6e1116e331d66db05c8ac32bb296778ab02420b3da9",
+                    "splice": "a075448a786ce91b80079466ba8b8a71fa6d8d2d74864e47f328ddb552441af3",
+                    "spliceSpec": "3968a0e4fbb77a6a643a59429bf5ecd6d88df1fbce31c58f5102c0a9924006e2"
                 }
             }
         },

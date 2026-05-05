@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-tx-parser",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Transaction parsing utilities for Canton Network transactions, including parsing of transaction trees and extraction of relevant information from transaction events.",
     "license": "Apache-2.0",

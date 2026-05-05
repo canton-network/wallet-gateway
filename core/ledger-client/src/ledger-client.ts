@@ -1,7 +1,12 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { v3_4 } from '@canton-network/core-ledger-client-types'
+import {
+    supportedLedgerApiVersions,
+    type LedgerApiVersion,
+    type LedgerCommonPaths,
+    type LedgerCommonSchemas,
+} from '@canton-network/core-ledger-client-types'
 import createClient, { Client, FetchOptions } from 'openapi-fetch'
 import { Logger } from 'pino'
 import { PartyId } from '@canton-network/core-types'
@@ -15,13 +20,22 @@ import { ACSHelper, AcsHelperOptions } from './acs/acs-helper.js'
 import { SharedACSCache } from './acs/acs-shared-cache.js'
 import { AccessTokenProvider } from '@canton-network/core-wallet-auth'
 
-export type UserSchema = v3_4.components['schemas']['User']
-export const supportedVersions = ['3.4'] as const
+export const supportedVersions = supportedLedgerApiVersions
 
-export type SupportedVersions = (typeof supportedVersions)[number]
+export type SupportedVersions = LedgerApiVersion
 
-export type Types = v3_4.components['schemas']
-type paths = v3_4.paths
+type paths = LedgerCommonPaths
+
+type SchemaByVersion<Name extends keyof LedgerCommonSchemas> =
+    LedgerCommonSchemas[Name]
+
+type ClientsByVersion = {
+    [V in SupportedVersions]: Client<paths>
+}
+
+export type UserSchema = SchemaByVersion<'User'>
+
+export type Types = LedgerCommonSchemas
 
 // A conditional type that filters the set of OpenAPI path names to those that actually have a defined POST operation.
 // Any path without a POST is excluded via the `never` branch of the conditional
@@ -90,28 +104,27 @@ export type GetResponse<Path extends GetEndpoint> = paths[Path] extends {
     : never
 
 export type GenerateTransactionResponse =
-    v3_4.components['schemas']['GenerateExternalPartyTopologyResponse']
+    SchemaByVersion<'GenerateExternalPartyTopologyResponse'>
 
 export type AllocateExternalPartyResponse =
-    v3_4.components['schemas']['AllocateExternalPartyResponse']
+    SchemaByVersion<'AllocateExternalPartyResponse'>
 export type OnboardingTransactions = NonNullable<
-    v3_4.components['schemas']['AllocateExternalPartyRequest']['onboardingTransactions']
+    SchemaByVersion<'AllocateExternalPartyRequest'>['onboardingTransactions']
 >
 
 export type MultiHashSignatures = NonNullable<
-    v3_4.components['schemas']['AllocateExternalPartyRequest']['multiHashSignatures']
+    SchemaByVersion<'AllocateExternalPartyRequest'>['multiHashSignatures']
 >
 export type PrepareSubmissionResponse =
-    v3_4.components['schemas']['JsPrepareSubmissionResponse']
+    SchemaByVersion<'JsPrepareSubmissionResponse'>
 
 // Any options the client accepts besides body/params
 type ExtraPostOpts = Omit<FetchOptions<paths>, 'body' | 'params'>
 
 export class LedgerClient {
     // privately manage the active connected version and associated client codegen
-    private readonly clients: Record<SupportedVersions, Client<paths>>
-    private clientVersion: SupportedVersions = '3.4'
-    private currentClient: Client<paths>
+    private readonly clients: ClientsByVersion
+    private clientVersion: SupportedVersions = '3.5'
     private initialized: boolean = false
     private accessTokenProvider: AccessTokenProvider
     private acsHelper: ACSHelper
@@ -150,14 +163,16 @@ export class LedgerClient {
         }
 
         this.clients = {
-            '3.4': createClient<v3_4.paths>({
-                baseUrl: baseUrl.href,
-                fetch: authenticatedFetch,
-            }),
+            ...supportedVersions.reduce((acc, version) => {
+                acc[version] = createClient<paths>({
+                    baseUrl: baseUrl.href,
+                    fetch: authenticatedFetch,
+                })
+                return acc
+            }, {} as ClientsByVersion),
         }
 
         this.clientVersion = version ?? this.clientVersion
-        this.currentClient = this.clients[this.clientVersion]
         this.baseUrl = baseUrl
         this.acsHelper = new ACSHelper(
             this,
@@ -165,6 +180,10 @@ export class LedgerClient {
             acsHelperOptions,
             SharedACSCache
         )
+    }
+
+    private get currentClient(): Client<paths> {
+        return this.clients[this.clientVersion] as unknown as Client<paths>
     }
 
     public async init() {
@@ -182,7 +201,6 @@ export class LedgerClient {
             this.clientVersion = this.parseSupportedVersions(
                 versionFromClient.data?.version
             )
-            this.currentClient = this.clients[this.clientVersion]
             this.initialized = true
         }
     }
@@ -284,7 +302,7 @@ export class LedgerClient {
     public async createUser(
         userId: string,
         primaryParty: PartyId
-    ): Promise<v3_4.components['schemas']['User']> {
+    ): Promise<UserSchema> {
         try {
             const existing = await this.get('/v2/users/{user-id}', {
                 path: { 'user-id': userId },

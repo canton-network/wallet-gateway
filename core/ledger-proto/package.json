@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-ledger-proto",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "type": "module",
     "description": "Provides TypeScript protobuf bindings for Canton",
     "license": "Apache-2.0",

@@ -23,6 +23,9 @@ export class WgWalletCreateForm extends BaseElement {
     @property({ type: Array }) networkIds: string[] = []
     @property({ type: Boolean }) loading = false
     @property({ type: String }) submitLabel = 'Add'
+    @property({ type: String }) loadingLabel = 'Adding...'
+    @property({ type: String }) loadingMessage =
+        'Creating party, please wait...'
 
     @query('#party-id-hint') accessor partyHintInput: HTMLInputElement | null =
         null
@@ -130,11 +133,30 @@ export class WgWalletCreateForm extends BaseElement {
                 font-size: var(--wg-font-size-sm);
                 font-weight: var(--wg-font-weight-medium);
             }
+
+            .submit-wrap {
+                gap: var(--wg-space-3);
+            }
+
+            .submit-button {
+                min-height: 44px;
+            }
+
+            .loading-message {
+                margin: 0;
+                color: var(--wg-text-secondary);
+                font-size: var(--wg-font-size-sm);
+                text-align: center;
+            }
         `,
     ]
 
     private onSubmit(event: Event) {
         event.preventDefault()
+
+        if (this.loading) {
+            return
+        }
 
         const partyHint = this.partyHintInput?.value || ''
         const signingProviderId = this.signingProviderSelect?.value || ''
@@ -156,7 +178,11 @@ export class WgWalletCreateForm extends BaseElement {
 
     protected render() {
         return html`
-            <form class="d-flex flex-column h-100" @submit=${this.onSubmit}>
+            <form
+                class="d-flex flex-column h-100"
+                aria-busy=${this.loading ? 'true' : 'false'}
+                @submit=${this.onSubmit}
+            >
                 <div class="form-fields d-flex flex-column">
                     <div class="field-group d-flex flex-column">
                         <label
@@ -220,14 +246,30 @@ export class WgWalletCreateForm extends BaseElement {
                     </div>
                 </div>
 
-                <div class="mt-auto pt-3">
+                <div class="submit-wrap mt-auto pt-3 d-flex flex-column">
                     <button
-                        class="btn btn-primary rounded-pill w-100"
+                        class="submit-button btn btn-primary rounded-pill w-100 d-inline-flex align-items-center justify-content-center gap-2"
                         ?disabled=${this.loading}
                         type="submit"
                     >
-                        ${this.submitLabel}
+                        ${this.loading
+                            ? html`<span
+                                  class="spinner-border spinner-border-sm"
+                                  aria-hidden="true"
+                              ></span>`
+                            : null}
+                        ${this.loading ? this.loadingLabel : this.submitLabel}
                     </button>
+
+                    ${this.loading
+                        ? html`<p
+                              class="loading-message"
+                              role="status"
+                              aria-live="polite"
+                          >
+                              ${this.loadingMessage}
+                          </p>`
+                        : null}
                 </div>
             </form>
         `

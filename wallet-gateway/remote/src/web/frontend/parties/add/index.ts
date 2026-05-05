@@ -103,7 +103,7 @@ export class UserUiAddParty extends BaseElement {
     protected render() {
         return html`
             <div class="page-header">
-                <h1 class="h4 fw-semibold mb-0">Add a new party</h1>
+                <h1 class="h4 fw-semibold mb-0">Create a new party</h1>
                 <button
                     class="btn btn-link btn-sm text-body text-decoration-none p-0 d-inline-flex align-items-center gap-1"
                     type="button"
@@ -118,6 +118,9 @@ export class UserUiAddParty extends BaseElement {
                 <wg-wallet-create-form
                     .signingProviders=${this.signingProviders}
                     .networkIds=${this.networkIds}
+                    .submitLabel=${'Create party'}
+                    .loadingLabel=${'Creating party...'}
+                    .loadingMessage=${'Creating party, please wait...'}
                     ?loading=${this.loading}
                     @wallet-create=${this.onCreateParty}
                 ></wg-wallet-create-form>

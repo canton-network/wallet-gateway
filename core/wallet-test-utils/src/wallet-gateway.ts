@@ -129,7 +129,7 @@ export class WalletGateway {
         await (await this.popup()).getByRole('button', { name: 'New' }).click()
         await expect(
             (await this.popup()).getByRole('heading', {
-                name: 'Add a new party',
+                name: 'Create a new party',
             })
         ).toBeVisible({ timeout: 15000 })
         await (await this.popup())
@@ -143,7 +143,9 @@ export class WalletGateway {
                 .getByRole('checkbox', { name: 'Set as primary wallet' })
                 .check()
         }
-        await (await this.popup()).getByRole('button', { name: 'Add' }).click()
+        await (await this.popup())
+            .getByRole('button', { name: 'Create' })
+            .click()
 
         await this.waitForPartiesPageReady()
 

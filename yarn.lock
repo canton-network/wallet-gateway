@@ -1701,11 +1701,9 @@ __metadata:
   dependencies:
     "@canton-network/core-types": "workspace:^"
     "@canton-network/core-wallet-auth": "workspace:^"
-    "@daml.js/daml-stdlib-DA-Time-Types-1.0.0": "workspace:^"
-    "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0": "workspace:^"
-    "@daml.js/token-standard-models-1.0.0": "workspace:^"
-    "@daml/ledger": "npm:3.3.0-snapshot.20251031.13854.0.vbfca5440"
     "@daml/types": "npm:3.4.11"
+    "@mojotech/json-type-validation": "npm:^3.1.0"
+    "@rollup/plugin-alias": "npm:^5.0.0"
     "@rollup/plugin-commonjs": "npm:^29.0.0"
     "@rollup/plugin-json": "npm:^6.1.0"
     "@rollup/plugin-node-resolve": "npm:^16.0.3"
@@ -2510,246 +2508,6 @@ __metadata:
   dependencies:
     "@jridgewell/trace-mapping": "npm:0.3.9"
   checksum: 10c0/05c5368c13b662ee4c122c7bfbe5dc0b613416672a829f3e78bc49a357a197e0218d6e74e7c66cfcd04e15a179acab080bd3c69658c9fbefd0e1ccd950a07fc6
-  languageName: node
-  linkType: hard
-
-"@daml.js/daml-prim-DA-Exception-ArithmeticError-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-ArithmeticError-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-DA-Exception-ArithmeticError-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-ArithmeticError-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-DA-Exception-AssertionFailed-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-AssertionFailed-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-DA-Exception-AssertionFailed-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-AssertionFailed-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-DA-Exception-GeneralError-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-GeneralError-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-DA-Exception-GeneralError-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-GeneralError-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-DA-Exception-PreconditionFailed-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-PreconditionFailed-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-DA-Exception-PreconditionFailed-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Exception-PreconditionFailed-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-DA-Types-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-DA-Types-1.0.0@workspace:damljs/token-standard-models/daml-prim-DA-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-GHC-Tuple-1.0.0@workspace:damljs/token-standard-models/daml-prim-GHC-Tuple-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-GHC-Tuple-1.0.0@workspace:damljs/token-standard-models/daml-prim-GHC-Tuple-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-prim-GHC-Types-1.0.0@workspace:damljs/token-standard-models/daml-prim-GHC-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-prim-GHC-Types-1.0.0@workspace:damljs/token-standard-models/daml-prim-GHC-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Date-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Date-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Date-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Date-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Internal-Down-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Internal-Down-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Internal-Down-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Internal-Down-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Logic-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Logic-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Logic-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Logic-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Monoid-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Monoid-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Monoid-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Monoid-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-NonEmpty-Types-1.0.0@file:../daml-stdlib-DA-NonEmpty-Types-1.0.0::locator=%40daml.js%2Fdaml-stdlib-DA-Validation-Types-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Fdaml-stdlib-DA-Validation-Types-1.0.0":
-  version: 0.0.0
-  resolution: "@daml.js/daml-stdlib-DA-NonEmpty-Types-1.0.0@file:../daml-stdlib-DA-NonEmpty-Types-1.0.0#../daml-stdlib-DA-NonEmpty-Types-1.0.0::hash=0e2878&locator=%40daml.js%2Fdaml-stdlib-DA-Validation-Types-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Fdaml-stdlib-DA-Validation-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  checksum: 10c0/5ec3212e808b698fcc97cf8f5ef223f71507e1f37822b381f5353804ac4c4a432339974cd932543df08b1b6573d9a2724ff88b9eab923731f3bfd2669da935f2
-  languageName: node
-  linkType: hard
-
-"@daml.js/daml-stdlib-DA-NonEmpty-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-NonEmpty-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-NonEmpty-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-NonEmpty-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Random-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Random-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Random-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Random-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Semigroup-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Semigroup-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Semigroup-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Semigroup-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Set-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Set-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Set-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Set-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Stack-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Stack-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Stack-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Stack-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Time-Types-1.0.0@file:../daml-stdlib-DA-Time-Types-1.0.0::locator=%40daml.js%2Ftoken-standard-models-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Ftoken-standard-models-1.0.0":
-  version: 0.0.0
-  resolution: "@daml.js/daml-stdlib-DA-Time-Types-1.0.0@file:../daml-stdlib-DA-Time-Types-1.0.0#../daml-stdlib-DA-Time-Types-1.0.0::hash=22072f&locator=%40daml.js%2Ftoken-standard-models-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Ftoken-standard-models-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  checksum: 10c0/b9eb91452e776de9fcbd0f0bfd81b499953f9eb515ecf50a66f0073baea68ecbd4c96e96653a9de3e7e3f26c39039f7af84f097c77cf3622516fbbbd30119f65
-  languageName: node
-  linkType: hard
-
-"@daml.js/daml-stdlib-DA-Time-Types-1.0.0@workspace:^, @daml.js/daml-stdlib-DA-Time-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Time-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Time-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Time-Types-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/daml-stdlib-DA-Validation-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Validation-Types-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/daml-stdlib-DA-Validation-Types-1.0.0@workspace:damljs/token-standard-models/daml-stdlib-DA-Validation-Types-1.0.0"
-  dependencies:
-    "@daml.js/daml-stdlib-DA-NonEmpty-Types-1.0.0": "file:../daml-stdlib-DA-NonEmpty-Types-1.0.0"
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0@file:../ghc-stdlib-DA-Internal-Template-1.0.0::locator=%40daml.js%2Ftoken-standard-models-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Ftoken-standard-models-1.0.0":
-  version: 0.0.0
-  resolution: "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0@file:../ghc-stdlib-DA-Internal-Template-1.0.0#../ghc-stdlib-DA-Internal-Template-1.0.0::hash=0340c7&locator=%40daml.js%2Ftoken-standard-models-1.0.0%40workspace%3Adamljs%2Ftoken-standard-models%2Ftoken-standard-models-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  checksum: 10c0/5b8293bd19de7b3367bb5642d2273f947122be36be6974636f60388b0a117709833451bfe50be12caf3b071d8eb5d1e2b07a9a5ea24457085a080070facbacad
-  languageName: node
-  linkType: hard
-
-"@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0@workspace:^, @daml.js/ghc-stdlib-DA-Internal-Template-1.0.0@workspace:damljs/token-standard-models/ghc-stdlib-DA-Internal-Template-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0@workspace:damljs/token-standard-models/ghc-stdlib-DA-Internal-Template-1.0.0"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml.js/token-standard-models-1.0.0@workspace:^, @daml.js/token-standard-models-1.0.0@workspace:damljs/token-standard-models/token-standard-models-1.0.0":
-  version: 0.0.0-use.local
-  resolution: "@daml.js/token-standard-models-1.0.0@workspace:damljs/token-standard-models/token-standard-models-1.0.0"
-  dependencies:
-    "@daml.js/daml-stdlib-DA-Time-Types-1.0.0": "file:../daml-stdlib-DA-Time-Types-1.0.0"
-    "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0": "file:../ghc-stdlib-DA-Internal-Template-1.0.0"
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-  languageName: unknown
-  linkType: soft
-
-"@daml/ledger@npm:3.3.0-snapshot.20250528.13806.0.v3cd439fb":
-  version: 3.3.0-snapshot.20250528.13806.0.v3cd439fb
-  resolution: "@daml/ledger@npm:3.3.0-snapshot.20250528.13806.0.v3cd439fb"
-  dependencies:
-    "@daml/types": "npm:3.3.0-snapshot.20250528.13806.0.v3cd439fb"
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-    cross-fetch: "npm:^3.0.4"
-    events: "npm:^3.1.0"
-    isomorphic-ws: "npm:^4.0.1"
-    ws: "npm:^7.2.1"
-  checksum: 10c0/d768a7c53c49fcab1398a618de21e35320189830c75eb38c3e00a7e8fad1bf7c9f13532b6f204e9024c87b3805a2cf578bfd24b5a7fe889db540ee0af3ac95a2
-  languageName: node
-  linkType: hard
-
-"@daml/ledger@npm:3.3.0-snapshot.20251031.13854.0.vbfca5440":
-  version: 3.3.0-snapshot.20251031.13854.0.vbfca5440
-  resolution: "@daml/ledger@npm:3.3.0-snapshot.20251031.13854.0.vbfca5440"
-  dependencies:
-    "@daml/types": "npm:3.3.0-snapshot.20251031.13854.0.vbfca5440"
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-    cross-fetch: "npm:^3.0.4"
-    events: "npm:^3.1.0"
-    isomorphic-ws: "npm:^4.0.1"
-    ws: "npm:^7.2.1"
-  checksum: 10c0/7feeb0fa5c2c6bca391a62639fd2674694f6fdee2d7f652fc4b89168f6e72df1fdcc942693c75af110ce262db8e0d86922434abce9db3980bd03fc1308b75299
-  languageName: node
-  linkType: hard
-
-"@daml/types@npm:3.3.0-snapshot.20250528.13806.0.v3cd439fb":
-  version: 3.3.0-snapshot.20250528.13806.0.v3cd439fb
-  resolution: "@daml/types@npm:3.3.0-snapshot.20250528.13806.0.v3cd439fb"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-    "@types/lodash": "npm:^4.5"
-    lodash: "npm:^4.5"
-  checksum: 10c0/fa481d8ecb9c85d502b143d948a708fdd7d1fbb92a6fb591bb907e26fb7c85ce478f53464c84515ac6b02f7d51d8dd22bd2b6712f39940bab66fbb8d2744b15f
-  languageName: node
-  linkType: hard
-
-"@daml/types@npm:3.3.0-snapshot.20251031.13854.0.vbfca5440":
-  version: 3.3.0-snapshot.20251031.13854.0.vbfca5440
-  resolution: "@daml/types@npm:3.3.0-snapshot.20251031.13854.0.vbfca5440"
-  dependencies:
-    "@mojotech/json-type-validation": "npm:^3.1.0"
-    "@types/lodash": "npm:^4.5"
-    lodash: "npm:^4.5"
-  checksum: 10c0/84b04cf288da3ae95867fe7a7dbea2c69de0bcdd847a0213741d65b942315eca4487953f717845ea15fef67f9c627df81e14f2e38edbfa96fb1f41a47a884c4d
   languageName: node
   linkType: hard
 
@@ -5960,6 +5718,18 @@ __metadata:
   version: 1.0.0-rc.3
   resolution: "@rolldown/pluginutils@npm:1.0.0-rc.3"
   checksum: 10c0/3928b6282a30f307d1b075d2f217180ae173ea9e00638ce46ab65f089bd5f7a0b2c488ae1ce530f509387793c656a2910337c4cd68fa9d37d7e439365989e699
+  languageName: node
+  linkType: hard
+
+"@rollup/plugin-alias@npm:^5.0.0":
+  version: 5.1.1
+  resolution: "@rollup/plugin-alias@npm:5.1.1"
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 10c0/00592400563b65689631e820bd72ff440f5cd21021bbd2f21b8558582ab58fd109067da77000091e40fcb8c20cabcd3a09b239a30e012bb47f6bc1a15b68ca59
   languageName: node
   linkType: hard
 
@@ -10229,15 +9999,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.0.4":
-  version: 3.2.0
-  resolution: "cross-fetch@npm:3.2.0"
-  dependencies:
-    node-fetch: "npm:^2.7.0"
-  checksum: 10c0/d8596adf0269130098a676f6739a0922f3cc7b71cc89729925411ebe851a87026171c82ea89154c4811c9867c01c44793205a52e618ce2684650218c7fbeeb9f
-  languageName: node
-  linkType: hard
-
 "cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
@@ -10637,6 +10398,7 @@ __metadata:
     "@types/node": "npm:^25.3.3"
     "@vitest/coverage-v8": "npm:^4.1.2"
     bip39: "npm:^3.1.0"
+    decimal.js: "npm:^10.6.0"
     pino: "npm:10.3.1"
     pino-pretty: "npm:^13.1.3"
     tsx: "npm:^4.21.0"
@@ -11525,7 +11287,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"events@npm:3.3.0, events@npm:^3.1.0, events@npm:^3.3.0":
+"events@npm:3.3.0, events@npm:^3.3.0":
   version: 3.3.0
   resolution: "events@npm:3.3.0"
   checksum: 10c0/d6b6f2adbccbcda74ddbab52ed07db727ef52e31a61ed26db9feb7dc62af7fc8e060defa65e5f8af9449b86b52cc1a1f6a79f2eafcf4e62add2b7a1fa4a432f6
@@ -13022,15 +12784,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isomorphic-ws@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "isomorphic-ws@npm:4.0.1"
-  peerDependencies:
-    ws: "*"
-  checksum: 10c0/7cb90dc2f0eb409825558982fb15d7c1d757a88595efbab879592f9d2b63820d6bbfb5571ab8abe36c715946e165a413a99f6aafd9f40ab1f514d73487bc9996
-  languageName: node
-  linkType: hard
-
 "istanbul-lib-coverage@npm:^3.0.0, istanbul-lib-coverage@npm:^3.2.2":
   version: 3.2.2
   resolution: "istanbul-lib-coverage@npm:3.2.2"
@@ -14467,7 +14220,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7, node-fetch@npm:^2.7.0":
+"node-fetch@npm:^2.6.1, node-fetch@npm:^2.6.7":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
   dependencies:
@@ -18995,7 +18748,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^7.0.0, ws@npm:^7.2.1, ws@npm:^7.5.1, ws@npm:~7.5.10":
+"ws@npm:^7.0.0, ws@npm:^7.5.1, ws@npm:~7.5.10":
   version: 7.5.10
   resolution: "ws@npm:7.5.10"
   peerDependencies:
