@@ -2,9 +2,7 @@ import pino from 'pino'
 import { logAllContracts } from '../utils/index.js'
 import { setupMultiSyncTrade } from './_setup.js'
 import {
-    AMULET_TEMPLATE_ID,
     TEST_TOKEN_PREFIX,
-    TRADING_APP_PREFIX,
     TRADE_AMULET_AMOUNT,
     TRADE_TOKEN_AMOUNT,
     mintAmuletForAlice,
