@@ -124,14 +124,6 @@ program
         console.log('Fetching latest tags...')
         await cmd('git fetch --tags --force')
 
-        const timestamp = Math.floor(Date.now() / 1000)
-        const releaseBranch = `release/${timestamp}`
-        console.log(`Creating release branch: ${releaseBranch}`)
-        await cmd(`git checkout -b ${releaseBranch}`)
-
-        console.log('Pushing branch to remote...')
-        await cmd(`git push --set-upstream origin ${releaseBranch}`)
-
         const groups = await select({
             canToggleAll: true,
             message: 'Select groups to release',
@@ -145,6 +137,17 @@ program
 
         if (core && !groups.includes('core')) {
             groups.push('core')
+        }
+
+        const timestamp = Math.floor(Date.now() / 1000)
+        const releaseBranch = `release/${timestamp}`
+
+        if (!dryRun) {
+            console.log(`Creating release branch: ${releaseBranch}`)
+            await cmd(`git checkout -b ${releaseBranch}`)
+
+            console.log('Pushing branch to remote...')
+            await cmd(`git push --set-upstream origin ${releaseBranch}`)
         }
 
         await runRelease(dryRun, groups)
