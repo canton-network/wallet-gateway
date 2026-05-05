@@ -163,24 +163,26 @@ If the DARs are missing from the script folder, example 15 will fail immediately
 
 ## How it Works
 
-| Step | Who         | What                                                       | Synchronizer                                          |
-| ---- | ----------- | ---------------------------------------------------------- | ----------------------------------------------------- |
-| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers        | global + app                                          |
-| 2    | —           | Vet DARs on all synchronizers and all participants         | global + app                                          |
-| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)         | global                                                |
-| 4    | —           | Discover Token interface on app synchronizer               | app                                                   |
-| 5    | Alice       | Mint 2,000,000 Amulet for Alice                            | global                                                |
-| 6a   | Bob         | Create `TokenRules` contract                               | global                                                |
-| 6b   | Bob         | Mint 500 `TestToken` holding                               | global                                                |
-| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                         | global                                                |
-| 7b   | Bob         | `OTCTradeProposal_Accept`                                  | global                                                |
-| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created | global                                                |
-| 8    | —           | Read `OTCTrade` contract ID                                | global                                                |
-| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0)               | global                                                |
-| 10   | Bob         | `AllocationFactory_Allocate` (TestToken, leg-1)            | global                                                |
-| 11a  | —           | Locate Bob's TestToken allocation                          | global                                                |
-| 11b  | Trading App | `OTCTrade_Settle` (multi-party signing)                    | global (Canton auto-reassigns Bob's Token allocation) |
-| 12   | Alice       | `TransferFactory_Transfer` self-transfer                   | app (Canton auto-reassigns Alice's Token from global) |
+| Step | Who         | What                                                        | Synchronizer |
+| ---- | ----------- | ----------------------------------------------------------- | ------------ |
+| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers         | global + app |
+| 2    | —           | Vet DARs on all synchronizers and all participants          | global + app |
+| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)          | global       |
+| 4    | —           | Discover Token interface on app synchronizer                | app          |
+| 5    | Alice       | Mint 2,000,000 Amulet for Alice                             | global       |
+| 6a   | Bob         | Create `TokenRules` contract                                | app          |
+| 6b   | Bob         | Mint 500 `TestToken` holding                                | app          |
+| 6c   | Bob         | Reassign `TokenRules` + `Token` to global-domain            | app → global |
+| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                          | global       |
+| 7b   | Bob         | `OTCTradeProposal_Accept`                                   | global       |
+| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created  | global       |
+| 8    | —           | Read `OTCTrade` contract ID                                 | global       |
+| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0)                | global       |
+| 10   | Bob         | `AllocationFactory_Allocate` (TestToken, leg-1)             | global       |
+| 11a  | —           | Locate Bob's TestToken allocation                           | global       |
+| 11b  | Trading App | `OTCTrade_Settle` (multi-party signing)                     | global       |
+| 11c  | Bob + Alice | Reassign `TokenRules` + Alice's `Token` to app-synchronizer | global → app |
+| 12   | Alice       | `TransferFactory_Transfer` self-transfer                    | app          |
 
 ## Troubleshooting
 

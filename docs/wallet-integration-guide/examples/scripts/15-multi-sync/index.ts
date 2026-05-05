@@ -7,10 +7,12 @@ import {
     TRADE_TOKEN_AMOUNT,
     mintAmuletForAlice,
     createTokenRulesAndMintForBob,
+    reassignBobContractsToGlobal,
     createAndInitiateOtcTrade,
     allocateAmuletForAlice,
     allocateTokenForBob,
     settleOtcTrade,
+    reassignToAppAfterSettlement,
     selfTransferToken,
     buildAllPartySpecs,
 } from './_trade_ops.js'
@@ -33,11 +35,18 @@ const allPartySpecs = buildAllPartySpecs(setup)
 
 // ── Steps 5–6: Init holdings ────────────────────────────────────────────────
 // Step 5:  Mint Amulet for Alice (global synchronizer)
-// Steps 6a+6b: TokenRules + Token for Bob (global synchronizer)
+// Steps 6a+6b: TokenRules + Token for Bob (app-synchronizer)
 await Promise.all([
     mintAmuletForAlice(setup, logger),
     createTokenRulesAndMintForBob(setup, logger),
 ])
+
+// Step 6c: Reassign Bob's TokenRules + Token from app-synchronizer → global-domain.
+//          AllocationFactory_Allocate (step 10) has TradingApp as a mandatory informee
+//          (via requestView.settlement), so the allocation must be submitted on global-domain.
+//          Canton requires every referenced contract (TokenRules factory + Token holding)
+//          to reside on the prescribed synchronizer before submission.
+await reassignBobContractsToGlobal(setup, logger)
 logger.info('Contracts after setup:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
@@ -66,7 +75,7 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
-// Step 10: Bob allocates Token for leg-1 (global synchronizer)
+// Step 10: Bob allocates Token for leg-1 (global-domain; TokenRules + Token moved there in step 6c)
 const [legIdAlice, { legId: legIdBob, tokenRulesCid, tokenRulesContract }] =
     await Promise.all([
         allocateAmuletForAlice(setup, logger),
@@ -92,7 +101,10 @@ await settleOtcTrade(
 logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 12: Alice self-transfers Token on global synchronizer ─────────────────
+// ── Step 11c: Reassign TokenRules (Bob) + Alice's Token → app-synchronizer ───
+// selfTransferToken must target app-synchronizer (where the Token will reside at
+// the end of the demo). Both TokenRules and Alice's Token are moved back from
+// global-domain so the submission can be prescribed to app-synchronizer.
 const aliceTokenContracts = await p1Sdk.ledger.acs.read({
     templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
     parties: [alice.partyId],
@@ -102,9 +114,22 @@ const aliceTokenCid = aliceTokenContracts[0]?.contractId
 if (!aliceTokenCid)
     throw new Error('Token holding not found for Alice after settlement')
 
+const freshTokenRulesContract = await reassignToAppAfterSettlement(
+    setup,
+    { aliceTokenCid, tokenRulesCid },
+    logger
+)
+logger.info('Contracts after reassignment to app-synchronizer:')
+await logAllContracts(logger, synchronizers, allPartySpecs)
+
+// ── Step 12: Alice self-transfers Token on app-synchronizer ───────────────────
 await selfTransferToken(
     setup,
-    { aliceTokenCid, tokenRulesCid, tokenRulesContract },
+    {
+        aliceTokenCid,
+        tokenRulesCid,
+        tokenRulesContract: freshTokenRulesContract,
+    },
     logger
 )
 logger.info('Final contract state:')
