@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Wallet Gateway maintainers (Default)
-*                  @hyperledger-labs/splice-wallet-kernel-admins @hyperledger-labs/splice-wallet-kernel-contributors
+*                      @canton-network/wallet-gateway-admins @canton-network/wallet-gateway-maintainers
 
 # Wallet Gateway admins
-.github/*              @hyperledger-labs/splice-wallet-kernel-admins
-.vscode/*              @hyperledger-labs/splice-wallet-kernel-admins
-CODEOWNERS             @hyperledger-labs/splice-wallet-kernel-admins
-LICENSE                @hyperledger-labs/splice-wallet-kernel-admins
+.github/*              @canton-network/wallet-gateway-admins
+.vscode/*              @canton-network/wallet-gateway-admins
+CODEOWNERS             @canton-network/wallet-gateway-admins
+LICENSE                @canton-network/wallet-gateway-admins

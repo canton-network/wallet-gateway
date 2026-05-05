@@ -3,7 +3,7 @@
 **`@canton-network/dapp-sdk`** — TypeScript SDK for building decentralized applications on the [Canton Network](https://www.canton.network/). Connect users to Canton wallets, manage accounts, sign messages, and execute transactions — all through a vendor-neutral interface defined by [CIP-0103](https://github.com/canton-foundation/cips/blob/main/cip-0103/cip-0103.md).
 
 > [!IMPORTANT]
-> This project is under active development and may introduce breaking changes until version 1.0.0. Migration guides for each release are published in [Discussions](https://github.com/hyperledger-labs/splice-wallet-kernel/discussions).
+> This project is under active development and may introduce breaking changes until version 1.0.0. Migration guides for each release are published in [Discussions](https://github.com/canton-network/wallet-gateway/discussions).
 
 ## Features
 
@@ -89,7 +89,7 @@ The SDK is built around three layers:
 
 ## Wallet providers
 
-Wallet and extension authors: see **[Wallet providers (discovery)](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/docs/dapp-building/dapp-sdk/provider.md)** in the dApp Building docs for how to appear in the picker (`RemoteAdapter`, `window.*` scan, `canton:announceProvider`, and `additionalAdapters`).
+Wallet and extension authors: see **[Wallet providers (discovery)](https://github.com/canton-network/wallet-gateway/blob/main/docs/dapp-building/dapp-sdk/provider.md)** in the dApp Building docs for how to appear in the picker (`RemoteAdapter`, `window.*` scan, `canton:announceProvider`, and `additionalAdapters`).
 
 ## Usage
 
@@ -221,22 +221,22 @@ provider.removeListener('statusChanged', listener)
 
 ### Built-in Adapters
 
-| Adapter            | Provider Type | Transport        | Description                                                                                                                                                                                      |
-| ------------------ | ------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ExtensionAdapter` | `'browser'`   | `postMessage`    | Browser extensions (announced wallets or dApp-registered; optional explicit slot).                                                                                                               |
-| `InjectedAdapter`  | `'browser'`   | in-page `window` | Created when namespace scan finds a provider on `window` ([Wallet providers guide](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/docs/dapp-building/dapp-sdk/provider.md)). |
-| `RemoteAdapter`    | `'remote'`    | HTTP/SSE         | CIP-103 Wallet Gateways over the network.                                                                                                                                                        |
+| Adapter            | Provider Type | Transport        | Description                                                                                                                                                                              |
+| ------------------ | ------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ExtensionAdapter` | `'browser'`   | `postMessage`    | Browser extensions (announced wallets or dApp-registered; optional explicit slot).                                                                                                       |
+| `InjectedAdapter`  | `'browser'`   | in-page `window` | Created when namespace scan finds a provider on `window` ([Wallet providers guide](https://github.com/canton-network/wallet-gateway/blob/main/docs/dapp-building/dapp-sdk/provider.md)). |
+| `RemoteAdapter`    | `'remote'`    | HTTP/SSE         | CIP-103 Wallet Gateways over the network.                                                                                                                                                |
 
 ## Documentation
 
 Full documentation, including detailed usage guides, API reference, and configuration for the Wallet Gateway:
 
-- [dApp Building Guide](https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/docs/dapp-building)
-- [dApp SDK Documentation](https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/docs/dapp-building/dapp-sdk)
-- [Wallet providers (discovery)](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/docs/dapp-building/dapp-sdk/provider.md)
-- [API Specifications (OpenRPC)](https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/api-specs)
-- [Example dApps](https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/examples)
+- [dApp Building Guide](https://github.com/canton-network/wallet-gateway/tree/main/docs/dapp-building)
+- [dApp SDK Documentation](https://github.com/canton-network/wallet-gateway/tree/main/docs/dapp-building/dapp-sdk)
+- [Wallet providers (discovery)](https://github.com/canton-network/wallet-gateway/blob/main/docs/dapp-building/dapp-sdk/provider.md)
+- [API Specifications (OpenRPC)](https://github.com/canton-network/wallet-gateway/tree/main/api-specs)
+- [Example dApps](https://github.com/canton-network/wallet-gateway/tree/main/examples)
 
 ## License
 
-[Apache-2.0](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/LICENSE)
+[Apache-2.0](https://github.com/canton-network/wallet-gateway/blob/main/LICENSE)

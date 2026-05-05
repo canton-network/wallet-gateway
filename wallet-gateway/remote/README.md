@@ -59,7 +59,7 @@ Dfns provisions and activates Canton wallets through its validator integration, 
 
 ## Fireblocks
 
-1. Complete steps 1–3 from the instructions at https://github.com/hyperledger-labs/splice-wallet-kernel/tree/main/core/signing-fireblocks
+1. Complete steps 1–3 from the instructions at https://github.com/canton-network/wallet-gateway/tree/main/core/signing-fireblocks
 
 2. set the environment variable `FIREBLOCKS_API_KEY` (get it from `API User (ID)` column in fireblocks api users table).
 
