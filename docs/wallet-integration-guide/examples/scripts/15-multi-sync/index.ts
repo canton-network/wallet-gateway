@@ -36,7 +36,6 @@ const {
     tokenP2,
     alice,
     bob,
-    tradingApp,
     synchronizers,
     amuletAdmin,
 } = setup
