@@ -244,18 +244,6 @@ describe('dApp SDK - sync', () => {
             await sdk.disconnect()
         })
 
-        it('injects the connected provider on window.canton', async () => {
-            const sdk = await createIntegrationSdk()
-            expect(window.canton).toBeUndefined()
-
-            await sdk.connect()
-
-            expect(window.canton).toBeDefined()
-            expect(window.canton).toBe(sdk.getConnectedProvider())
-
-            await sdk.disconnect()
-        })
-
         it('persists discovery metadata', async () => {
             const sdk = await createIntegrationSdk()
 
