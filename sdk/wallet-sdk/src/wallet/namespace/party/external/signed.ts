@@ -50,7 +50,18 @@ export class SignedPartyCreationService {
                 type: 'SDKOperationUnsupported',
             })
 
-        if (await this.checkIfPartyExists(party.partyId)) {
+        // When a specific synchronizerId is provided, the caller may be
+        // registering an existing party on an additional synchronizer.
+        // In that case we skip the participant-level existence check because
+        // the party already exists (on a different synchronizer) but still
+        // needs topology + allocation on the target synchronizer.
+        const targetsSynchronizer = Boolean(
+            this.createPartyOptions?.synchronizerId
+        )
+        if (
+            !targetsSynchronizer &&
+            (await this.checkIfPartyExists(party.partyId))
+        ) {
             this.ctx.logger.info('Party already created.')
             return party
         }

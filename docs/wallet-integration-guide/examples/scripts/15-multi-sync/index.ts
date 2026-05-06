@@ -7,7 +7,6 @@ import {
     TRADE_TOKEN_AMOUNT,
     mintAmuletForAlice,
     createTokenRulesAndMintForBob,
-    reassignBobContractsToGlobal,
     createAndInitiateOtcTrade,
     allocateAmuletForAlice,
     allocateTokenForBob,
@@ -41,12 +40,6 @@ await Promise.all([
     createTokenRulesAndMintForBob(setup, logger),
 ])
 
-// Step 6c: Reassign Bob's TokenRules + Token from app-synchronizer → global-domain.
-//          AllocationFactory_Allocate (step 10) has TradingApp as a mandatory informee
-//          (via requestView.settlement), so the allocation must be submitted on global-domain.
-//          Canton requires every referenced contract (TokenRules factory + Token holding)
-//          to reside on the prescribed synchronizer before submission.
-await reassignBobContractsToGlobal(setup, logger)
 logger.info('Contracts after setup:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
@@ -75,7 +68,7 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
-// Step 10: Bob allocates Token for leg-1 (global-domain; TokenRules + Token moved there in step 6c)
+// Step 10: Bob allocates Token for leg-1 (global — Canton auto-reassigns from app-synchronizer)
 const [legIdAlice, { legId: legIdBob, tokenRulesCid }] = await Promise.all([
     allocateAmuletForAlice(setup, logger),
     allocateTokenForBob(setup, logger),

@@ -206,7 +206,6 @@ export async function setupMultiSyncTrade(
     )
 
     // Register Alice and Bob on app-synchronizer so they can transact there.
-    // TradingApp is not registered on app-synchronizer — it operates on global only.
     await Promise.all([
         p1Sdk.party.external
             .create(alice.keyPair.publicKey, {
@@ -214,18 +213,16 @@ export async function setupMultiSyncTrade(
                 synchronizerId: appSynchronizerId,
             })
             .sign(alice.keyPair.privateKey)
-            .execute({ grantUserRights: false, skipExistenceCheck: true }),
+            .execute({ grantUserRights: false }),
         p2Sdk.party.external
             .create(bob.keyPair.publicKey, {
                 partyHint: bob.partyId.split('::')[0],
                 synchronizerId: appSynchronizerId,
             })
             .sign(bob.keyPair.privateKey)
-            .execute({ grantUserRights: false, skipExistenceCheck: true }),
+            .execute({ grantUserRights: false }),
     ])
-    logger.info(
-        'Alice and Bob registered on app-synchronizer (TradingApp is global-only)'
-    )
+    logger.info('Alice and Bob registered on app-synchronizer')
 
     // Connect scan proxy and discover Amulet admin
     const scanProxy = await createScanProxyClient(

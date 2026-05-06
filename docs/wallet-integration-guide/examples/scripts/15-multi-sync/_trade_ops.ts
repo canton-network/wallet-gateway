@@ -267,65 +267,6 @@ async function reassignContract(
     })
 }
 
-/**
- * Reassigns Bob's TokenRules and Token contracts from app-synchronizer to global-domain.
- *
- * AllocationFactory_Allocate for Bob's TestToken leg has TradingApp as a mandatory informee
- * (via requestView.settlement). TradingApp is only on global-domain, so the allocation
- * command must be submitted there. Canton requires every contract referenced in the command
- * (the factory TokenRules and the input holding Token) to reside on the prescribed
- * synchronizer — so both must be moved to global-domain before step 10.
- *
- * Two-phase Canton reassignment protocol per contract:
- *   1. UnassignCommand: marks the contract inactive on app-synchronizer → returns reassignmentId
- *   2. AssignCommand:   activates the contract on global-domain
- */
-export async function reassignBobContractsToGlobal(
-    setup: MultiSyncSetup,
-    logger: Logger
-): Promise<void> {
-    const { p2Sdk, p2SdkCtx, bob, appSynchronizerId, globalSynchronizerId } =
-        setup
-    const ledgerProvider = p2SdkCtx.ledgerProvider
-
-    // Read current CIDs from app-synchronizer
-    const [tokenRulesContracts, tokenContracts] = await Promise.all([
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-    ])
-
-    const tokenRulesCid = tokenRulesContracts[0]?.contractId
-    if (!tokenRulesCid) throw new Error('TokenRules not found for reassignment')
-    const tokenCid = tokenContracts[0]?.contractId
-    if (!tokenCid) throw new Error('Token not found for reassignment')
-
-    // Reassign each contract sequentially: unassign then assign
-    for (const [label, contractId] of [
-        ['TokenRules', tokenRulesCid],
-        ['Token', tokenCid],
-    ] as const) {
-        await reassignContract(
-            ledgerProvider,
-            bob.partyId,
-            contractId,
-            appSynchronizerId,
-            globalSynchronizerId,
-            `bob-${label}`
-        )
-        logger.info(
-            `Bob: ${label} reassigned from app-synchronizer to global-domain`
-        )
-    }
-}
-
 export async function createAndInitiateOtcTrade(
     setup: MultiSyncSetup,
     transferLegs: Record<string, unknown>,
@@ -587,7 +528,7 @@ export async function allocateTokenForBob(
         .sign(bob.keyPair.privateKey)
         .execute({ partyId: bob.partyId })
 
-    logger.info('Bob: TestToken allocated for leg-1 (global-domain)')
+    logger.info('Bob: TestToken allocated for leg-1 (global)')
     return { legId, tokenRulesCid, tokenRulesContract }
 }
 
@@ -704,7 +645,6 @@ export async function settleOtcTrade(
     }
 
     // Amulet system contracts from scan proxy; synchronizerId='' → Canton infers from blob
-    // Bob's TestToken allocation is NOT disclosed: it was created on global-domain, so P3 already has it in ACS.
     const disclosedContracts = (amuletExecCtx.disclosedContracts ?? []).map(
         (c) => ({ ...c, synchronizerId: '' })
     )
