@@ -528,22 +528,21 @@ export interface TransferParams {
 }
 
 /**
- * Bob self-transfers a portion of his remaining TestToken holding from global
- * back to app-synchronizer. After the OTC settlement, Bob's senderChange Token
- * (the post-allocation remainder) and TokenRules both live on global. Bob is
- * the signatory of both contracts (Token: owner+admin, TokenRules: admin), so
- * when P2 submits this command targeting app-synchronizer, Canton automatically
- * reassigns both contracts global → app-synchronizer.
+ * Explicitly reassigns Bob's TestToken holding and TokenRules from global back
+ * to app-synchronizer using the two-phase Canton reassignment (Unassign → Assign).
+ * After OTC settlement, both contracts live on global. Bob is signatory of both
+ * (Token: owner+admin; TokenRules: admin) and is hosted on P2 which is connected
+ * to both synchronizers, so he can initiate reassignment from global → app directly.
  *
- * This demonstrates a second automatic cross-synchronizer reassignment
- * (the inverse direction of step 10), with no manual reassign required.
+ * This is simpler and more direct than the self-transfer workaround: no new Daml
+ * contracts are created or archived — the existing contracts just move synchronizers.
  */
-export async function selfTransferToken(
+export async function reassignBobTokensToApp(
     setup: MultiSyncSetup,
     params: TransferParams,
     logger: Logger
 ): Promise<void> {
-    const { p2Sdk, bob, appSynchronizerId } = setup
+    const { p2Sdk, bob, globalSynchronizerId, appSynchronizerId } = setup
     const { tokenRulesCid } = params
 
     const bobTokens = await p2Sdk.ledger.acs.read({
@@ -557,56 +556,24 @@ export async function selfTransferToken(
             'Bob: remainder Token holding not found after settlement'
         )
 
-    const selfTransferAmount = '100'
-
-    await p2Sdk.ledger
-        .prepare({
-            partyId: bob.partyId,
-            commands: [
-                {
-                    ExerciseCommand: {
-                        templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: tokenRulesCid,
-                        choice: 'TransferFactory_Transfer',
-                        choiceArgument: {
-                            expectedAdmin: bob.partyId,
-                            transfer: {
-                                sender: bob.partyId,
-                                receiver: bob.partyId,
-                                amount: selfTransferAmount,
-                                instrumentId: {
-                                    admin: bob.partyId,
-                                    id: 'TestToken',
-                                },
-                                requestedAt: new Date(
-                                    Date.now() - 60_000
-                                ).toISOString(),
-                                executeBefore: new Date(
-                                    Date.now() + 86_400_000
-                                ).toISOString(),
-                                inputHoldingCids: [bobTokenCid],
-                                meta: { values: {} },
-                            },
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
-                        },
-                    },
-                },
-            ],
-            // P2 hosts Bob (stakeholder of both TokenRules and Token), so no
-            // disclosed contracts are needed and Canton can auto-reassign both
-            // global-resident contracts to app-synchronizer as part of this command.
-            disclosedContracts: [],
-            synchronizerId: appSynchronizerId,
-        })
-        .sign(bob.keyPair.privateKey)
-        .execute({ partyId: bob.partyId })
+    // Reassign both contracts in parallel — they are independent.
+    await Promise.all([
+        p2Sdk.ledger.internal.reassign({
+            submitter: bob.partyId,
+            contractId: tokenRulesCid,
+            source: globalSynchronizerId,
+            target: appSynchronizerId,
+        }),
+        p2Sdk.ledger.internal.reassign({
+            submitter: bob.partyId,
+            contractId: bobTokenCid,
+            source: globalSynchronizerId,
+            target: appSynchronizerId,
+        }),
+    ])
 
     logger.info(
-        `Bob: ${selfTransferAmount} TestToken self-transferred on app-synchronizer ` +
-            `(Canton auto-reassigned TokenRules + Token from global → app)`
+        'Bob: TokenRules + Token explicitly reassigned global → app-synchronizer'
     )
 }
 
