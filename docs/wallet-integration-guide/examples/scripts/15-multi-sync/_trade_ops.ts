@@ -441,44 +441,6 @@ export async function allocateTokenForBob(
     return { legId, tokenRulesCid, tokenRulesContract }
 }
 
-/**
- * After settlement, reassigns Bob's TokenRules from global-domain back to
- * app-synchronizer. Alice's Token is left on global — Canton will auto-reassign
- * it to app-synchronizer when selfTransferToken targets app-synchronizer
- * (P1 hosts Alice, the stakeholder).
- * Returns a fresh TokenRules ACS entry with the updated synchronizerId.
- */
-export async function reassignTokenRulesToApp(
-    setup: MultiSyncSetup,
-    params: { tokenRulesCid: string },
-    logger: Logger
-): Promise<AcsContractEntry> {
-    const { p2Sdk, bob, appSynchronizerId, globalSynchronizerId } = setup
-    const { tokenRulesCid } = params
-
-    // Reassign TokenRules (Bob) from global-domain → app-synchronizer
-    await p2Sdk.ledger.internal.reassign({
-        submitter: bob.partyId,
-        contractId: tokenRulesCid,
-        source: globalSynchronizerId,
-        target: appSynchronizerId,
-    })
-    logger.info(
-        'Bob: TokenRules reassigned from global-domain to app-synchronizer'
-    )
-
-    // Re-read TokenRules so the caller gets the updated synchronizerId for disclosedContracts
-    const tokenRulesContracts = await p2Sdk.ledger.acs.read({
-        templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-        parties: [bob.partyId],
-        filterByParty: true,
-    })
-    const freshTokenRules = tokenRulesContracts[0]
-    if (!freshTokenRules)
-        throw new Error('TokenRules not found after reassignment to app')
-    return freshTokenRules
-}
-
 export interface SettleParams {
     otcTradeCid: string
     legIdAlice: string
@@ -562,24 +524,123 @@ export async function settleOtcTrade(
 }
 
 export interface TransferParams {
-    aliceTokenCid: string
     tokenRulesCid: string
-    tokenRulesContract: AcsContractEntry
 }
 
 /**
- * Self-transfers Alice's TestToken on app-synchronizer via TransferFactory_Transfer.
- * TokenRules has been manually reassigned to app-synchronizer in step 11c.
- * Alice's Token (still on global) is auto-reassigned by Canton when this command
- * targets app-synchronizer — P1 hosts Alice (the stakeholder).
+ * Bob self-transfers a portion of his remaining TestToken holding from global
+ * back to app-synchronizer. After the OTC settlement, Bob's senderChange Token
+ * (the post-allocation remainder) and TokenRules both live on global. Bob is
+ * the signatory of both contracts (Token: owner+admin, TokenRules: admin), so
+ * when P2 submits this command targeting app-synchronizer, Canton automatically
+ * reassigns both contracts global → app-synchronizer.
+ *
+ * This demonstrates a second automatic cross-synchronizer reassignment
+ * (the inverse direction of step 10), with no manual reassign required.
  */
 export async function selfTransferToken(
     setup: MultiSyncSetup,
     params: TransferParams,
     logger: Logger
 ): Promise<void> {
-    const { p1Sdk, alice, bob, appSynchronizerId } = setup
-    const { aliceTokenCid, tokenRulesCid, tokenRulesContract } = params
+    const { p2Sdk, bob, appSynchronizerId } = setup
+    const { tokenRulesCid } = params
+
+    const bobTokens = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
+    const bobTokenCid = bobTokens[0]?.contractId
+    if (!bobTokenCid)
+        throw new Error(
+            'Bob: remainder Token holding not found after settlement'
+        )
+
+    const selfTransferAmount = '100'
+
+    await p2Sdk.ledger
+        .prepare({
+            partyId: bob.partyId,
+            commands: [
+                {
+                    ExerciseCommand: {
+                        templateId: TRANSFER_FACTORY_IFACE,
+                        contractId: tokenRulesCid,
+                        choice: 'TransferFactory_Transfer',
+                        choiceArgument: {
+                            expectedAdmin: bob.partyId,
+                            transfer: {
+                                sender: bob.partyId,
+                                receiver: bob.partyId,
+                                amount: selfTransferAmount,
+                                instrumentId: {
+                                    admin: bob.partyId,
+                                    id: 'TestToken',
+                                },
+                                requestedAt: new Date(
+                                    Date.now() - 60_000
+                                ).toISOString(),
+                                executeBefore: new Date(
+                                    Date.now() + 86_400_000
+                                ).toISOString(),
+                                inputHoldingCids: [bobTokenCid],
+                                meta: { values: {} },
+                            },
+                            extraArgs: {
+                                context: { values: {} },
+                                meta: { values: {} },
+                            },
+                        },
+                    },
+                },
+            ],
+            // P2 hosts Bob (stakeholder of both TokenRules and Token), so no
+            // disclosed contracts are needed and Canton can auto-reassign both
+            // global-resident contracts to app-synchronizer as part of this command.
+            disclosedContracts: [],
+            synchronizerId: appSynchronizerId,
+        })
+        .sign(bob.keyPair.privateKey)
+        .execute({ partyId: bob.partyId })
+
+    logger.info(
+        `Bob: ${selfTransferAmount} TestToken self-transferred on app-synchronizer ` +
+            `(Canton auto-reassigned TokenRules + Token from global → app)`
+    )
+}
+
+/**
+ * Alice self-transfers her TestToken (received from the OTC settlement) from
+ * global back to app-synchronizer. After Bob's self-transfer, TokenRules already
+ * lives on app-synchronizer; Alice's Token is still on global. P1 hosts Alice,
+ * who is the owner (and a signatory) of her Token, so Canton can auto-reassign
+ * her Token global → app as part of this command. TokenRules is disclosed since
+ * P1 does not host Bob.
+ */
+export async function aliceSelfTransferToApp(
+    setup: MultiSyncSetup,
+    logger: Logger
+): Promise<void> {
+    const { p1Sdk, p2Sdk, alice, bob, appSynchronizerId } = setup
+
+    const [aliceTokens, tokenRulesContracts] = await Promise.all([
+        p1Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+            parties: [alice.partyId],
+            filterByParty: true,
+        }),
+        p2Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
+            parties: [bob.partyId],
+            filterByParty: true,
+        }),
+    ])
+    const aliceTokenCid = aliceTokens[0]?.contractId
+    if (!aliceTokenCid)
+        throw new Error('Alice: Token holding not found after settlement')
+    const tokenRules = tokenRulesContracts[0]
+    if (!tokenRules) throw new Error('TokenRules not found')
 
     await p1Sdk.ledger
         .prepare({
@@ -588,7 +649,7 @@ export async function selfTransferToken(
                 {
                     ExerciseCommand: {
                         templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: tokenRulesCid,
+                        contractId: tokenRules.contractId,
                         choice: 'TransferFactory_Transfer',
                         choiceArgument: {
                             expectedAdmin: bob.partyId,
@@ -617,12 +678,14 @@ export async function selfTransferToken(
                     },
                 },
             ],
+            // TokenRules is disclosed (P1 doesn't host Bob); Alice's Token is
+            // auto-reassigned global → app by Canton because P1 hosts Alice.
             disclosedContracts: [
                 {
-                    templateId: tokenRulesContract.templateId,
-                    contractId: tokenRulesCid,
-                    createdEventBlob: tokenRulesContract.createdEventBlob!,
-                    synchronizerId: tokenRulesContract.synchronizerId,
+                    templateId: tokenRules.templateId,
+                    contractId: tokenRules.contractId,
+                    createdEventBlob: tokenRules.createdEventBlob!,
+                    synchronizerId: tokenRules.synchronizerId,
                 },
             ],
             synchronizerId: appSynchronizerId,
@@ -631,6 +694,7 @@ export async function selfTransferToken(
         .execute({ partyId: alice.partyId })
 
     logger.info(
-        'Alice: TestToken self-transferred on app-synchronizer via TransferFactory_Transfer'
+        `Alice: ${TRADE_TOKEN_AMOUNT} TestToken self-transferred on app-synchronizer ` +
+            `(Canton auto-reassigned Alice's Token from global → app)`
     )
 }

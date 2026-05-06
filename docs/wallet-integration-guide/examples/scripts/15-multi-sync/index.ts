@@ -2,7 +2,6 @@ import pino from 'pino'
 import { logAllContracts } from '../utils/index.js'
 import { setupMultiSyncTrade } from './_setup.js'
 import {
-    TEST_TOKEN_PREFIX,
     TRADE_AMULET_AMOUNT,
     TRADE_TOKEN_AMOUNT,
     mintAmuletForAlice,
@@ -11,8 +10,8 @@ import {
     allocateAmuletForAlice,
     allocateTokenForBob,
     settleOtcTrade,
-    reassignTokenRulesToApp,
     selfTransferToken,
+    aliceSelfTransferToApp,
     buildAllPartySpecs,
 } from './_trade_ops.js'
 
@@ -28,7 +27,7 @@ const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 // Step 3: Allocate parties for Alice (P1), Bob (P2), and TradingApp (P3)
 // Step 4: Discover Token interface on app synchronizer for Bob's token (used in Steps 6b and 10)
 const setup = await setupMultiSyncTrade(logger)
-const { p1Sdk, tokenP2, alice, bob, synchronizers, amuletAdmin } = setup
+const { tokenP2, alice, bob, synchronizers, amuletAdmin } = setup
 
 const allPartySpecs = buildAllPartySpecs(setup)
 
@@ -69,11 +68,10 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
 // Step 10: Bob allocates Token for leg-1 (global — Canton auto-reassigns from app-synchronizer)
-const [legIdAlice, { legId: legIdBob, tokenRulesCid, tokenRulesContract }] =
-    await Promise.all([
-        allocateAmuletForAlice(setup, logger),
-        allocateTokenForBob(setup, logger),
-    ])
+const [legIdAlice, { legId: legIdBob, tokenRulesCid }] = await Promise.all([
+    allocateAmuletForAlice(setup, logger),
+    allocateTokenForBob(setup, logger),
+])
 logger.info('Contracts after allocations:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
@@ -94,36 +92,23 @@ await settleOtcTrade(
 logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 11c: Reassign TokenRules (Bob) → app-synchronizer ───────────────────
-// The allocation (step 10) auto-reassigned TokenRules to global because not all
-// informees are on app-synchronizer. We move it back so selfTransferToken can
-// exercise on it. Alice's Token is auto-reassigned by Canton (P1 hosts Alice).
-const aliceTokenContracts = await p1Sdk.ledger.acs.read({
-    templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-    parties: [alice.partyId],
-    filterByParty: true,
-})
-const aliceTokenCid = aliceTokenContracts[0]?.contractId
-if (!aliceTokenCid)
-    throw new Error('Token holding not found for Alice after settlement')
-
-const freshTokenRulesContract = await reassignTokenRulesToApp(
-    setup,
-    { tokenRulesCid },
-    logger
+// ── Step 12: Bob self-transfers remaining TestToken on app-synchronizer ──────
+// After settlement, Bob's senderChange Token (480) and TokenRules both live on
+// global. Bob is signatory of both contracts and is hosted on P2, so when P2
+// submits this self-transfer targeting app-synchronizer, Canton automatically
+// reassigns BOTH contracts global → app — demonstrating a second auto-reassign
+// (the inverse direction of step 10) with no manual reassignment.
+await selfTransferToken(setup, { tokenRulesCid }, logger)
+logger.info(
+    'Contracts after Bob self-transfer (TokenRules + Bob Token on app):'
 )
-logger.info('Contracts after TokenRules reassignment to app-synchronizer:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 12: Alice self-transfers Token on app-synchronizer ───────────────────
-await selfTransferToken(
-    setup,
-    {
-        aliceTokenCid,
-        tokenRulesCid,
-        tokenRulesContract: freshTokenRulesContract,
-    },
-    logger
-)
+// ── Step 13: Alice self-transfers her TestToken back to app-synchronizer ─────
+// TokenRules now lives on app-synchronizer (after step 12). Alice's Token is
+// still on global. P1 hosts Alice (signatory of her Token), so Canton auto-
+// reassigns Alice's Token global → app as part of this command. TokenRules is
+// disclosed because P1 doesn't host Bob.
+await aliceSelfTransferToApp(setup, logger)
 logger.info('Final contract state:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
