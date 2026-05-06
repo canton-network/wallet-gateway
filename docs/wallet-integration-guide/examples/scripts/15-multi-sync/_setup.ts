@@ -35,6 +35,7 @@ export type PartyInfo = Omit<
     keyPair: KeyPair
 }
 
+const DARS_PATH = '../../../../../.localnet/dars'
 const TRADING_APP_DAR = 'splice-token-test-trading-app-1.0.0.dar'
 const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
@@ -129,24 +130,24 @@ export async function setupMultiSyncTrade(
 
     // Load DARs bundled alongside this script and vet on all participants × both synchronizers.
     const here = path.dirname(fileURLToPath(import.meta.url))
+    const darsDir = path.join(here, DARS_PATH)
     for (const [darPath, darName] of [
-        [path.join(here, TRADING_APP_DAR), TRADING_APP_DAR],
-        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
+        [path.join(darsDir, TRADING_APP_DAR), TRADING_APP_DAR],
+        [path.join(darsDir, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
     ] as [string, string][]) {
         try {
             await fs.stat(darPath)
         } catch {
             throw new Error(
                 `Required DAR not found: ${darPath}\n` +
-                    `  "${darName}" must be bundled in the same folder as this script.\n` +
-                    `  See: 15-multi-sync/README.md`
+                    `  "${darName}" must be present in .localnet/dars/.`
             )
         }
     }
 
     const [tradingAppDar, testTokenV1Dar] = await Promise.all([
-        fs.readFile(path.join(here, TRADING_APP_DAR)),
-        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
+        fs.readFile(path.join(darsDir, TRADING_APP_DAR)),
+        fs.readFile(path.join(darsDir, TEST_TOKEN_V1_DAR)),
     ])
 
     // P1 and P2 vet DARs on both synchronizers; P3 vets on global only
