@@ -67,22 +67,36 @@ export async function logAllContracts(
         )
     )
 
-    type Row = { label: string; template: string; cid: string; sync: string }
+    type Row = {
+        label: string
+        template: string
+        amount: string
+        cid: string
+        sync: string
+    }
     const rows: Row[] = []
 
     for (let i = 0; i < specs.length; i++) {
         const { label } = specs[i]
         const contracts = results[i]
         if (contracts.length === 0) {
-            rows.push({ label, template: '(none)', cid: '-', sync: '-' })
+            rows.push({
+                label,
+                template: '(none)',
+                amount: '-',
+                cid: '-',
+                sync: '-',
+            })
             continue
         }
         for (const c of contracts) {
             const tplParts = (c.templateId ?? '').split(':')
             const template = tplParts[tplParts.length - 1] || c.templateId
+            const amount = extractAmount(c.createArgument)
             rows.push({
                 label,
                 template,
+                amount,
                 cid: `${c.contractId.substring(0, 16)}...`,
                 sync: syncAlias(c.synchronizerId, synchronizers),
             })
@@ -92,10 +106,11 @@ export async function logAllContracts(
     const HEADERS = [
         'Party / Label',
         'Template',
+        'Amount',
         'Contract ID',
         'Synchronizer',
     ] as const
-    const KEYS = ['label', 'template', 'cid', 'sync'] as const
+    const KEYS = ['label', 'template', 'amount', 'cid', 'sync'] as const
 
     const colWidths = HEADERS.map((h, i) =>
         Math.max(h.length, ...rows.map((r) => r[KEYS[i]].length))
@@ -117,4 +132,21 @@ export async function logAllContracts(
         logger.info(line)
     }
     logger.info(sep)
+}
+
+/** Extract a human-readable amount from a contract's createArgument */
+function extractAmount(createArgument: unknown): string {
+    if (!createArgument || typeof createArgument !== 'object') return ''
+    const arg = createArgument as Record<string, unknown>
+    // Token: { holding: { amount } }
+    if (arg.holding && typeof arg.holding === 'object') {
+        const amount = (arg.holding as Record<string, unknown>).amount
+        if (amount != null) return String(amount)
+    }
+    // Amulet: { amount: { initialAmount } }
+    if (arg.amount && typeof arg.amount === 'object') {
+        const initial = (arg.amount as Record<string, unknown>).initialAmount
+        if (initial != null) return String(initial)
+    }
+    return ''
 }
