@@ -11,7 +11,6 @@ import {
 import { createUserClient } from '../rpc-client'
 import { stateManager } from '../state-manager'
 import '../index'
-import { WalletEvent } from '@canton-network/core-types'
 
 @customElement('user-ui-sign-message')
 export class UserUiSignMessage extends BaseElement {
@@ -117,23 +116,6 @@ export class UserUiSignMessage extends BaseElement {
         }, 500)
     }
 
-    private postResult(payload: {
-        status: 'signed' | 'rejected' | 'failed'
-        signature?: string
-        publicKey?: string
-    }) {
-        if (window.opener && !window.opener.closed) {
-            window.opener.postMessage(
-                {
-                    type: WalletEvent.SPLICE_WALLET_SIGN_MESSAGE_RESULT,
-                    messageId: this.messageId,
-                    ...payload,
-                },
-                '*'
-            )
-        }
-    }
-
     private async updateState() {
         this.isLoading = true
         this.loadError = null
@@ -172,7 +154,6 @@ export class UserUiSignMessage extends BaseElement {
                 method: 'deleteMessageToSign',
                 params: { messageId: this.messageId },
             })
-            this.postResult({ status: 'rejected' })
             this.closeOrGoToActivities()
         } catch (err) {
             console.error(err)
@@ -188,19 +169,13 @@ export class UserUiSignMessage extends BaseElement {
             const userClient = await createUserClient(
                 stateManager.accessToken.get()
             )
-            const result = await userClient.request({
+            await userClient.request({
                 method: 'signMessage',
                 params: { messageId: this.messageId },
-            })
-            this.postResult({
-                status: 'signed',
-                signature: result.signature,
-                publicKey: result.publicKey,
             })
             this.closeOrGoToActivities()
         } catch (err) {
             console.error(err)
-            this.postResult({ status: 'failed' })
             this.toastRpcError(err, 'Error signing message')
         } finally {
             this.isApproving = false

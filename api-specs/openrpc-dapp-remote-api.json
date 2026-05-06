@@ -107,11 +107,14 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "messageId": {
+                            "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageId"
+                        },
                         "userUrl": {
                             "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/UserUrl"
                         }
                     },
-                    "required": ["userUrl"]
+                    "required": ["messageId", "userUrl"]
                 }
             },
             "description": "Requests a message signature. The wallet will prompt the user for confirmation."
@@ -194,6 +197,16 @@
                 "name": "result",
                 "schema": {
                     "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/TxChangedEvent"
+                }
+            }
+        },
+        {
+            "name": "messageSignature",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignatureEvent"
                 }
             }
         }

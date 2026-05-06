@@ -11,6 +11,7 @@ import {
     ConnectResult,
     LedgerApiParams,
     LedgerApiResult,
+    MessageSignatureEvent,
     Network,
     PrepareExecuteParams,
     SignMessageParams,
@@ -351,6 +352,7 @@ export const dappController = (
                 throw new Error('No primary wallet found')
             }
 
+            const notifier = notificationService.getNotifier(context.userId)
             const messageId = v4()
             await store.setMessageRaw({
                 id: messageId,
@@ -363,7 +365,13 @@ export const dappController = (
                 createdAt: new Date(),
             })
 
+            notifier.emit('messageSignature', {
+                status: 'pending',
+                messageId,
+            } satisfies MessageSignatureEvent)
+
             return {
+                messageId,
                 userUrl: `${userUrl}/sign-message/index.html?messageId=${messageId}&closeafteraction`,
             }
         },
@@ -373,6 +381,9 @@ export const dappController = (
                 throw new Error('No primary wallet found')
             }
             return wallet
+        },
+        messageSignature: function (): Promise<MessageSignatureEvent> {
+            throw new Error('Only for events.')
         },
     })
 }

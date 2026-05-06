@@ -57,6 +57,7 @@ import { networkStatus } from '../utils.js'
 import { v4 } from 'uuid'
 import { TransactionService } from '../ledger/transaction-service.js'
 import { StatusEvent } from '../dapp-api/rpc-gen/typings.js'
+import type { MessageSignatureEvent } from '../dapp-api/rpc-gen/typings.js'
 
 type AvailableSigningDrivers = Partial<
     Record<SigningProvider, SigningDriverInterface>
@@ -488,23 +489,42 @@ export const userController = (
                 )
             }
 
+            const notifier = notificationService.getNotifier(userId)
+
+            const emitFailedAndPersist = async (
+                details: string
+            ): Promise<never> => {
+                // Best-effort: make sure listeners see a terminal state.
+                try {
+                    await store.setMessageRawStatus(pending.id, 'failed')
+                } catch {
+                    // ignore (e.g. record removed concurrently)
+                }
+                notifier.emit('messageSignature', {
+                    status: 'failed',
+                    messageId: pending.id,
+                } satisfies MessageSignatureEvent)
+                // Preserve the original error message for the caller/UI.
+                throw new Error(details)
+            }
+
             const wallet = (await store.getWallets()).find(
                 (w) => w.partyId === pending.partyId
             )
             if (!wallet) {
-                throw new Error(
+                return await emitFailedAndPersist(
                     `No wallet found for partyId ${pending.partyId} (from message request ${pending.id})`
                 )
             }
             if (wallet.publicKey !== pending.publicKey) {
-                throw new Error(
+                return await emitFailedAndPersist(
                     `Wallet public key changed for partyId ${pending.partyId}; refusing to sign message request ${pending.id}`
                 )
             }
 
             // TODO: support other signing providers
             if (wallet.signingProviderId !== SigningProvider.WALLET_KERNEL) {
-                throw new Error(
+                return await emitFailedAndPersist(
                     `signMessage is only supported for ${SigningProvider.WALLET_KERNEL} wallets, got ${wallet.signingProviderId}`
                 )
             }
@@ -512,7 +532,9 @@ export const userController = (
             const driver =
                 drivers[SigningProvider.WALLET_KERNEL]?.controller(userId)
             if (!driver) {
-                throw new Error('Wallet Kernel signing driver not available')
+                return await emitFailedAndPersist(
+                    'Wallet Kernel signing driver not available'
+                )
             }
 
             const result = await driver.signMessage({
@@ -522,11 +544,19 @@ export const userController = (
 
             if (isRpcError(result)) {
                 await store.setMessageRawStatus(pending.id, 'failed')
+                notifier.emit('messageSignature', {
+                    status: 'failed',
+                    messageId: pending.id,
+                } satisfies MessageSignatureEvent)
                 throw new Error(result.error_description)
             }
 
             if (!result?.signature) {
                 await store.setMessageRawStatus(pending.id, 'failed')
+                notifier.emit('messageSignature', {
+                    status: 'failed',
+                    messageId: pending.id,
+                } satisfies MessageSignatureEvent)
                 throw new Error(`signMessage failed`)
             }
 
@@ -534,6 +564,12 @@ export const userController = (
                 signedAt: new Date(),
                 signature: result.signature,
             })
+
+            notifier.emit('messageSignature', {
+                status: 'signed',
+                messageId: pending.id,
+                signature: result.signature,
+            } satisfies MessageSignatureEvent)
 
             return {
                 signature: result.signature,

@@ -14,6 +14,7 @@ import { AccountsChanged } from './typings.js'
 import { GetPrimaryAccount } from './typings.js'
 import { ListAccounts } from './typings.js'
 import { TxChanged } from './typings.js'
+import { MessageSignature } from './typings.js'
 
 export type Methods = {
     status: Status
@@ -29,6 +30,7 @@ export type Methods = {
     getPrimaryAccount: GetPrimaryAccount
     listAccounts: ListAccounts
     txChanged: TxChanged
+    messageSignature: MessageSignature
 }
 
 function buildController(methods: Methods) {
@@ -46,6 +48,7 @@ function buildController(methods: Methods) {
         getPrimaryAccount: methods.getPrimaryAccount,
         listAccounts: methods.listAccounts,
         txChanged: methods.txChanged,
+        messageSignature: methods.messageSignature,
     }
 }
 

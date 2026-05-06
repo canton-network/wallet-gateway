@@ -79,11 +79,15 @@ export const dapp = (
         const onTxChanged = (...event: unknown[]) => {
             writeSSE(res, 'txChanged', event)
         }
+        const onMessageSignature = (...event: unknown[]) => {
+            writeSSE(res, 'messageSignature', event)
+        }
 
         notifier.on('accountsChanged', onAccountsChanged)
         notifier.on('connected', onConnected)
         notifier.on('statusChanged', onStatusChanged)
         notifier.on('txChanged', onTxChanged)
+        notifier.on('messageSignature', onMessageSignature)
 
         const cleanup = () => {
             logger.debug('SSE client disconnected')
@@ -91,6 +95,7 @@ export const dapp = (
             notifier.removeListener('connected', onConnected)
             notifier.removeListener('statusChanged', onStatusChanged)
             notifier.removeListener('txChanged', onTxChanged)
+            notifier.removeListener('messageSignature', onMessageSignature)
         }
 
         req.on('close', cleanup)

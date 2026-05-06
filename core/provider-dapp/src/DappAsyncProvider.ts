@@ -90,6 +90,10 @@ export class DappAsyncProvider extends AbstractProvider<DappAsyncRpcTypes> {
                 'txChanged',
                 dispatchToProviders('txChanged')
             )
+            eventSource.addEventListener(
+                'messageSignature',
+                dispatchToProviders('messageSignature')
+            )
 
             eventSource.onerror = () => {
                 if (connection?.url === sseUrlString) {
