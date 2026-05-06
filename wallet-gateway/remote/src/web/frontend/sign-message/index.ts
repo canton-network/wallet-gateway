@@ -25,6 +25,42 @@ export class UserUiSignMessage extends BaseElement {
     @state() accessor loadError: string | null = null
     @state() accessor isLoading = true
 
+    private extractRpcErrorMessage(e: unknown): string | null {
+        // HttpTransport throws { error: { code, message, data } } on non-2xx.
+        // For JSON-RPC handlers, error.data often contains the JSON-RPC error response as a string.
+        try {
+            if (typeof e !== 'object' || e === null) return null
+            if (!('error' in e)) return null
+            const errObj = (e as { error?: unknown }).error
+            if (typeof errObj !== 'object' || errObj === null) return null
+            const data = (errObj as { data?: unknown }).data
+            if (typeof data !== 'string') return null
+            const parsed = JSON.parse(data) as unknown
+            if (
+                typeof parsed === 'object' &&
+                parsed !== null &&
+                'error' in parsed &&
+                typeof (parsed as unknown as { error?: { message?: string } })
+                    .error?.message === 'string'
+            ) {
+                return (parsed as unknown as { error?: { message?: string } })
+                    .error?.message as string
+            }
+            return null
+        } catch {
+            return null
+        }
+    }
+
+    private toastRpcError(e: unknown, fallbackMessage: string) {
+        const extracted = this.extractRpcErrorMessage(e)
+        if (extracted) {
+            handleErrorToast(new Error(extracted), { message: extracted })
+            return
+        }
+        handleErrorToast(e, { message: fallbackMessage })
+    }
+
     static styles = [
         BaseElement.styles,
         css`
@@ -140,7 +176,7 @@ export class UserUiSignMessage extends BaseElement {
             this.closeOrGoToActivities()
         } catch (err) {
             console.error(err)
-            handleErrorToast(err, { message: 'Error rejecting message' })
+            this.toastRpcError(err, 'Error rejecting message')
         } finally {
             this.isDeleting = false
         }
@@ -165,7 +201,7 @@ export class UserUiSignMessage extends BaseElement {
         } catch (err) {
             console.error(err)
             this.postResult({ status: 'failed' })
-            handleErrorToast(err, { message: 'Error signing message' })
+            this.toastRpcError(err, 'Error signing message')
         } finally {
             this.isApproving = false
         }

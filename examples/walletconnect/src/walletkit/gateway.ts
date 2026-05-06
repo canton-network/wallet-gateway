@@ -161,3 +161,66 @@ export async function prepareSignExecute(
         },
     }
 }
+
+export interface SignMessageFlowResult {
+    signature: string
+    publicKey?: string
+}
+
+export async function signMessageFlow(
+    message: string
+): Promise<SignMessageFlowResult> {
+    const response = await callDappApi<{ userUrl: string }>('signMessage', {
+        message,
+    })
+
+    const url = new URL(response.userUrl, window.location.origin)
+    const messageId = url.searchParams.get('messageId')
+    if (!messageId) {
+        throw new Error('No messageId in signMessage response')
+    }
+
+    // Use a popup so the user can approve in the wallet web UI.
+    // We rely on the gateway to postMessage the result to the opener.
+    const popup = window.open(response.userUrl, 'splice_wallet_sign_message')
+    if (!popup) {
+        throw new Error('Failed to open wallet popup')
+    }
+
+    return await new Promise<SignMessageFlowResult>((resolve, reject) => {
+        const timeout = window.setTimeout(
+            () => {
+                window.removeEventListener('message', listener)
+                reject(new Error('Timed out waiting for message signature'))
+            },
+            5 * 60 * 1000
+        )
+
+        const listener = (event: MessageEvent) => {
+            if (event.data?.type !== 'SPLICE_WALLET_SIGN_MESSAGE_RESULT') {
+                return
+            }
+            if (event.data?.messageId !== messageId) {
+                return
+            }
+
+            window.clearTimeout(timeout)
+            window.removeEventListener('message', listener)
+
+            if (event.data.status !== 'signed') {
+                reject(new Error(`Message signing ${event.data.status}`))
+                return
+            }
+
+            const signature = event.data.signature
+            if (!signature) {
+                reject(new Error('Missing signature in message signing result'))
+                return
+            }
+
+            resolve({ signature, publicKey: event.data.publicKey })
+        }
+
+        window.addEventListener('message', listener)
+    })
+}

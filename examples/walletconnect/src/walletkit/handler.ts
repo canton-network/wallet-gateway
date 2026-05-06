@@ -6,10 +6,10 @@ import type { SessionTypes } from '@walletconnect/types'
 import { initWalletKit, getWalletKit } from './client'
 import {
     callDappApi,
-    callUserApi,
     bootstrapSession,
     getPrimaryPartyId,
     prepareSignExecute,
+    signMessageFlow,
 } from './gateway'
 import type {
     PendingProposal,
@@ -409,7 +409,13 @@ export const walletHandler: WalletHandler = {
                     params as Record<string, unknown>
                 )
             } else if (method === 'canton_signMessage') {
-                result = await callUserApi('signMessage', params)
+                const message = (params as { message?: unknown })?.message
+                if (typeof message !== 'string') {
+                    throw new Error(
+                        'Invalid canton_signMessage params: expected { message: string }'
+                    )
+                }
+                result = await signMessageFlow(message)
             } else {
                 const controllerMethod = method.startsWith(CANTON_PREFIX)
                     ? method.slice(CANTON_PREFIX.length)
