@@ -293,7 +293,6 @@ jobs:
                   BLOCKDAEMON_API_URL="${{ vars.BLOCKDAEMON_API_URL }}" \
                   BLOCKDAEMON_API_KEY="${{ vars.BLOCKDAEMON_API_KEY }}" \
                   BLOCKDAEMON_API_EMAIL="${{ vars.BLOCKDAEMON_API_EMAIL }}" \
-
                   yarn pm2 start ecosystem.ci.config.js --env development
 
             - uses: ./.github/actions/setup_playwright
