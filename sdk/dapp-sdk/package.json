@@ -21,8 +21,8 @@
         "dev": "tsup --watch --onSuccess \"tsc\"",
         "flatpack": "yarn pack --out \"$FLATPACK_OUTDIR\"",
         "clean": "tsc -b --clean; rm -rf dist",
-        "test": "vitest run --project browser --passWithNoTests",
-        "test:coverage": "vitest run --project browser --coverage --passWithNoTests"
+        "test": "vitest run --project browser-integration --passWithNoTests",
+        "test:coverage": "vitest run --project browser-integration --coverage --passWithNoTests"
     },
     "dependencies": {
         "@canton-network/core-provider-dapp": "workspace:^",
@@ -48,6 +48,7 @@
         }
     },
     "devDependencies": {
+        "@types/node": "^25.3.3",
         "@types/qrcode": "^1.5.6",
         "@vitest/browser-playwright": "^4.1.2",
         "@vitest/coverage-v8": "^4.1.2",

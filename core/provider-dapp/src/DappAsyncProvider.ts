@@ -140,6 +140,7 @@ export class DappAsyncProvider extends AbstractProvider<DappAsyncRpcTypes> {
                     .then((status) => {
                         //for some reason comparing the objects directly dosent work as intended
                         if (
+                            // TODO this is not ideal as it's possible for same object to have different keys order after stringify
                             JSON.stringify(status.session) !==
                             JSON.stringify(this.status)
                         ) {

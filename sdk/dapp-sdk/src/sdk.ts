@@ -595,6 +595,8 @@ export function connect(options: DappSDKConnectOptions): Promise<ConnectResult>
 export function connect(
     options?: DappSDKConnectOptions
 ): Promise<ConnectResult> {
+    // TODO we probably shouldn't add logic in the convenience exported methods
+    //  that would not execute if called through sdk.connect
     if (options) {
         return sdk.init(options).then(() => sdk.connect())
     }
