@@ -120,6 +120,26 @@ jobs:
                     --head=HEAD \
                     --parallel
 
+    test-migrations:
+        # Runs SQL migration tests for any affected package that defines a
+        # `test:migrations` script
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+
+            - uses: ./.github/actions/setup_yarn
+
+            - name: Run affected migration tests
+              run: |
+                  yarn nx affected -t test:migrations \
+                    --base=origin/${{ github.base_ref }} \
+                    --head=HEAD \
+                    --parallel=1
+
     e2e-affected:
         name: e2e-affected
         runs-on: ubuntu-latest

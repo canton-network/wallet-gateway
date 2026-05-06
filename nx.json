@@ -64,6 +64,10 @@
             "dependsOn": ["^build"],
             "cache": true
         },
+        "test:migrations": {
+            "dependsOn": ["^build"],
+            "cache": true
+        },
         "typecheck": {
             "dependsOn": ["^build"]
         },
