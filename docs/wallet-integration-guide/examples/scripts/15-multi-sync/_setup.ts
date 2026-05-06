@@ -1,9 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import path from 'path'
-import { fileURLToPath } from 'url'
-import fs from 'fs/promises'
 import type { Logger } from 'pino'
 import {
     localNetStaticConfig,
@@ -18,7 +15,6 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     resolvePreferredSynchronizerId,
-    vetDar,
     createScanProxyClient,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
@@ -34,9 +30,6 @@ export type PartyInfo = Omit<
     topologyTransactions?: string[] | undefined
     keyPair: KeyPair
 }
-
-const TRADING_APP_DAR = 'splice-token-test-trading-app-1.0.0.dar'
-const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
 export interface MultiSyncSetup {
     p1Sdk: SDKInterface<'token'>
@@ -127,42 +120,12 @@ export async function setupMultiSyncTrade(
         appSynchronizerId,
     }
 
-    // Load DARs bundled alongside this script and vet on all participants × both synchronizers.
-    const here = path.dirname(fileURLToPath(import.meta.url))
-    for (const [darPath, darName] of [
-        [path.join(here, TRADING_APP_DAR), TRADING_APP_DAR],
-        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
-    ] as [string, string][]) {
-        try {
-            await fs.stat(darPath)
-        } catch {
-            throw new Error(
-                `Required DAR not found: ${darPath}\n` +
-                    `  "${darName}" must be bundled in the same folder as this script.\n` +
-                    `  See: 15-multi-sync/README.md`
-            )
-        }
-    }
-
-    const [tradingAppDar, testTokenV1Dar] = await Promise.all([
-        fs.readFile(path.join(here, TRADING_APP_DAR)),
-        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
-    ])
-
-    // P1 and P2 vet DARs on both synchronizers; P3 vets on global only
-    await Promise.all([
-        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
-            [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
-                [tradingAppDar, testTokenV1Dar].map((dar) =>
-                    vetDar(ctx.ledgerProvider, dar, sid)
-                )
-            )
-        ),
-        ...[tradingAppDar, testTokenV1Dar].map((dar) =>
-            vetDar(p3SdkCtx.ledgerProvider, dar, globalSynchronizerId)
-        ),
-    ])
-    logger.info('DARs vetted: P1+P2 on both synchronizers, P3 on global only')
+    // NOTE (experiment): with splice ≥ 0.6.1 the test-token-v1 and
+    // trading-app DARs are pre-installed and pre-vetted on the localnet
+    // participants/synchronizers, so the local upload+vet block is skipped.
+    logger.info(
+        'Skipping local DAR upload — relying on splice-bundled DARs (test-token-v1, trading-app)'
+    )
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3 (all on global synchronizer)
     const aliceKey = p1Sdk.keys.generate()
