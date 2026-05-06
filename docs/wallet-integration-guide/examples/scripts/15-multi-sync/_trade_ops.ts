@@ -176,97 +176,6 @@ export async function createTokenRulesAndMintForBob(
     )
 }
 
-/**
-/**
- * Low-level helper: executes a two-phase Canton reassignment (UnassignCommand →
- * AssignCommand) for a single contract. Submits both phases against the Canton
- * Ledger API v2 `/v2/commands/submit-and-wait-for-reassignment` endpoint.
- *
- * @param ledgerProvider - raw provider obtained via `sdkContext.ledgerProvider`
- * @param submitter      - party ID that owns/witnesses the contract
- * @param contractId     - contract ID to move
- * @param source         - synchronizer the contract currently lives on
- * @param target         - synchronizer to move it to
- * @param label          - human-readable name used in error messages
- */
-async function reassignContract(
-    ledgerProvider: { request(params: unknown): Promise<unknown> },
-    submitter: string,
-    contractId: string,
-    source: string,
-    target: string,
-    label: string
-): Promise<void> {
-    // Phase 1: Unassign.
-    // eventFormat MUST be provided; without it the response contains no events
-    // and the reassignmentId cannot be extracted.
-    const unassignResponse = await ledgerProvider.request({
-        method: 'ledgerApi',
-        params: {
-            resource: '/v2/commands/submit-and-wait-for-reassignment',
-            requestMethod: 'post',
-            body: {
-                reassignmentCommands: {
-                    commandId: `${label}-unassign-${Date.now()}`,
-                    submitter,
-                    commands: [
-                        {
-                            command: {
-                                UnassignCommand: {
-                                    value: { contractId, source, target },
-                                },
-                            },
-                        },
-                    ],
-                },
-                eventFormat: {
-                    filtersByParty: { [submitter]: {} },
-                    verbose: false,
-                },
-            },
-        },
-    })
-
-    const events: unknown[] =
-        (unassignResponse as { reassignment?: { events?: unknown[] } })
-            ?.reassignment?.events ?? []
-    const unassignedEvent = events.find(
-        (e) => typeof e === 'object' && e !== null && 'JsUnassignedEvent' in e
-    ) as
-        | { JsUnassignedEvent: { value: { reassignmentId: string } } }
-        | undefined
-    if (!unassignedEvent)
-        throw new Error(
-            `No unassigned event returned for ${label} reassignment`
-        )
-    const reassignmentId =
-        unassignedEvent.JsUnassignedEvent.value.reassignmentId
-
-    // Phase 2: Assign
-    await ledgerProvider.request({
-        method: 'ledgerApi',
-        params: {
-            resource: '/v2/commands/submit-and-wait-for-reassignment',
-            requestMethod: 'post',
-            body: {
-                reassignmentCommands: {
-                    commandId: `${label}-assign-${Date.now()}`,
-                    submitter,
-                    commands: [
-                        {
-                            command: {
-                                AssignCommand: {
-                                    value: { reassignmentId, source, target },
-                                },
-                            },
-                        },
-                    ],
-                },
-            },
-        },
-    })
-}
-
 export async function createAndInitiateOtcTrade(
     setup: MultiSyncSetup,
     transferLegs: Record<string, unknown>,
@@ -544,19 +453,16 @@ export async function reassignTokenRulesToApp(
     params: { tokenRulesCid: string },
     logger: Logger
 ): Promise<AcsContractEntry> {
-    const { p2Sdk, p2SdkCtx, bob, appSynchronizerId, globalSynchronizerId } =
-        setup
+    const { p2Sdk, bob, appSynchronizerId, globalSynchronizerId } = setup
     const { tokenRulesCid } = params
 
     // Reassign TokenRules (Bob) from global-domain → app-synchronizer
-    await reassignContract(
-        p2SdkCtx.ledgerProvider,
-        bob.partyId,
-        tokenRulesCid,
-        globalSynchronizerId,
-        appSynchronizerId,
-        'bob-TokenRules'
-    )
+    await p2Sdk.ledger.internal.reassign({
+        submitter: bob.partyId,
+        contractId: tokenRulesCid,
+        source: globalSynchronizerId,
+        target: appSynchronizerId,
+    })
     logger.info(
         'Bob: TokenRules reassigned from global-domain to app-synchronizer'
     )

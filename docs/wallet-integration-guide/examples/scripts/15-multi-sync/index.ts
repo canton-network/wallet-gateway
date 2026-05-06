@@ -69,10 +69,11 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
 // Step 10: Bob allocates Token for leg-1 (global — Canton auto-reassigns from app-synchronizer)
-const [legIdAlice, { legId: legIdBob, tokenRulesCid }] = await Promise.all([
-    allocateAmuletForAlice(setup, logger),
-    allocateTokenForBob(setup, logger),
-])
+const [legIdAlice, { legId: legIdBob, tokenRulesCid, tokenRulesContract }] =
+    await Promise.all([
+        allocateAmuletForAlice(setup, logger),
+        allocateTokenForBob(setup, logger),
+    ])
 logger.info('Contracts after allocations:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
@@ -94,9 +95,9 @@ logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 11c: Reassign TokenRules (Bob) → app-synchronizer ───────────────────
-// selfTransferToken targets app-synchronizer. TokenRules (Bob's) must be moved
-// explicitly because P1 doesn't host any stakeholder of that contract.
-// Alice's Token will be auto-reassigned by Canton (P1 hosts Alice).
+// The allocation (step 10) auto-reassigned TokenRules to global because not all
+// informees are on app-synchronizer. We move it back so selfTransferToken can
+// exercise on it. Alice's Token is auto-reassigned by Canton (P1 hosts Alice).
 const aliceTokenContracts = await p1Sdk.ledger.acs.read({
     templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
     parties: [alice.partyId],
