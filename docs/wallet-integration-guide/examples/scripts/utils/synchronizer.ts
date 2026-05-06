@@ -75,6 +75,10 @@ export async function logAllContracts(
         sync: string
     }
     const rows: Row[] = []
+    const seenCids = new Set<string>()
+
+    const isHolding = (template: string): boolean =>
+        template === 'Token' || template === 'Amulet'
 
     for (let i = 0; i < specs.length; i++) {
         const { label } = specs[i]
@@ -90,11 +94,22 @@ export async function logAllContracts(
             continue
         }
         for (const c of contracts) {
+            // De-duplicate: a contract can appear in multiple participants' ACS
+            // streams (e.g. Alice's Token where Bob is the admin/signatory).
+            if (seenCids.has(c.contractId)) continue
+            seenCids.add(c.contractId)
+
             const tplParts = (c.templateId ?? '').split(':')
             const template = tplParts[tplParts.length - 1] || c.templateId
             const amount = extractAmount(c.createArgument)
+            // For Token/Amulet rows, replace the participant label with the
+            // holding owner so the table reflects who actually owns the asset
+            // (not just whose ACS the contract appears in via signatory rules).
+            const rowLabel = isHolding(template)
+                ? shortenParty(extractOwner(c.createArgument)) || label
+                : label
             rows.push({
-                label,
+                label: rowLabel,
                 template,
                 amount,
                 cid: `${c.contractId.substring(0, 16)}...`,
@@ -104,7 +119,7 @@ export async function logAllContracts(
     }
 
     const HEADERS = [
-        'Party / Label',
+        'Party / Owner',
         'Template',
         'Amount',
         'Contract ID',
@@ -149,4 +164,28 @@ function extractAmount(createArgument: unknown): string {
         if (initial != null) return String(initial)
     }
     return ''
+}
+
+/** Extract the owner (or admin for rules contracts) from a createArgument */
+function extractOwner(createArgument: unknown): string {
+    if (!createArgument || typeof createArgument !== 'object') return ''
+    const arg = createArgument as Record<string, unknown>
+    // Token: { holding: { owner } }
+    if (arg.holding && typeof arg.holding === 'object') {
+        const owner = (arg.holding as Record<string, unknown>).owner
+        if (typeof owner === 'string') return owner
+    }
+    // Amulet: { owner }
+    if (typeof arg.owner === 'string') return arg.owner
+    // TokenRules / TradingApp: { admin } / { venue }
+    if (typeof arg.admin === 'string') return arg.admin
+    if (typeof arg.venue === 'string') return arg.venue
+    return ''
+}
+
+/** Shorten a party id "name::1220abcd..." → "name" for compact display */
+function shortenParty(p: string): string {
+    if (!p) return ''
+    const idx = p.indexOf('::')
+    return idx > 0 ? p.substring(0, idx) : p
 }
