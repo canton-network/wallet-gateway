@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-provider-dapp",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "type": "module",
     "description": "CIP-0103 provider for web dApps, covering both Sync and Async APIs.",
     "license": "Apache-2.0",
@@ -49,7 +49,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "core/provider-dapp"
     }
 }

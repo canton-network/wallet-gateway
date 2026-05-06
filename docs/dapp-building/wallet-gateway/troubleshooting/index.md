@@ -139,6 +139,11 @@ This section covers common issues and their solutions when working with the Wall
     - Test API connectivity
     - Ensure API key has signing permissions
 
+4. **Dfns:**
+    - Verify environment variables are set: `DFNS_ORG_ID`, `DFNS_BASE_URL`, `DFNS_CRED_ID`, `DFNS_PRIVATE_KEY`, and `DFNS_AUTH_TOKEN`
+    - Ensure the service account credentials are correct
+    - Confirm the service account has wallet creation and signing permissions
+
 ## Debugging
 
 ## Enable Debug Logging

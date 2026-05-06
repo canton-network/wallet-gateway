@@ -44,7 +44,7 @@ Visualizing a Transaction
 -------------------------
 
 The Wallet SDK uses a transaction parsing transform a fully fledged transaction tree into human recognizable transaction view. The full code
-for the transaction parsing can be found at `parser typescript class <https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/core/ledger-client/src/txparse/parser.ts>`__.
+for the transaction parsing can be found at `parser typescript class <https://github.com/canton-network/wallet-gateway/blob/main/core/ledger-client/src/txparse/parser.ts>`__.
 
 The Wallet SDK uses this parser to transform all transaction tree interacted with into PrettyTransactions.
 

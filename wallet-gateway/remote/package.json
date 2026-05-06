@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/wallet-gateway-remote",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "description": "A server-side Wallet Gateway implementation over HTTP",
     "main": "dist/index.js",
     "bin": {
@@ -42,6 +42,7 @@
         "@canton-network/core-rpc-errors": "workspace:^",
         "@canton-network/core-rpc-transport": "workspace:^",
         "@canton-network/core-signing-blockdaemon": "workspace:^",
+        "@canton-network/core-signing-dfns": "workspace:^",
         "@canton-network/core-signing-fireblocks": "workspace:^",
         "@canton-network/core-signing-internal": "workspace:^",
         "@canton-network/core-signing-lib": "workspace:^",
@@ -95,7 +96,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "wallet-gateway/remote"
     }
 }

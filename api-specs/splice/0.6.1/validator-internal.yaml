@@ -1,0 +1,1259 @@
+openapi: 3.0.0
+info:
+    title: Validator API
+    version: 0.0.1
+servers:
+    - url: https://example.com/api/validator
+tags:
+    - name: validator
+paths:
+    /readyz:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isReady
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /livez:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isLive
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /v0/validator-user:
+        get:
+            description: |
+                Get public information about the validator operator.
+            tags:
+                - validator_public
+            x-jvm-package: validator_public
+            operationId: getValidatorUserInfo
+            security: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetValidatorUserInfoResponse'
+    /v0/register:
+        post:
+            description: |
+                As an authenticated user, onboard yourself.
+                Onboarding includes allocating a ledger API user and daml party,
+                and setting up daml contracts required for the user to use a wallet on this validator.
+
+                The ledger API user name is taken from the subject claim of the JWT token.
+
+                Once this call returns a successful response, the user is fully onboarded.
+                Use [v0/wallet/user-status](../../../../wallet/src/main/openapi/wallet-internal.yaml#/paths/v0/wallet/user-status)
+                to check the status of the user onboarding.
+            tags:
+                - validator
+            x-jvm-package: validator
+            operationId: register
+            security:
+                - userAuth: []
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegistrationRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RegistrationResponse'
+    /v0/admin/users:
+        post:
+            description: |
+                As the validator operator, onboard an arbitrary user specified in the request.
+                Onboarding includes allocating a ledger API user and daml party,
+                and setting up daml contracts required for the user to use a wallet on this validator.
+
+                Once this call returns a successful response, the user is fully onboarded.
+                Use [v0/wallet/user-status](../../../../wallet/src/main/openapi/wallet-internal.yaml#/paths/v0/wallet/user-status)
+                to check the status of the user onboarding.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: onboardUser
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OnboardUserRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OnboardUserResponse'
+        get:
+            description: |
+                Lists all users onboarded onto this validator.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: listUsers
+            security:
+                - adminAuth: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUsersResponse'
+    /v0/admin/users/offboard:
+        post:
+            description: |
+                As the validator operator, offboard the user specified in the request.
+                Offboarding archives the daml contracts required for the user to use a wallet on this validator.
+                Offboarding deletes the ledger API user.
+                Offboarding does not archive any other daml contracts owned by the user.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: offboardUser
+            security:
+                - adminAuth: []
+            parameters:
+                - in: query
+                  name: username
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+    /v0/admin/participant/identities:
+        get:
+            description: |
+                Returns a dump of participant identities.
+
+                Use this endpoint if instructed to do so by an operational manual or support.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: dumpParticipantIdentities
+            security:
+                - adminAuth: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeIdentitiesDump'
+    /v0/admin/participant/global-domain-connection-config:
+        get:
+            description: |
+                Returns the connection configuration for the global synchronizer.
+
+                Use this endpoint if instructed to do so by an operational manual or support.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: getDecentralizedSynchronizerConnectionConfig
+            security:
+                - adminAuth: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetDecentralizedSynchronizerConnectionConfigResponse'
+    /v0/admin/domain/data-snapshot:
+        get:
+            description: |
+                Returns a snapshot of the global synchronizer data for this validator.
+                The snapshot includes a list of parties, the active contract set (ACS), and node identities.
+
+                Use this endpoint if instructed to do so by an operational manual or support.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: getValidatorDomainDataSnapshot
+            security:
+                - adminAuth: []
+            parameters:
+                - in: query
+                  name: timestamp
+                  required: true
+                  schema:
+                      type: string
+                  description: |
+                      The timestamp as of which the dump (in particular, the ACS) is valid.
+
+                      Must in the ISO-8601 format in UTC timezone, e.g.,
+                      `yyyy-MM-dd'T'HH:mm:ss.SSS'Z'`.
+                - name: migration_id
+                  in: query
+                  required: false
+                  schema:
+                      type: integer
+                      format: int64
+                  description: |
+                      The current migration id.
+                - in: query
+                  name: force
+                  required: false
+                  schema:
+                      type: boolean
+                  description: |
+                      If true, do not check whether the provided timestamp is clean.
+                      Not recommended for production,
+                      see the `ExportAcs` endpoint of the `ParticipantRepairService` participant gRPC API.
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetValidatorDomainDataSnapshotResponse'
+                '500':
+                    $ref: '#/components/responses/500'
+    /v0/admin/transfer-preapprovals/by-party/{receiver-party}:
+        get:
+            description: |
+                Lookup the `Splice.AmuletRules.TransferPreapproval` contract for the given receiver party.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: lookupTransferPreapprovalByParty
+            security:
+                - adminAuth: []
+            parameters:
+                - in: path
+                  name: receiver-party
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LookupTransferPreapprovalByPartyResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+        delete:
+            description: |
+                Remove the `Splice.AmuletRules.TransferPreapproval` contract for the given receiver party.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: cancelTransferPreapprovalByParty
+            security:
+                - adminAuth: []
+            parameters:
+                - in: path
+                  name: receiver-party
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                '404':
+                    $ref: '#/components/responses/404'
+    /v0/admin/transfer-preapprovals:
+        get:
+            description: |
+                List all `Splice.AmuletRules.TransferPreapproval` contracts where the preapproval provider is the validator operator.
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: listTransferPreapprovals
+            security:
+                - adminAuth: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListTransferPreapprovalsResponse'
+    /v0/admin/external-party/transfer-preapproval/prepare-send:
+        post:
+            tags:
+                - validator
+            deprecated: true
+            x-jvm-package: validator_admin
+            operationId: prepareTransferPreapprovalSend
+            description: |
+                **Deprecated**. Prepare a transaction to create a TransferCommand with the given CC amount to the specified receiver
+                from the externally hosted sender.
+                The transaction then needs to be signed and submitted through
+                /v0/admin/external-party/transfer-preapproval/submit-send.
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PrepareTransferPreapprovalSendRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PrepareTransferPreapprovalSendResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/transfer-preapproval/submit-send:
+        post:
+            tags:
+                - validator
+            deprecated: true
+            x-jvm-package: validator_admin
+            operationId: submitTransferPreapprovalSend
+            description: |
+                **Deprecated**. Submit transaction generated by /v0/admin/transfer-preapproval/prepare-send
+                together with its signature. Note that this only waits until the TransferCommand is created.
+                The actual transfer will happen afterwards through automation run by the SVs.
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SubmitTransferPreapprovalSendRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SubmitTransferPreapprovalSendResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/topology/generate:
+        post:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: generateExternalPartyTopology
+            description: |
+                Creates a root namespace topology transaction, which will create the party and sets the public key
+                controlling the party namespace,
+                a party to participant mapping topology transaction, which hosts the party on the participant with Confirmation rights,
+                and a party to key mapping topology transaction, which sets the key to authorize daml transactions.
+                The hash of each of these transactions will be signed along with the corresponding topology transaction (unchanged)
+                in the /v0/admin/external-party/topology/submit endpoint
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GenerateExternalPartyTopologyRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenerateExternalPartyTopologyResponse'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/topology/submit:
+        post:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: submitExternalPartyTopology
+            description: |
+                Constructs a SignedTopologyTransaction and writes the topology transactions to the authorized store.
+                The input will consist of the unchanged topology transaction and the signed hash from the /v0/external-party-topology/generate endpoint
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SubmitExternalPartyTopologyRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SubmitExternalPartyTopologyResponse'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/setup-proposal:
+        post:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: createExternalPartySetupProposal
+            description: |
+                Create the ExternalPartySetupProposal contract as the validator operator
+                which then has to be accepted by the external party using /v0/admin/external-party/setup-proposal/prepare-accept
+                and /v0/admin/external-party/setup-proposal/submit-accept
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateExternalPartySetupProposalRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateExternalPartySetupProposalResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '409':
+                    $ref: '#/components/responses/409'
+                '501':
+                    $ref: '#/components/responses/501'
+        get:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: listExternalPartySetupProposals
+            description: |
+                List all ExternalPartySetupProposal contracts.
+            security:
+                - adminAuth: []
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListExternalPartySetupProposalsResponse'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/setup-proposal/prepare-accept:
+        post:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: prepareAcceptExternalPartySetupProposal
+            description: |
+                Given a contract id of an ExternalPartySetupProposal, prepare the transaction
+                to accept it such that it can be signed externally and then submitted using
+                /v0/admin/external-party/setup-proposal/submit-accept
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PrepareAcceptExternalPartySetupProposalRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PrepareAcceptExternalPartySetupProposalResponse'
+                '400':
+                    $ref: '#/components/responses/400'
+                '404':
+                    $ref: '#/components/responses/404'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/setup-proposal/submit-accept:
+        post:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: submitAcceptExternalPartySetupProposal
+            description: |
+                Submit a transaction prepared using /v0/admin/external-party/setup-proposal/prepare-accept
+                together with its signature.
+            security:
+                - adminAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SubmitAcceptExternalPartySetupProposalRequest'
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SubmitAcceptExternalPartySetupProposalResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '501':
+                    $ref: '#/components/responses/501'
+    /v0/admin/external-party/balance:
+        get:
+            tags:
+                - validator
+            x-jvm-package: validator_admin
+            operationId: getExternalPartyBalance
+            description: |
+                Get the balance of an external party.
+            security:
+                - adminAuth: []
+            parameters:
+                - in: query
+                  name: party_id
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExternalPartyBalanceResponse'
+                '404':
+                    $ref: '#/components/responses/404'
+                '501':
+                    $ref: '#/components/responses/501'
+components:
+    securitySchemes:
+        userAuth:
+            description: |
+                JWT token as described in [spliceAppBearerAuth](../../../../common/src/main/openapi/common-external.yaml#/components/securitySchemes/spliceAppBearerAuth).
+                The subject of the token must be ledger API user of the user affected by the endpoint.
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+        adminAuth:
+            description: |
+                JWT token as described in [spliceAppBearerAuth](../../../../common/src/main/openapi/common-external.yaml#/components/securitySchemes/spliceAppBearerAuth).
+                The subject of the token must be ledger API user of the validator operator.
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        OnboardUserRequest:
+            type: object
+            required:
+                - name
+            properties:
+                name:
+                    type: string
+                    description: The name of the user to onboard.
+                party_id:
+                    type: string
+                    description: |
+                        The party id of the user to onboard.
+                        If no party_id is provided then a fresh party will be generated, using the 'name' as the Party Hint.
+                        If party_id is provided and createPartyIfMissing is false, then the party must already exist on the ledger. The existing party will be assigned to the user.
+                        If party_id is provided and createPartyIfMissing is true, then: if a party with the provided party_id exists, the user will be associated with it. Otherwise, a new party will be created using the provided party_id, and the user will be associated with that new party.
+                createPartyIfMissing:
+                    type: boolean
+                    description: |
+                        If true, create the party if it does not already exist on the ledger.
+                        Default is 'false'.
+        OnboardUserResponse:
+            type: object
+            required:
+                - party_id
+            properties:
+                party_id:
+                    type: string
+                    description: |
+                        The daml party id of the user that was onboarded.
+        GenerateExternalPartyTopologyRequest:
+            type: object
+            required:
+                - party_hint
+                - public_key
+            properties:
+                party_hint:
+                    description: |
+                        The actual party id will be constructed from this hint and a fingerprint of the public key.
+                    type: string
+                public_key:
+                    description: hex-encoded ed25519 public key
+                    type: string
+        GenerateExternalPartyTopologyResponse:
+            type: object
+            required:
+                - party_id
+                - topology_txs
+            properties:
+                party_id:
+                    type: string
+                    description: |
+                        The generated party id of the external user.
+                topology_txs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TopologyTx'
+        TopologyTx:
+            type: object
+            required:
+                - topology_tx
+                - hash
+            properties:
+                topology_tx:
+                    description: base64 encoded topology transaction
+                    type: string
+                hash:
+                    description: hex-encoded hash of the topology transaction
+                    type: string
+        SubmitExternalPartyTopologyRequest:
+            type: object
+            required:
+                - signed_topology_txs
+                - public_key
+            properties:
+                public_key:
+                    description: hex-encoded ed25519 public key
+                    type: string
+                signed_topology_txs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SignedTopologyTx'
+        SubmitExternalPartyTopologyResponse:
+            type: object
+            required:
+                - party_id
+            properties:
+                party_id:
+                    type: string
+        SignedTopologyTx:
+            type: object
+            required:
+                - topology_tx
+                - signed_hash
+            properties:
+                topology_tx:
+                    description: |
+                        base64 encoded topology transaction, this should be identical to the topology transaction
+                        received from the /v0/external-party-topology/generate endpoint.
+                    type: string
+                signed_hash:
+                    description: |
+                        hex-encoded ed25519 signature of the hash return by the generate endpoint in the form
+                        `${r}${s}`.
+                    type: string
+        RegistrationRequest:
+            type: object
+            nullable: true
+        RegistrationResponse:
+            type: object
+            required:
+                - party_id
+            properties:
+                party_id:
+                    type: string
+                    description: |
+                        The party id of the user that was onboarded.
+        GetValidatorUserInfoResponse:
+            type: object
+            required:
+                - party_id
+                - user_name
+                - featured
+            properties:
+                party_id:
+                    type: string
+                    description: |
+                        The daml party id of the validator operator.
+                user_name:
+                    type: string
+                    description: |
+                        The ledger API user of the validator operator.
+                featured:
+                    type: boolean
+        GetDecentralizedSynchronizerConnectionConfigResponse:
+            type: object
+            required:
+                - sequencer_connections
+            properties:
+                sequencer_connections:
+                    $ref: '#/components/schemas/SequencerConnections'
+        ListUsersResponse:
+            type: object
+            required:
+                - usernames
+            properties:
+                usernames:
+                    type: array
+                    items:
+                        type: string
+        SequencerConnections:
+            type: object
+            required:
+                - connections
+                - sequencer_trust_threshold
+                - submission_request_amplification
+                - sequencer_liveness_margin
+            properties:
+                connections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SequencerAliasToConnections'
+                sequencer_trust_threshold:
+                    type: integer
+                    format: int32
+                sequencer_liveness_margin:
+                    type: integer
+                    format: int32
+                submission_request_amplification:
+                    $ref: '#/components/schemas/SequencerSubmissionRequestAmplification'
+        SequencerAliasToConnections:
+            type: object
+            required:
+                - sequencer_alias
+                - endpoints
+                - transport_security
+            properties:
+                sequencer_alias:
+                    type: string
+                endpoints:
+                    type: array
+                    items:
+                        type: string
+                transport_security:
+                    type: boolean
+        Dar:
+            type: object
+            required:
+                - hash
+                - content
+            properties:
+                hash:
+                    type: string
+                content:
+                    description: |
+                        base64 encoded string of a dar package
+                    type: string
+        DomainMigrationDump:
+            type: object
+            required:
+                - participant
+                - participant_users
+                - acs_snapshot
+                - acs_timestamp
+                - dars
+                - migration_id
+                - domain_id
+                - created_at
+            properties:
+                participant:
+                    $ref: '#/components/schemas/NodeIdentitiesDump'
+                participant_users:
+                    $ref: '#/components/schemas/ParticipantUsersData'
+                acs_snapshot:
+                    description: |
+                        base64 encoded string of acs snapshot for the requested party id
+                    type: string
+                acs_timestamp:
+                    type: string
+                dars:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Dar'
+                migration_id:
+                    type: integer
+                    format: int64
+                domain_id:
+                    type: string
+                created_at:
+                    type: string
+                synchronizer_was_paused:
+                    type: boolean
+                separate_payload_files:
+                    type: boolean
+                    description: |
+                        If set to true, acs_snapshot is a filename
+                acs_format:
+                    type: string
+                    enum:
+                        - admin_api
+                        - ledger_api
+        GetValidatorDomainDataSnapshotResponse:
+            type: object
+            required:
+                - data_snapshot
+                - migration_id
+            properties:
+                data_snapshot:
+                    $ref: '#/components/schemas/DomainMigrationDump'
+                migration_id:
+                    type: integer
+                    format: int64
+        SequencerSubmissionRequestAmplification:
+            type: object
+            required:
+                - factor
+                - patience_seconds
+            properties:
+                factor:
+                    type: number
+                patience_seconds:
+                    type: number
+        CreateExternalPartySetupProposalRequest:
+            type: object
+            required:
+                - user_party_id
+            properties:
+                user_party_id:
+                    type: string
+        CreateExternalPartySetupProposalResponse:
+            type: object
+            required:
+                - contract_id
+            properties:
+                contract_id:
+                    $ref: '#/components/schemas/ContractId'
+        ListExternalPartySetupProposalsResponse:
+            type: object
+            required:
+                - contracts
+            properties:
+                contracts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        PrepareAcceptExternalPartySetupProposalRequest:
+            type: object
+            required:
+                - contract_id
+                - user_party_id
+            properties:
+                contract_id:
+                    $ref: '#/components/schemas/ContractId'
+                user_party_id:
+                    type: string
+                verbose_hashing:
+                    type: boolean
+                    description: |
+                        When true, the response will contain additional details on how the transaction was encoded and hashed.
+                        This can be useful for troubleshooting of hash mismatches. Should only be used for debugging.
+                    default: false
+        PrepareAcceptExternalPartySetupProposalResponse:
+            type: object
+            required:
+                - transaction
+                - tx_hash
+            properties:
+                transaction:
+                    type: string
+                    description: |
+                        base64-encoded transaction. The transaction corresponds to
+                        the protobuf definition of a `PreparedTransaction`
+                        https://github.com/digital-asset/canton/blob/main/community/ledger-api/src/main/protobuf/com/daml/ledger/api/v2/interactive_submission_data.proto#L18
+                        and can be decoded using standard protobuf libraries.
+                tx_hash:
+                    description: Hex-encoded hash of the transaction
+                    type: string
+                hashing_details:
+                    description: |
+                        Optional additional details on how the transaction was encoded and hashed. Only set if verbose_hashing=true in the request.
+                        Note that there are no guarantees on the stability of the format or content of this field.
+                        Its content should NOT be parsed and should only be used for troubleshooting purposes.
+                    type: string
+        SubmitAcceptExternalPartySetupProposalRequest:
+            type: object
+            required:
+                - submission
+            properties:
+                submission:
+                    $ref: '#/components/schemas/ExternalPartySubmission'
+        SubmitAcceptExternalPartySetupProposalResponse:
+            type: object
+            required:
+                - transfer_preapproval_contract_id
+                - update_id
+            properties:
+                transfer_preapproval_contract_id:
+                    $ref: '#/components/schemas/ContractId'
+                update_id:
+                    type: string
+        ExternalPartyBalanceResponse:
+            type: object
+            required:
+                - party_id
+                - total_unlocked_coin
+                - total_locked_coin
+                - total_coin_holdings
+                - accumulated_holding_fees_unlocked
+                - accumulated_holding_fees_locked
+                - accumulated_holding_fees_total
+                - total_available_coin
+                - computed_as_of_round
+            properties:
+                party_id:
+                    type: string
+                total_unlocked_coin:
+                    type: string
+                total_locked_coin:
+                    type: string
+                total_coin_holdings:
+                    type: string
+                accumulated_holding_fees_unlocked:
+                    type: string
+                accumulated_holding_fees_locked:
+                    type: string
+                accumulated_holding_fees_total:
+                    type: string
+                total_available_coin:
+                    type: string
+                computed_as_of_round:
+                    type: integer
+                    format: int64
+        ListTransferPreapprovalsResponse:
+            type: object
+            required:
+                - contracts
+            properties:
+                contracts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        LookupTransferPreapprovalByPartyResponse:
+            type: object
+            required:
+                - transfer_preapproval
+            properties:
+                transfer_preapproval:
+                    $ref: '#/components/schemas/ContractWithState'
+        PrepareTransferPreapprovalSendRequest:
+            type: object
+            required:
+                - sender_party_id
+                - receiver_party_id
+                - amount
+                - expires_at
+                - nonce
+            properties:
+                sender_party_id:
+                    type: string
+                receiver_party_id:
+                    type: string
+                amount:
+                    type: number
+                expires_at:
+                    type: string
+                    format: date-time
+                nonce:
+                    type: integer
+                    format: int64
+                    description: |
+                        The expected value of the counter that is used to order and deduplicate TransferCommands. Starts at 0 and  increases
+                        by 1 for each executed TransferCommand (independent of whether is succeeded or not). The most recent value can be read from scan
+                        through /v0/transfer-command-counter/{party}
+                verbose_hashing:
+                    type: boolean
+                    description: |
+                        When true, the response will contain additional details on how the transaction was encoded and hashed.
+                        This can be useful for troubleshooting of hash mismatches. Should only be used for debugging.
+                    default: false
+                description:
+                    type: string
+        PrepareTransferPreapprovalSendResponse:
+            type: object
+            required:
+                - transaction
+                - tx_hash
+                - transfer_command_contract_id_prefix
+            properties:
+                transaction:
+                    type: string
+                    description: |
+                        base64-encoded transaction. The transaction corresponds to
+                        the protobuf definition of a `PreparedTransaction`
+                        https://github.com/digital-asset/canton/blob/main/community/ledger-api/src/main/protobuf/com/daml/ledger/api/v2/interactive_submission_data.proto#L18
+                        and can be decoded using standard protobuf libraries.
+                tx_hash:
+                    description: Hex-encoded hash of the transaction
+                    type: string
+                transfer_command_contract_id_prefix:
+                    description: |
+                        Prefix of the ContractId of the created TransferCommand. Matches the contract id of the corresponding `Create` node in the prepared transaction which
+                        also only contains the prefix. The final transaction observed on the update stream or in the result of looking up the transfer command status on Scan
+                        adds an additional suffix to the contract id.
+                    type: string
+                hashing_details:
+                    description: |
+                        Optional additional details on how the transaction was encoded and hashed. Only set if verbose_hashing=true in the request.
+                        Note that there are no guarantees on the stability of the format or content of this field.
+                        Its content should NOT be parsed and should only be used for troubleshooting purposes.
+                    type: string
+        SubmitTransferPreapprovalSendRequest:
+            type: object
+            required:
+                - submission
+            properties:
+                submission:
+                    $ref: '#/components/schemas/ExternalPartySubmission'
+        SubmitTransferPreapprovalSendResponse:
+            type: object
+            required:
+                - update_id
+            properties:
+                update_id:
+                    type: string
+        ExternalPartySubmission:
+            type: object
+            required:
+                - party_id
+                - transaction
+                - signed_tx_hash
+                - public_key
+            properties:
+                party_id:
+                    type: string
+                transaction:
+                    type: string
+                    description: |
+                        base64-encoded transaction. The transaction corresponds to
+                        the protobuf definition of a `PreparedTransaction`
+                        https://github.com/digital-asset/canton/blob/main/community/ledger-api/src/main/protobuf/com/daml/ledger/api/v2/interactive_submission_data.proto#L18
+                        and can be decoded using standard protobuf libraries.
+                signed_tx_hash:
+                    description: |
+                        hex-encoded ed25519 signature of the hash return by the prepare endpoint in the form
+                        `${r}${s}`.
+                    type: string
+                public_key:
+                    description: hex-encoded ed25519 public key
+                    type: string
+        ErrorResponse:
+            type: object
+            required:
+                - error
+            properties:
+                error:
+                    type: string
+        KeyPair:
+            type: object
+            required:
+                - keyPair
+            properties:
+                keyPair:
+                    type: string
+                name:
+                    type: string
+        KmsKeyId:
+            type: object
+            required:
+                - type
+                - keyId
+            properties:
+                type:
+                    type: string
+                    enum:
+                        - signing
+                        - encryption
+                keyId:
+                    type: string
+                name:
+                    type: string
+        NodeKey:
+            oneOf:
+                - $ref: '#/components/schemas/KeyPair'
+                - $ref: '#/components/schemas/KmsKeyId'
+        NodeIdentitiesDump:
+            type: object
+            required:
+                - id
+                - keys
+                - authorizedStoreSnapshot
+            properties:
+                id:
+                    type: string
+                keys:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/NodeKey'
+                authorizedStoreSnapshot:
+                    description: |
+                        base64 encoded string of authorized store snapshot
+                    type: string
+                version:
+                    type: string
+        ParticipantIdentityProvider:
+            type: object
+            required:
+                - id
+                - isDeactivated
+                - jwksUrl
+                - issuer
+                - audience
+            properties:
+                id:
+                    type: string
+                isDeactivated:
+                    type: boolean
+                    default: false
+                jwksUrl:
+                    type: string
+                issuer:
+                    type: string
+                audience:
+                    type: string
+        ParticipantUserRight:
+            type: object
+            required:
+                - kind
+            properties:
+                kind:
+                    type: string
+                    enum:
+                        - participantAdmin
+                        - canActAs
+                        - canReadAs
+                        - canExecuteAs
+                        - identityProviderAdmin
+                        - canReadAsAnyParty
+                        - canExecuteAsAnyParty
+                party:
+                    type: string
+        ParticipantUserAnnotation:
+            type: object
+            required:
+                - key
+                - value
+            properties:
+                key:
+                    type: string
+                value:
+                    type: string
+        ParticipantUser:
+            type: object
+            required:
+                - id
+                - rights
+                - isDeactivated
+                - annotations
+            properties:
+                id:
+                    type: string
+                primaryParty:
+                    type: string
+                rights:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserRight'
+                isDeactivated:
+                    type: boolean
+                    default: false
+                annotations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUserAnnotation'
+                identityProviderId:
+                    type: string
+                    default: ''
+        ParticipantUsersData:
+            type: object
+            required:
+                - identityProviders
+                - users
+            properties:
+                identityProviders:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantIdentityProvider'
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ParticipantUser'
+        Contract:
+            type: object
+            properties:
+                template_id:
+                    type: string
+                contract_id:
+                    type: string
+                payload:
+                    type: object
+                created_event_blob:
+                    type: string
+                created_at:
+                    type: string
+            required:
+                - template_id
+                - contract_id
+                - payload
+                - created_event_blob
+                - created_at
+        ContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+        ContractId:
+            type: string
+    responses:
+        '400':
+            description: bad request
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '404':
+            description: not found
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '409':
+            description: conflict
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '500':
+            description: internal server error
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'
+        '501':
+            description: not implemented
+            content:
+                application/json:
+                    schema:
+                        $ref: '#/components/schemas/ErrorResponse'

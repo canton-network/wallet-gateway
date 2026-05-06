@@ -4,11 +4,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Metadata } from '@canton-network/core-token-standard'
-import { v3_4 } from '@canton-network/core-ledger-client-types'
+import { type LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
 
-export type ViewValue =
-    v3_4.components['schemas']['JsInterfaceView']['viewValue'] // unknown | undefined
-export type JsActiveContract = v3_4.components['schemas']['JsActiveContract']
+export type ViewValue = LedgerCommonSchemas['JsInterfaceView']['viewValue'] // unknown | undefined
+export type JsActiveContract = LedgerCommonSchemas['JsActiveContract']
 export interface Transaction {
     updateId: string
     offset: number

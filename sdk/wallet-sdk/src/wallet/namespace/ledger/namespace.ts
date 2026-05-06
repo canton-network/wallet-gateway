@@ -7,7 +7,6 @@ import { PrepareOptions, ExecuteOptions, AcsRequestOptions } from './types.js'
 import { PreparedTransaction } from '../transactions/prepared.js'
 import { SignedTransaction } from '../transactions/signed.js'
 import { Ops } from '@canton-network/core-provider-ledger'
-import { v3_4 } from '@canton-network/core-ledger-client-types'
 import { DarNamespace } from './dar/client.js'
 import { AcsOptions } from '@canton-network/core-acs-reader'
 import { InternalLedgerNamespace } from './internal/index.js'
@@ -184,7 +183,7 @@ export class LedgerNamespace {
                 .map((acs) => {
                     const jsActiveContract = (
                         acs.contractEntry as {
-                            JsActiveContract: v3_4.components['schemas']['JsActiveContract']
+                            JsActiveContract: LedgerTypes['JsActiveContract']
                         }
                     ).JsActiveContract
 

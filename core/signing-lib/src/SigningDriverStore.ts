@@ -70,7 +70,7 @@ export interface SigningKey {
     id: string
     name: string
     publicKey: string
-    privateKey?: string // Optional for external providers like Fireblocks
+    privateKey?: string // Optional for external signing providers
     metadata?: Record<string, unknown> // Driver-specific data (e.g., derivation path)
     createdAt: Date
     updatedAt: Date

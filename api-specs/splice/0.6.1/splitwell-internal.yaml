@@ -1,0 +1,468 @@
+openapi: 3.0.0
+info:
+    title: Splitwell API
+    version: 0.0.1
+servers:
+    - url: https://example.com/api/splitwell
+tags:
+    - name: splitwell
+paths:
+    /readyz:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isReady
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /livez:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: isLive
+            responses:
+                '200':
+                    description: ok
+                '503':
+                    description: service_unavailable
+    /status:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: getHealthStatus
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/NodeStatus'
+    /version:
+        get:
+            tags:
+                - common
+            x-jvm-package: external.common_admin
+            operationId: getVersion
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Version'
+    /splitwell-installs:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listSplitwellInstalls
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSplitwellInstallsResponse'
+    /splitwell-rules:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listSplitwellRules
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListSplitwellRulesResponse'
+    /groups:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listGroups
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGroupsResponse'
+    /group-invites:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listGroupInvites
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGroupInvitesResponse'
+    /accepted-group-invites:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listAcceptedGroupInvites
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: group_id
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAcceptedGroupInvitesResponse'
+    /balance-updates:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listBalanceUpdates
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: group_id
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: owner_party_id
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListBalanceUpdatesResponse'
+    /balances:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: listBalances
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: group_id
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                - name: owner_party_id
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListBalancesResponse'
+    /connected-domains:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: getConnectedDomains
+            parameters:
+                - name: party
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetConnectedDomainsResponse'
+    /splitwell-domains:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: getSplitwellDomainIds
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetSplitwellDomainIdsResponse'
+    /provider-party-id:
+        get:
+            tags:
+                - splitwell
+            x-jvm-package: splitwell
+            operationId: getProviderPartyId
+            responses:
+                '200':
+                    description: ok
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetProviderPartyIdResponse'
+components:
+    schemas:
+        SplitwellInstall:
+            type: object
+            required:
+                - contract_id
+                - domain_id
+            properties:
+                contract_id:
+                    type: string
+                domain_id:
+                    type: string
+        ListSplitwellInstallsResponse:
+            type: object
+            required:
+                - installs
+            properties:
+                installs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/SplitwellInstall'
+        ListSplitwellRulesResponse:
+            type: object
+            required:
+                - rules
+            properties:
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AssignedContract'
+        ListGroupsResponse:
+            type: object
+            required:
+                - groups
+            properties:
+                groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        ListGroupInvitesResponse:
+            type: object
+            required:
+                - group_invites
+            properties:
+                group_invites:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        ListAcceptedGroupInvitesResponse:
+            type: object
+            required:
+                - accepted_group_invites
+            properties:
+                accepted_group_invites:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Contract'
+        ListBalanceUpdatesResponse:
+            type: object
+            required:
+                - balance_updates
+            properties:
+                balance_updates:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ContractWithState'
+        ListBalancesResponse:
+            type: object
+            required:
+                - balances
+            properties:
+                balances:
+                    type: object
+                    additionalProperties:
+                        type: string
+        GetConnectedDomainsResponse:
+            type: object
+            required:
+                - domain_ids
+            properties:
+                domain_ids:
+                    type: array
+                    items:
+                        type: string
+        GetSplitwellDomainIdsResponse:
+            type: object
+            required:
+                - preferred
+                - other_domain_ids
+            properties:
+                preferred:
+                    type: string
+                other_domain_ids:
+                    type: array
+                    items:
+                        type: string
+        GetProviderPartyIdResponse:
+            type: object
+            required:
+                - provider_party_id
+            properties:
+                provider_party_id:
+                    type: string
+        Status:
+            type: object
+            required:
+                - id
+                - uptime
+                - ports
+                - active
+            properties:
+                id:
+                    type: string
+                uptime:
+                    type: string
+                ports:
+                    type: object
+                    additionalProperties:
+                        type: integer
+                        format: int32
+                extra:
+                    type: string
+                    format: binary
+                active:
+                    type: boolean
+        SuccessStatusResponse:
+            type: object
+            required:
+                - success
+            properties:
+                success:
+                    $ref: '#/components/schemas/Status'
+        NotInitialized:
+            type: object
+            required:
+                - active
+            properties:
+                active:
+                    type: boolean
+        NotInitializedStatusResponse:
+            type: object
+            required:
+                - not_initialized
+            properties:
+                not_initialized:
+                    $ref: '#/components/schemas/NotInitialized'
+        ErrorResponse:
+            type: object
+            required:
+                - error
+            properties:
+                error:
+                    type: string
+        FailureStatusResponse:
+            type: object
+            required:
+                - failed
+            properties:
+                failed:
+                    $ref: '#/components/schemas/ErrorResponse'
+        NodeStatus:
+            oneOf:
+                - $ref: '#/components/schemas/SuccessStatusResponse'
+                - $ref: '#/components/schemas/NotInitializedStatusResponse'
+                - $ref: '#/components/schemas/FailureStatusResponse'
+        Version:
+            type: object
+            required:
+                - version
+                - commit_ts
+            properties:
+                version:
+                    type: string
+                commit_ts:
+                    type: string
+                    format: date-time
+        Contract:
+            type: object
+            properties:
+                template_id:
+                    type: string
+                contract_id:
+                    type: string
+                payload:
+                    type: object
+                created_event_blob:
+                    type: string
+                created_at:
+                    type: string
+            required:
+                - template_id
+                - contract_id
+                - payload
+                - created_event_blob
+                - created_at
+        AssignedContract:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract
+                - domain_id
+        ContractWithState:
+            type: object
+            properties:
+                contract:
+                    $ref: '#/components/schemas/Contract'
+                domain_id:
+                    type: string
+            required:
+                - contract

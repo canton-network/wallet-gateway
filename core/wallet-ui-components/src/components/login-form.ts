@@ -6,7 +6,6 @@ import { customElement, property, state } from 'lit/decorators.js'
 import './back-link.js'
 import { BaseElement } from '../internal/base-element.js'
 import { Network, Idp } from '@canton-network/core-wallet-user-rpc-client'
-import { toRelPath } from '../routing'
 import { chevronDownIcon } from '../icons'
 import cantonLogo from '../../images/logos/canton-logo.png'
 
@@ -217,15 +216,6 @@ export class WgLoginForm extends BaseElement {
         this.dispatchEvent(
             new LoginConnectEvent(this.selectedNetwork, idp, clientId)
         )
-    }
-
-    private handleBack() {
-        const event = new LoginBackEvent()
-        const shouldContinue = this.dispatchEvent(event)
-
-        if (shouldContinue) {
-            window.location.href = toRelPath(this.backHref)
-        }
     }
 
     /** Set a status message on the form (e.g. "Redirecting...") */

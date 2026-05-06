@@ -464,6 +464,7 @@ interface components {
             prefetchContractKeys?: Array<
                 components['schemas']['PrefetchContractKey']
             >
+            tapsMaxPasses?: number
         }
         JsContractEntry:
             | { JsActiveContract: components['schemas']['JsActiveContract'] }
@@ -563,6 +564,7 @@ interface components {
             >
             maxRecordTime?: string
             estimateTrafficCost?: components['schemas']['CostEstimationHints']
+            tapsMaxPasses?: number
         }
         JsPrepareSubmissionResponse: {
             preparedTransaction: string
@@ -1194,6 +1196,28 @@ export type PostV2PackageVetting = {
         result: components['schemas']['UpdateVettedPackagesResponse']
     }
 }
+export type PostV2PackageVettingList = {
+    ledgerApi: {
+        params: {
+            resource: '/v2/package-vetting/list'
+            requestMethod: 'post'
+            body: components['schemas']['ListVettedPackagesRequest']
+            headers?: Record<string, string>
+        }
+        result: components['schemas']['ListVettedPackagesResponse']
+    }
+}
+export type PostV2PackageVettingUpdate = {
+    ledgerApi: {
+        params: {
+            resource: '/v2/package-vetting/update'
+            requestMethod: 'post'
+            body: components['schemas']['UpdateVettedPackagesRequest']
+            headers?: Record<string, string>
+        }
+        result: components['schemas']['UpdateVettedPackagesResponse']
+    }
+}
 export type GetV2Parties = {
     ledgerApi: {
         params: {
@@ -1740,6 +1764,8 @@ export type LedgerTypes =
     | GetV2PackagesPackageIdStatus
     | GetV2PackageVetting
     | PostV2PackageVetting
+    | PostV2PackageVettingList
+    | PostV2PackageVettingUpdate
     | GetV2Parties
     | PostV2Parties
     | PostV2PartiesExternalAllocate

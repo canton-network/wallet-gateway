@@ -343,6 +343,151 @@ export class TransactionService {
         }
     }
 
+    /**
+     * Dfns broadcasts the prepared transaction to Canton itself, so we get back
+     * an updateId rather than a raw signature. We persist the updateId as the
+     * signature payload (the controller short-circuits Dfns execute) and surface
+     * the same SignResult shape the other external providers use.
+     */
+    public async signWithDfns(
+        userId: UserId,
+        wallet: Wallet,
+        signParams: SignParams
+    ): Promise<SignResult> {
+        const signingProvider = this.signingDrivers[SigningProvider.DFNS]
+        if (!signingProvider) {
+            throw new Error('Dfns signing driver not available')
+        }
+        const driver = signingProvider.controller(userId)
+
+        const tx = await this.loadPreparedTransactionForSigning(
+            signParams.transactionId
+        )
+
+        let signingResult: Exclude<
+            GetTransactionResult | SignTransactionResult,
+            SigningError
+        >
+        if (tx.externalTxId) {
+            signingResult = await driver
+                .getTransaction({
+                    userId,
+                    txId: tx.externalTxId,
+                })
+                .then(handleSigningError)
+        } else {
+            signingResult = await driver
+                .signTransaction({
+                    tx: tx.preparedTransaction,
+                    txHash: tx.preparedTransactionHash,
+                    keyIdentifier: {
+                        publicKey: wallet.publicKey,
+                    },
+                })
+                .then(handleSigningError)
+        }
+
+        const now = new Date()
+
+        if (signingResult.status === 'signed') {
+            if (!signingResult.signature) {
+                throw new Error('No updateId returned from Dfns')
+            }
+
+            const signedTx: Transaction = {
+                id: tx.id,
+                commandId: tx.commandId,
+                status: signingResult.status,
+                preparedTransaction: tx.preparedTransaction,
+                preparedTransactionHash: tx.preparedTransactionHash,
+                origin: tx?.origin ?? null,
+                ...(tx?.createdAt && {
+                    createdAt: tx.createdAt,
+                }),
+                signedAt: now,
+                externalTxId: signingResult.txId,
+            }
+
+            await this.store.setTransactionSigned(
+                tx.id,
+                now,
+                signingResult.txId
+            )
+            this.notifier.emit('txChanged', signedTx)
+
+            return {
+                status: signingResult.status,
+                signature: signingResult.signature,
+                signedBy: wallet.namespace,
+                partyId: wallet.partyId,
+                externalTxId: signingResult.txId,
+            }
+        } else {
+            const status =
+                signingResult.status === 'pending' ? 'pending' : 'failed'
+            const pendingTx: Transaction = {
+                id: tx.id,
+                commandId: tx.commandId,
+                status,
+                preparedTransaction: tx.preparedTransaction,
+                preparedTransactionHash: tx.preparedTransactionHash,
+                externalTxId: signingResult.txId,
+                origin: tx?.origin ?? null,
+                ...(tx?.createdAt && {
+                    createdAt: tx.createdAt,
+                }),
+            }
+
+            await this.store.setTransactionStatus(tx.id, status, {
+                externalTxId: signingResult.txId,
+            })
+            this.notifier.emit('txChanged', pendingTx)
+
+            return {
+                status: signingResult.status,
+                externalTxId: signingResult.txId,
+                partyId: wallet.partyId,
+            }
+        }
+    }
+
+    /**
+     * Dfns has already broadcast the transaction at sign-time, so execute is a
+     * state reconciliation: mark the stored transaction as executed and return
+     * the updateId Dfns gave us. We deliberately don't post to the ledger here.
+     */
+    public async executeWithDfns(
+        transaction: Transaction
+    ): Promise<ExecuteResult> {
+        if (!transaction.externalTxId) {
+            throw new Error(
+                'Cannot execute Dfns transaction without externalTxId from Dfns'
+            )
+        }
+
+        const executedTx: Transaction = {
+            id: transaction.id,
+            commandId: transaction.commandId,
+            status: 'executed',
+            preparedTransaction: transaction.preparedTransaction,
+            preparedTransactionHash: transaction.preparedTransactionHash,
+            origin: transaction.origin ?? null,
+            ...(transaction.createdAt && {
+                createdAt: transaction.createdAt,
+            }),
+            ...(transaction.signedAt && {
+                signedAt: transaction.signedAt,
+            }),
+            externalTxId: transaction.externalTxId,
+        }
+        await this.store.setTransactionStatus(transaction.id, 'executed', {
+            externalTxId: transaction.externalTxId,
+        })
+        this.notifier.emit('txChanged', executedTx)
+
+        return { updateId: transaction.externalTxId } as ExecuteResult
+    }
+
     public async executeWithParticipant(
         userId: UserId,
         executeParams: ExecuteParams,

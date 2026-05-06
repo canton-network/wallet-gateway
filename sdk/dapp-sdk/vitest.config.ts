@@ -6,8 +6,10 @@ import { playwright } from '@vitest/browser-playwright'
 
 export default defineConfig({
     test: {
+        globalSetup: ['./vitest.global-setup.ts'],
         coverage: {
             include: ['src/**/*.ts'],
+            exclude: ['src/integration-test'],
             provider: 'v8',
             reporter: ['text', 'html', 'lcov'],
             thresholds: {
@@ -18,12 +20,12 @@ export default defineConfig({
             },
         },
         environment: 'node',
-        include: ['src/**/*.test.ts'],
+        include: [],
         projects: [
             defineProject({
                 test: {
-                    name: 'browser',
-                    include: ['src/**/*.test.ts'],
+                    name: 'browser-integration',
+                    include: ['src/integration-test/*.test.ts'],
                     browser: {
                         enabled: true,
                         provider: playwright({

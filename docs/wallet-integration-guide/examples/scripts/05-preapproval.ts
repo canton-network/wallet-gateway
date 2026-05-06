@@ -172,7 +172,6 @@ logger.info('Testing out cancel command')
 if (!fetchedStatusAfterRenew?.templateId) {
     throw new Error('No preapproval found - fetchedPreapprovalStatus is null')
 }
-
 const [cancelPreapprovalCommand, cancelDisclosedContracts] =
     await sdk.amulet.preapproval.command.cancel({
         parties: {
@@ -204,10 +203,13 @@ const cancelled = await sdk.amulet.preapproval.fetchStatus(bob.partyId, {
 
 const preapprovalACS = await sdk.ledger.acs.read({
     parties: [bob.partyId],
-    templateIds: [fetchedStatusAfterRenew?.templateId],
     filterByParty: true,
 })
 
-if (cancelled === null && preapprovalACS.length === 0) {
+const renewedPreapprovalStillActive = preapprovalACS.some(
+    (contract) => contract.contractId === fetchedStatusAfterRenew?.contractId
+)
+
+if (cancelled === null && !renewedPreapprovalStillActive) {
     logger.info(`Successfully cancelled`)
 }

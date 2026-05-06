@@ -4,7 +4,7 @@ Signing Transactions from third party dApps
 A normal flow on blockchain applications is to have dApps that interact with the blockchain on the clients behalf,
 these flows usually require the user to sign transactions that the dApp prepares and submit it. To faciliate this in
 Canton it is required that the prepared transaction is sent to the wallet for signing. An easy way of supporting this
-is to expose a dApp API (OpenRPC spec can be found here: https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/api-specs/openrpc-dapp-api.json ).
+is to expose a dApp API (OpenRPC spec can be found here: https://github.com/canton-network/wallet-gateway/blob/main/api-specs/openrpc-dapp-api.json ).
 
 *The specs are in OpenRPC to conform with traditional standards like for ethereum.*
 
@@ -31,7 +31,7 @@ is applied the transaction can be considered valid (and executed). The easiest w
 a JSON representation of the transaction. The Json for a prepared transaction (before signature is applied) can be obtained
 using the Wallet SDK:
 
-.. Relies on https://github.com/hyperledger-labs/splice-wallet-kernel/issues/1538
+.. Relies on https://github.com/canton-network/wallet-gateway/issues/1538
 .. .. literalinclude:: ../../examples/snippets/convert-transaction-to-json.ts
 ..     :language: typescript
 ..     :dedent:

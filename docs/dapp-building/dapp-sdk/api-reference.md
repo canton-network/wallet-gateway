@@ -8,8 +8,8 @@ The dApp API exists in two variants, each targeting a different deployment model
 
 The machine-readable API specifications are maintained in the repository:
 
-- **Sync API**: [openrpc-dapp-api.json](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/api-specs/openrpc-dapp-api.json)
-- **Async API**: [openrpc-dapp-remote-api.json](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/api-specs/openrpc-dapp-remote-api.json)
+- **Sync API**: [openrpc-dapp-api.json](https://github.com/canton-network/wallet-gateway/blob/main/api-specs/openrpc-dapp-api.json)
+- **Async API**: [openrpc-dapp-remote-api.json](https://github.com/canton-network/wallet-gateway/blob/main/api-specs/openrpc-dapp-remote-api.json)
 
 ## Synchronous dApp API (Sync API)
 

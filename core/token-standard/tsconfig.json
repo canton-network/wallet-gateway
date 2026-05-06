@@ -3,7 +3,28 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./dist",
-        "moduleResolution": "bundler"
+        "moduleResolution": "bundler",
+        "baseUrl": ".",
+        "paths": {
+            "@daml.js/token-standard-models-1.0.0": [
+                "../../damljs/token-standard-models/token-standard-models-1.0.0/lib/index.d.ts"
+            ],
+            "@daml.js/token-standard-models-1.0.0/*": [
+                "../../damljs/token-standard-models/token-standard-models-1.0.0/*"
+            ],
+            "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0": [
+                "../../damljs/token-standard-models/ghc-stdlib-DA-Internal-Template-1.0.0/lib/index.d.ts"
+            ],
+            "@daml.js/ghc-stdlib-DA-Internal-Template-1.0.0/*": [
+                "../../damljs/token-standard-models/ghc-stdlib-DA-Internal-Template-1.0.0/*"
+            ],
+            "@daml.js/daml-stdlib-DA-Time-Types-1.0.0": [
+                "../../damljs/token-standard-models/daml-stdlib-DA-Time-Types-1.0.0/lib/index.d.ts"
+            ],
+            "@daml.js/daml-stdlib-DA-Time-Types-1.0.0/*": [
+                "../../damljs/token-standard-models/daml-stdlib-DA-Time-Types-1.0.0/*"
+            ]
+        }
     },
     "include": ["src"]
 }

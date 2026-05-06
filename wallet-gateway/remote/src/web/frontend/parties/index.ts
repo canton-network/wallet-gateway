@@ -174,7 +174,7 @@ export class UserUiParties extends BaseElement {
         if (createdParam === WALLET_CREATION_STATUS_CODE.WALLET_ALLOCATED) {
             showToast(
                 'Party created',
-                'Your new party has been added successfully.',
+                'Your new party has been created successfully.',
                 'success'
             )
         } else if (

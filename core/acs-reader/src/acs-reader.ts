@@ -5,11 +5,11 @@ import {
     AbstractLedgerProvider,
     Ops,
 } from '@canton-network/core-provider-ledger'
-import { v3_4 } from '@canton-network/core-ledger-client-types'
+import { type LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
 
 import { PartyId } from '@canton-network/core-types'
 
-type Types = v3_4.components['schemas']
+type Types = LedgerCommonSchemas
 
 type Completion = Types['Completion']['value']
 export type JSContractEntry = Types['JsContractEntry']

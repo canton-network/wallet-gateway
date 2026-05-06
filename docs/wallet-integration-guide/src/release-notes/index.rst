@@ -3,6 +3,17 @@ Wallet SDK Release Notes
 
 Below are the release notes for the Wallet SDK versions, detailing new features, improvements, and bug fixes in each version.
 
+1.1.0
+-----
+
+**Released on April 28th, 2026**
+
+* Added support for Canton 3.5.X & Splice 0.6.X
+* Backwards compatibility with Canton 3.4X and Splice 0.5.X
+* Allow offline SDK signing without ledger access
+* Few improvments to the amulet fetch status to handle easier expectations like (expect cancelled or expired) 
+
+
 1.0.0
 -----
 
@@ -250,7 +261,7 @@ and secondly there is an upper limit of 100 inputs per transaction so to facilit
 * merge utxos delegation
 
 *instead of manually monitor and act you can set up utxos merge delegation as described at* `merge-delegation <https://docs.dev.sync.global/app_dev/token_standard/index.html#setting-up-mergedelegations>`__
-*using the new functionality like. An example of the complete setup can be found here:* `Wallet SDK example 18 <https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/docs/wallet-integration-guide/examples/scripts/18-merge-delegation-proposal.ts>`__
+*using the new functionality like. An example of the complete setup can be found here:* `Wallet SDK example 18 <https://github.com/canton-network/wallet-gateway/blob/main/docs/wallet-integration-guide/examples/scripts/18-merge-delegation-proposal.ts>`__
 
 * create party with preapproval
 
@@ -1380,7 +1391,7 @@ now instead using ledger api:
     const allUtxos = await sdk.tokenStandard?.listHoldingUtxos()
 
 * Include some small bug fixes. The most noteable are:
-    * ``Contract not found`` error when listing holdings (https://github.com/hyperledger-labs/splice-wallet-kernel/issues/357)
+    * ``Contract not found`` error when listing holdings (https://github.com/canton-network/wallet-gateway/issues/357)
     * Requirements to have extra import (like @protobuf-ts/runtime-rpc) resolved
 
 

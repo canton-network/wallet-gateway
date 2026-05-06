@@ -35,6 +35,10 @@ test('allocation via OTC trade', async ({ page: dappPage }) => {
         partyHint: `bob-${rnd}`,
         signingProvider: 'participant',
     })
+    const charlie = await wg.createWalletIfNotExists({
+        partyHint: `charlie-${rnd}`,
+        signingProvider: 'participant',
+    })
 
     const logger = pino({ name: 'otc-trade', level: 'info' })
     const otcTrade = new OTCTrade({
@@ -42,13 +46,17 @@ test('allocation via OTC trade', async ({ page: dappPage }) => {
         venue,
         alice,
         bob,
+        charlie,
     })
     const otcTradeDetails = await otcTrade.setup()
 
     await wg.setPrimaryWallet(alice)
-    await tapAndCreateAllocation(dappPage, wg, '1000')
+    await tapAndCreateAllocation(dappPage, wg, '1000', 2)
 
     await switchWallet(dappPage, wg, bob)
+    await tapAndCreateAllocation(dappPage, wg, '1000')
+
+    await switchWallet(dappPage, wg, charlie)
     await tapAndCreateAllocation(dappPage, wg, '1000')
 
     await otcTrade.settle(otcTradeDetails)

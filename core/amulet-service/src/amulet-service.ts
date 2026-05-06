@@ -112,8 +112,8 @@ export class AmuletService {
             provider,
             memberId: this.tokenStandard.core.toQualifiedMemberId(memberId),
             synchronizerId,
-            migrationId,
-            trafficAmount,
+            migrationId: migrationId.toString(),
+            trafficAmount: trafficAmount.toString(),
             expectedDso: dso,
         }
 

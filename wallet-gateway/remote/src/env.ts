@@ -10,6 +10,12 @@ export class Env {
         Env.get('BLOCKDAEMON_API_KEY', { fallback })
     static BLOCKDAEMON_CAIP2 = (fallback: string) =>
         Env.get('BLOCKDAEMON_CAIP2', { fallback })
+    static DFNS_ORG_ID = () => Env.get('DFNS_ORG_ID')
+    static DFNS_BASE_URL = (fallback: string) =>
+        Env.get('DFNS_BASE_URL', { fallback })
+    static DFNS_CRED_ID = () => Env.get('DFNS_CRED_ID')
+    static DFNS_PRIVATE_KEY = () => Env.get('DFNS_PRIVATE_KEY')
+    static DFNS_AUTH_TOKEN = () => Env.get('DFNS_AUTH_TOKEN')
 
     static get(
         key: string,

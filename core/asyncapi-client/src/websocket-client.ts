@@ -3,14 +3,33 @@
 
 import { PartyId } from '@canton-network/core-types'
 import {
-    CHANNELS,
-    CompletionStreamRequest,
-    GetUpdatesRequest,
-    JsGetUpdatesResponse,
+    asyncApiByVersion,
+    supportedAsyncApiVersions,
     TransactionFilterBySetup,
+    type AsyncChannelsByVersion,
+    type AsyncApiVersion,
+    type AsyncCommonChannels,
+    type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import pino, { Logger } from 'pino'
 import { AccessTokenProvider } from '@canton-network/core-wallet-auth'
+
+export const supportedVersions = supportedAsyncApiVersions
+
+export type SupportedVersions = AsyncApiVersion
+
+type ChannelsByVersion = AsyncChannelsByVersion
+
+type ChannelsMap = {
+    [V in SupportedVersions]: ChannelsByVersion[V]
+}
+
+export type CompletionStreamRequest =
+    LedgerCommonSchemas['CompletionStreamRequest']
+
+export type GetUpdatesRequest = LedgerCommonSchemas['GetUpdatesRequest']
+
+export type JsGetUpdatesResponse = LedgerCommonSchemas['JsGetUpdatesResponse']
 
 type UpdateSubscriptionOptions = {
     beginExclusive: number
@@ -32,19 +51,34 @@ export class WebSocketClient {
     private baseUrl: string
     private token: string = ''
     private protocol: string[] = []
+    private readonly channelsByVersion: ChannelsMap
+    private version: SupportedVersions = '3.4'
     private readonly logger: Logger
     private accessTokenProvider: AccessTokenProvider
 
     constructor({
         baseUrl,
         accessTokenProvider,
+        version,
     }: {
         baseUrl: string
         accessTokenProvider: AccessTokenProvider
+        version?: SupportedVersions
     }) {
         this.logger = pino({ name: 'WebSocketClient', level: 'info' })
         this.baseUrl = baseUrl
         this.accessTokenProvider = accessTokenProvider
+        this.channelsByVersion = {
+            ...supportedVersions.reduce((acc, currentVersion) => {
+                acc[currentVersion] = asyncApiByVersion[currentVersion].CHANNELS
+                return acc
+            }, {} as ChannelsMap),
+        }
+        this.version = version ?? this.version
+    }
+
+    private get channels(): AsyncCommonChannels {
+        return this.channelsByVersion[this.version] as AsyncCommonChannels
     }
 
     async init() {
@@ -121,7 +155,7 @@ export class WebSocketClient {
     streamUpdates(
         options: UpdateSubscriptionOptions
     ): AsyncIterableIterator<JsGetUpdatesResponse> {
-        const wsUpdatesUrl = `${this.baseUrl}${CHANNELS.v2_updates}`
+        const wsUpdatesUrl = `${this.baseUrl}${this.channels.v2_updates}`
 
         const filter = options.templateIds
             ? TransactionFilterBySetup({
@@ -149,7 +183,7 @@ export class WebSocketClient {
     streamCompletions(
         options: CommandsCompletionsOptions
     ): AsyncIterableIterator<JsGetUpdatesResponse> {
-        const wsCompletionsUrl = `${this.baseUrl}${CHANNELS.v2_commands_completions}`
+        const wsCompletionsUrl = `${this.baseUrl}${this.channels.v2_commands_completions}`
 
         const request = {
             beginExclusive: options.beginExclusive,

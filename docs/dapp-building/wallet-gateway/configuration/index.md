@@ -492,7 +492,7 @@ Used for development and testing. The Gateway generates and signs JWT tokens loc
 The signing store is an optional secondary database used for storing private keys when the Wallet Gateway is configured to act as a signing provider (using the `wallet-kernel` signing provider).
 
 > [!IMPORTANT]
-> If you use the Wallet Gateway as a signing provider, private keys will be stored in the signing store database. This is **not recommended** for production environments with valuable assets. Use external signing providers (Fireblocks, Blockdaemon, or Participant-based) for production.
+> If you use the Wallet Gateway as a signing provider, private keys will be stored in the signing store database. This is **not recommended** for production environments with valuable assets. Use external signing providers (Dfns, Fireblocks, Blockdaemon, or Participant-based) for production.
 
 **Configuration:**
 
@@ -505,7 +505,7 @@ The signing store is only needed if:
 - You're using the `wallet-kernel` signing provider (internal signing)
 - You want to store keys managed by the Wallet Gateway itself
 
-If you're using external signing providers (Fireblocks, Blockdaemon, Participant), you can omit the `signingStore` configuration entirely.
+If you're using external signing providers (Dfns, Fireblocks, Blockdaemon, Participant), you can omit the `signingStore` configuration entirely.
 
 **Example:**
 

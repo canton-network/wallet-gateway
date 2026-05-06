@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-wallet-ui-components",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "type": "module",
     "description": "Reusable UI components for the Splice wallet",
     "license": "Apache-2.0",
@@ -63,7 +63,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "core/wallet-ui-components"
     }
 }
