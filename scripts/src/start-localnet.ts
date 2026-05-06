@@ -17,6 +17,10 @@ const GENERATED_COMPOSE_OVERRIDE = path.join(
 )
 
 const CANTON_MAX_COMMANDS_IN_FLIGHT = 256
+const CUSTOM_APP_SYNCHRONIZER_SC = path.join(
+    rootDir,
+    'canton/multi-sync/app-synchronizer.sc'
+)
 
 function ensureComposeOverride() {
     fs.mkdirSync(path.dirname(GENERATED_COMPOSE_OVERRIDE), { recursive: true })
@@ -30,6 +34,9 @@ function ensureComposeOverride() {
             `        canton.participants.app-provider.ledger-api.command-service.max-commands-in-flight = ${CANTON_MAX_COMMANDS_IN_FLIGHT}`,
             `        canton.participants.app-user.ledger-api.command-service.max-commands-in-flight = ${CANTON_MAX_COMMANDS_IN_FLIGHT}`,
             `        canton.participants.sv.ledger-api.command-service.max-commands-in-flight = ${CANTON_MAX_COMMANDS_IN_FLIGHT}`,
+            '  multi-sync-startup:',
+            '    volumes:',
+            `      - ${CUSTOM_APP_SYNCHRONIZER_SC}:/app/app-synchronizer.sc`,
             '',
         ].join('\n'),
         'utf8'
@@ -55,8 +62,8 @@ const composeBase = [
     'app-provider',
     '--profile',
     'app-user',
-    // '--profile',
-    // 'multi-sync',
+    '--profile',
+    'multi-sync',
 ]
 
 const network = getNetworkArg()
