@@ -2,7 +2,7 @@
 
 ## Setup
 
-> Note: This guide is for developers who want to contribute to Splice Wallet Kernel. It is worth reading the entire doc first before starting setup.
+> Note: This guide is for developers who want to contribute to Wallet Gateway. It is worth reading the entire doc first before starting setup.
 
 ### Prerequisites
 

@@ -1,6 +1,6 @@
 # WalletConnect “Wallet” (WalletKit) Example
 
-This example is a small **Vite + React** app that runs a **WalletConnect v2 Wallet** using **Reown WalletKit** (`@reown/walletkit`). It’s intended for local development/testing with the Splice Wallet Kernel ecosystem.
+This example is a small **Vite + React** app that runs a **WalletConnect v2 Wallet** using **Reown WalletKit** (`@reown/walletkit`). It’s intended for local development/testing with the Wallet Gateway ecosystem.
 
 ## What this is (and isn’t)
 

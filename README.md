@@ -1,4 +1,4 @@
-# Splice Wallet Kernel
+# Wallet Gateway
 
 A TypeScript framework for building wallet integrations on the [Canton Network](https://www.canton.network/). It provides the **Wallet Gateway** (server and browser extension), the **dApp SDK**, the **Wallet SDK**, and a set of shared core modules.
 
@@ -39,7 +39,7 @@ Key capabilities:
 - Read active contracts on the ledger
 - Decode and validate prepared transactions
 - Sign and submit transactions via the Ledger API
-- Integrate with the Splice Token Standard
+- Integrate with the Token Standard
 
 See the [Wallet SDK README](sdk/wallet-sdk) and the [integration guide](https://docs.digitalasset.com/integrate/devnet/index.html) for usage details.
 
@@ -59,7 +59,7 @@ Two implementations of the Wallet Gateway, both exposing the same dApp API and U
 | Package                      | Path                               | Description                                                                                                           |
 | ---------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `@canton-network/dapp-sdk`   | [`sdk/dapp-sdk`](sdk/dapp-sdk)     | Browser SDK for dApp development. Implements the CIP-103 dApp API with multi-transport support (HTTP, `postMessage`). |
-| `@canton-network/wallet-sdk` | [`sdk/wallet-sdk`](sdk/wallet-sdk) | SDK for wallet providers and exchanges to integrate with Canton and the Splice Token Standard.                        |
+| `@canton-network/wallet-sdk` | [`sdk/wallet-sdk`](sdk/wallet-sdk) | SDK for wallet providers and exchanges to integrate with Canton and the Token Standard.                               |
 
 ### Core Modules
 

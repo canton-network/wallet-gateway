@@ -4,7 +4,7 @@ This package provides a signing driver for integrating the Wallet Gateway with [
 
 ## Installation
 
-This package is part of the Splice Wallet Kernel monorepo and is typically installed as a workspace dependency.
+This package is part of the Wallet Gateway monorepo and is typically installed as a workspace dependency.
 
 ```bash
 yarn add @canton-network/core-signing-dfns

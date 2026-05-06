@@ -298,7 +298,7 @@ describe('WalletAllocationService', () => {
         })
     })
 
-    describe('Wallet Kernel', () => {
+    describe('Wallet Gateway', () => {
         it('createWallet initializes new wallet and adds to store', async () => {
             const expectedParty = createAllocatedParty(
                 'bob::fingerprint',
@@ -379,7 +379,7 @@ describe('WalletAllocationService', () => {
             })
         })
 
-        it('throws when Wallet Kernel signing driver not available', async () => {
+        it('throws when Wallet Gateway signing driver not available', async () => {
             const serviceWithoutDriver = createService({})
 
             await expect(
@@ -390,7 +390,7 @@ describe('WalletAllocationService', () => {
                     false,
                     SigningProvider.WALLET_KERNEL
                 )
-            ).rejects.toThrow('Wallet Kernel signing driver not available')
+            ).rejects.toThrow('Wallet Gateway signing driver not available')
         })
     })
 

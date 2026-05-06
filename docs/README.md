@@ -1,6 +1,6 @@
 # Documentation
 
-This directory contains two developer guides and supporting reference documents for the Splice Wallet Kernel project.
+This directory contains two developer guides and supporting reference documents for the Wallet Gateway project.
 
 ## Guides
 
