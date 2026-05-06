@@ -11,7 +11,7 @@ import {
     allocateAmuletForAlice,
     allocateTokenForBob,
     settleOtcTrade,
-    reassignToAppAfterSettlement,
+    reassignTokenRulesToApp,
     selfTransferToken,
     buildAllPartySpecs,
 } from './_trade_ops.js'
@@ -93,10 +93,10 @@ await settleOtcTrade(
 logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 11c: Reassign TokenRules (Bob) + Alice's Token → app-synchronizer ───
-// selfTransferToken must target app-synchronizer (where the Token will reside at
-// the end of the demo). Both TokenRules and Alice's Token are moved back from
-// global-domain so the submission can be prescribed to app-synchronizer.
+// ── Step 11c: Reassign TokenRules (Bob) → app-synchronizer ───────────────────
+// selfTransferToken targets app-synchronizer. TokenRules (Bob's) must be moved
+// explicitly because P1 doesn't host any stakeholder of that contract.
+// Alice's Token will be auto-reassigned by Canton (P1 hosts Alice).
 const aliceTokenContracts = await p1Sdk.ledger.acs.read({
     templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
     parties: [alice.partyId],
@@ -106,12 +106,12 @@ const aliceTokenCid = aliceTokenContracts[0]?.contractId
 if (!aliceTokenCid)
     throw new Error('Token holding not found for Alice after settlement')
 
-const freshTokenRulesContract = await reassignToAppAfterSettlement(
+const freshTokenRulesContract = await reassignTokenRulesToApp(
     setup,
-    { aliceTokenCid, tokenRulesCid },
+    { tokenRulesCid },
     logger
 )
-logger.info('Contracts after reassignment to app-synchronizer:')
+logger.info('Contracts after TokenRules reassignment to app-synchronizer:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 12: Alice self-transfers Token on app-synchronizer ───────────────────

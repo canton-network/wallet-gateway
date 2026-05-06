@@ -533,25 +533,20 @@ export async function allocateTokenForBob(
 }
 
 /**
- * After settlement, reassigns TokenRules (Bob) and Alice's Token from global-domain
- * back to app-synchronizer, so the final self-transfer runs on app-synchronizer.
+ * After settlement, reassigns Bob's TokenRules from global-domain back to
+ * app-synchronizer. Alice's Token is left on global — Canton will auto-reassign
+ * it to app-synchronizer when selfTransferToken targets app-synchronizer
+ * (P1 hosts Alice, the stakeholder).
  * Returns a fresh TokenRules ACS entry with the updated synchronizerId.
  */
-export async function reassignToAppAfterSettlement(
+export async function reassignTokenRulesToApp(
     setup: MultiSyncSetup,
-    params: { aliceTokenCid: string; tokenRulesCid: string },
+    params: { tokenRulesCid: string },
     logger: Logger
 ): Promise<AcsContractEntry> {
-    const {
-        p2Sdk,
-        p1SdkCtx,
-        p2SdkCtx,
-        alice,
-        bob,
-        appSynchronizerId,
-        globalSynchronizerId,
-    } = setup
-    const { aliceTokenCid, tokenRulesCid } = params
+    const { p2Sdk, p2SdkCtx, bob, appSynchronizerId, globalSynchronizerId } =
+        setup
+    const { tokenRulesCid } = params
 
     // Reassign TokenRules (Bob) from global-domain → app-synchronizer
     await reassignContract(
@@ -564,19 +559,6 @@ export async function reassignToAppAfterSettlement(
     )
     logger.info(
         'Bob: TokenRules reassigned from global-domain to app-synchronizer'
-    )
-
-    // Reassign Alice's Token from global-domain → app-synchronizer
-    await reassignContract(
-        p1SdkCtx.ledgerProvider,
-        alice.partyId,
-        aliceTokenCid,
-        globalSynchronizerId,
-        appSynchronizerId,
-        'alice-Token'
-    )
-    logger.info(
-        'Alice: Token reassigned from global-domain to app-synchronizer'
     )
 
     // Re-read TokenRules so the caller gets the updated synchronizerId for disclosedContracts
@@ -681,8 +663,9 @@ export interface TransferParams {
 
 /**
  * Self-transfers Alice's TestToken on app-synchronizer via TransferFactory_Transfer.
- * Both TokenRules (the factory) and Alice's Token have been reassigned to app-synchronizer
- * in step 11c, so the submission targets app-synchronizer.
+ * TokenRules has been manually reassigned to app-synchronizer in step 11c.
+ * Alice's Token (still on global) is auto-reassigned by Canton when this command
+ * targets app-synchronizer — P1 hosts Alice (the stakeholder).
  */
 export async function selfTransferToken(
     setup: MultiSyncSetup,
