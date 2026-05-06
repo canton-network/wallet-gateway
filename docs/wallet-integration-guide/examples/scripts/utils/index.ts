@@ -15,8 +15,7 @@ export {
     resolvePreferredSynchronizerId,
 } from './synchronizer.js'
 export type { SynchronizerMap, ContractSpec } from './synchronizer.js'
-export { registerPartyOnSynchronizer } from './party.js'
-export type { PartyInfo } from './party.js'
+
 export { vetDar } from './dar.js'
 export { ScanProxyClient, createScanProxyClient } from './scan-proxy.js'
 export type {
