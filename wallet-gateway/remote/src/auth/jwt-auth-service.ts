@@ -45,9 +45,8 @@ export const jwtAuthService = (store: Store, logger: Logger): AuthService => ({
                 return undefined
             }
 
-            const scope = decoded.scope
-            if (!scope) {
-                logger.warn('JWT does not contain a scope')
+            if (!decoded.scope && !decoded.scp) {
+                logger.warn('JWT does not contain a scope claim')
                 return undefined
             }
 

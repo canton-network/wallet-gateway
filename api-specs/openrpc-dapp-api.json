@@ -1,7 +1,7 @@
 {
     "openrpc": "1.2.6",
     "info": {
-        "title": "Splice Wallet JSON-RPC dApp API",
+        "title": "Wallet JSON-RPC dApp API",
         "version": "0.5.0",
         "description": "An OpenRPC specification for the dapp to interact with a Wallet Provider."
     },

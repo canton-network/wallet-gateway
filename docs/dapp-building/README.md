@@ -3,7 +3,7 @@
 Build decentralized applications (dApps) that interact with the **Canton Network** through the **Wallet Gateway**. Use the **dApp SDK** in your frontend to connect users to their wallets, and the Wallet Gateway to mediate between your dApp, Canton validator nodes, and signing providers.
 
 > [!IMPORTANT]
-> This project is under active development and may introduce breaking changes until version 1.0.0. Migration guides for each release are published in [Discussions](https://github.com/hyperledger-labs/splice-wallet-kernel/discussions).
+> This project is under active development and may introduce breaking changes until version 1.0.0. Migration guides for each release are published in [Discussions](https://github.com/canton-network/wallet-gateway/discussions).
 
 ## Contents
 

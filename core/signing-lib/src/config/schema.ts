@@ -8,6 +8,7 @@ export enum SigningProvider {
     PARTICIPANT = 'participant',
     FIREBLOCKS = 'fireblocks',
     BLOCKDAEMON = 'blockdaemon',
+    DFNS = 'dfns',
 }
 
 // Generic signing driver configuration schema

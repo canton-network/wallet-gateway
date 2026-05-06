@@ -1,7 +1,7 @@
 {
     "openrpc": "1.2.6",
     "info": {
-        "title": "Splice Wallet JSON-RPC User API",
+        "title": "Wallet JSON-RPC User API",
         "version": "0.1.0",
         "description": "An OpenRPC specification for the user to interact with the Wallet Gateway."
     },

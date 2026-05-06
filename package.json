@@ -1,5 +1,5 @@
 {
-    "name": "splice-wallet-kernel",
+    "name": "wallet-kernel",
     "private": true,
     "scripts": {
         "start:all": "yarn pm2 start ecosystem.config.js --env development",
@@ -125,6 +125,6 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git"
+        "url": "git+https://github.com/canton-network/wallet-gateway.git"
     }
 }

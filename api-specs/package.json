@@ -2,7 +2,7 @@
     "name": "@canton-network/api-specs",
     "private": true,
     "version": "0.0.0",
-    "description": "Splice Wallet Gateway API specifications",
+    "description": "Wallet Gateway API specifications",
     "type": "module",
     "scripts": {
         "dapp-mock-server": "open-rpc-mock-server -d openrpc-dapp-api.json",

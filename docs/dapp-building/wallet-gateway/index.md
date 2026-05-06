@@ -19,7 +19,7 @@ The Wallet Gateway enables transparent interaction between a dApp, Validator Nod
 **Key Features**
 
 - **JSON-RPC APIs**: Two distinct APIs for dApp and user interactions
-- **Multiple Signing Providers**: Support for participant-based signing, internal signing, Fireblocks, and Blockdaemon
+- **Multiple Signing Providers**: Support for participant-based signing, internal signing, Dfns, Fireblocks, and Blockdaemon
 - **Flexible Identity Providers**: Support for OAuth 2.0 and self-signed JWT tokens
 - **Network Management**: Configure and manage multiple Canton networks
 - **Session Management**: Secure session handling with JWT authentication
