@@ -11,6 +11,7 @@ import {
     primaryKeyColumns,
     tableExists,
 } from '../helpers.js'
+import { insertSigningKey } from '../seeds/001-init.js'
 
 const TARGET = 1
 
@@ -92,5 +93,26 @@ forEachDialect('migration 001 - init signing store schema', ({ getDb }) => {
                 'idx_signing_transactions_created_at'
             )
         ).toBe(true)
+    })
+
+    test('enforces unique constraint (user_id, id) on signing_keys', async () => {
+        const db = getDb()
+        await migrateUpThrough(db, TARGET)
+
+        await insertSigningKey(db, {
+            id: 'same-key-id',
+            userId: 'same-user',
+            name: 'first',
+            publicKey: 'pk1',
+        })
+
+        await expect(
+            insertSigningKey(db, {
+                id: 'same-key-id',
+                userId: 'same-user',
+                name: 'duplicate',
+                publicKey: 'pk2',
+            })
+        ).rejects.toThrow()
     })
 })
