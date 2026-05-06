@@ -211,6 +211,7 @@ export function forEachDialect(
 export interface ColumnInfo {
     name: string
     nullable: boolean
+    dataType: string
 }
 
 export async function listColumns(
@@ -218,8 +219,12 @@ export async function listColumns(
     table: string
 ): Promise<ColumnInfo[]> {
     if (await isPostgres(db)) {
-        const res = await sql<{ columnName: string; isNullable: string }>`
-            SELECT column_name, is_nullable
+        const res = await sql<{
+            columnName: string
+            isNullable: string
+            dataType: string
+        }>`
+            SELECT column_name, is_nullable, data_type
             FROM information_schema.columns
             WHERE table_schema = 'public' AND table_name = ${table}
             ORDER BY ordinal_position
@@ -227,14 +232,16 @@ export async function listColumns(
         return res.rows.map((r) => ({
             name: r.columnName.toLowerCase(),
             nullable: r.isNullable.toUpperCase() === 'YES',
+            dataType: r.dataType.toLowerCase(),
         }))
     }
-    const res = await sql<{ name: string; notnull: number }>`
-        SELECT name, "notnull" FROM pragma_table_info(${table})
+    const res = await sql<{ name: string; notnull: number; type: string }>`
+        SELECT name, "notnull", "type" FROM pragma_table_info(${table})
     `.execute(db)
     return res.rows.map((r) => ({
         name: r.name.toLowerCase(),
         nullable: r.notnull === 0,
+        dataType: (r.type ?? '').toLowerCase(),
     }))
 }
 
