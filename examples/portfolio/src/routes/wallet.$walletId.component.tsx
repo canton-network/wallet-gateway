@@ -56,7 +56,11 @@ export function WalletDetailPage() {
             </Button>
 
             <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" component="h1" fontWeight="bold">
+                <Typography
+                    variant="h4"
+                    component="h1"
+                    sx={{ fontWeight: 'bold' }}
+                >
                     {walletName}
                 </Typography>
                 <Box sx={{ mt: 1 }}>
@@ -66,8 +70,7 @@ export function WalletDetailPage() {
 
             <Typography
                 variant="h6"
-                sx={{ mb: 2, textTransform: 'uppercase' }}
-                fontWeight="bold"
+                sx={{ fontWeight: 'bold', mb: 2, textTransform: 'uppercase' }}
             >
                 Holdings
             </Typography>
@@ -109,8 +112,12 @@ export function WalletDetailPage() {
 
             <Typography
                 variant="h6"
-                sx={{ mb: 2, mt: 4, textTransform: 'uppercase' }}
-                fontWeight="bold"
+                sx={{
+                    fontWeight: 'bold',
+                    mb: 2,
+                    mt: 4,
+                    textTransform: 'uppercase',
+                }}
             >
                 Transaction History
             </Typography>

@@ -53,7 +53,7 @@
         "@types/node": "^25.6.1",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "@vitejs/plugin-react": "^6.0.1",
+        "@vitejs/plugin-react": "^5.1.4",
         "eslint": "^10.3.0",
         "eslint-plugin-react-hooks": "^7.1.1",
         "eslint-plugin-react-refresh": "^0.5.2",
@@ -62,7 +62,7 @@
         "tsx": "^4.21.0",
         "typescript": "~5.9.3",
         "typescript-eslint": "^8.59.2",
-        "vite": "^8.0.11"
+        "vite": "^7.3.2"
     },
     "files": [
         "dist/**"

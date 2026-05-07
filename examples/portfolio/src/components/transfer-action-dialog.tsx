@@ -39,15 +39,13 @@ export const TransferActionDialog: React.FC<TransferActionDialogProps> = (
     }
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            maxWidth="md"
-            fullWidth
-            disableEscapeKeyDown={isLoading}
-        >
+        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ pb: 1 }}>
-                <Typography variant="h6" component="div" fontWeight="bold">
+                <Typography
+                    variant="h6"
+                    component="div"
+                    sx={{ fontWeight: 'bold' }}
+                >
                     Transfer Details
                 </Typography>
             </DialogTitle>
@@ -82,7 +80,10 @@ export const TransferActionDialog: React.FC<TransferActionDialogProps> = (
                                 >
                                     Amount
                                 </Typography>
-                                <Typography variant="h6" fontWeight="bold">
+                                <Typography
+                                    variant="h6"
+                                    sx={{ fontWeight: 'bold' }}
+                                >
                                     {item.amount} {item.instrumentId.id}
                                 </Typography>
                             </Box>
@@ -107,7 +108,7 @@ export const TransferActionDialog: React.FC<TransferActionDialogProps> = (
                                 >
                                     <Typography
                                         variant="body2"
-                                        fontWeight="medium"
+                                        sx={{ fontWeight: 'medium' }}
                                     >
                                         Transfer Offer
                                     </Typography>
@@ -143,7 +144,10 @@ export const TransferActionDialog: React.FC<TransferActionDialogProps> = (
                                 >
                                     Created
                                 </Typography>
-                                <Typography variant="body1" fontWeight="medium">
+                                <Typography
+                                    variant="body1"
+                                    sx={{ fontWeight: 'medium' }}
+                                >
                                     {item.date}
                                 </Typography>
                             </Box>
@@ -168,7 +172,10 @@ export const TransferActionDialog: React.FC<TransferActionDialogProps> = (
                                 >
                                     Expires
                                 </Typography>
-                                <Typography variant="body1" fontWeight="medium">
+                                <Typography
+                                    variant="body1"
+                                    sx={{ fontWeight: 'medium' }}
+                                >
                                     {item.expiry}
                                 </Typography>
                             </Box>
