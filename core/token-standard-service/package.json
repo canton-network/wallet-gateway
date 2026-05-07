@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-token-standard-service",
-    "version": "1.1.1",
+    "version": "1.2.0",
     "type": "module",
     "description": "Provides a service layer that wraps the token-standard-client and contains higher level functions for interacting with token standard contracts on Canton.",
     "license": "Apache-2.0",
@@ -58,7 +58,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "url": "git+https://github.com/canton-network/wallet-gateway.git",
         "directory": "core/token-standard-service"
     }
 }

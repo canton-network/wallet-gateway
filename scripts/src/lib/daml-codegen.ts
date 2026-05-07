@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as path from 'path'
+import * as fs from 'fs'
 import { execSync } from 'child_process'
 import {
     info,
@@ -18,7 +19,6 @@ import {
  * See: https://docs.digitalasset.com/build/3.4/dpm/dpm.html
  */
 export interface DamlCodegenConfig {
-    sourceDir: string
     destDir: string
     packageName: string
     version: string
@@ -153,20 +153,29 @@ export function runDamlCodegen(workingDir: string, darFileName: string): void {
 }
 
 /**
- * Generate DAML JavaScript bindings from source .daml files
+ * Generate DAML JavaScript bindings from an existing DAML project at destination
  * Uses DPM (Daml Package Manager) for the complete workflow:
- * 1. Copy .daml files to destination
- * 2. Copy dependency DARs if specified
- * 3. Build DAR with dpm build
- * 4. Generate JS bindings with dpm codegen js
+ * 1. Validate destination contains a DAML project
+ * 2. Build DAR with dpm build
+ * 3. Generate JS bindings with dpm codegen js
  */
 export async function generateDamlJsBindings(
     config: DamlCodegenConfig
 ): Promise<void> {
-    const copiedFiles = await copyDamlFiles(config.sourceDir, config.destDir)
+    const damlYamlPath = path.join(config.destDir, 'daml.yaml')
+    if (!fs.existsSync(damlYamlPath)) {
+        throw new Error(
+            `Missing daml.yaml in destination project: ${damlYamlPath}`
+        )
+    }
 
-    if (copiedFiles.length === 0) {
-        console.log(warn('No files to process. Skipping build and codegen.'))
+    const damlFiles = getAllFilesWithExtension(config.destDir, '.daml')
+    if (damlFiles.length === 0) {
+        console.log(
+            warn(
+                `No .daml files found in ${config.destDir}. Skipping build and codegen.`
+            )
+        )
         return
     }
 

@@ -14,6 +14,7 @@ import { TokenStandardService } from '@canton-network/core-token-standard-servic
 import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
+import { Decimal } from 'decimal.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
@@ -58,7 +59,7 @@ export class AmuletNamespace {
         const [tapCommand, disclosedContracts] =
             await this.sdkContext.amuletService.createTap(
                 partyId,
-                amount,
+                new Decimal(amount).toFixed(10),
                 amulet.admin,
                 amulet.id,
                 amulet.registryUrl

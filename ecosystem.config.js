@@ -14,7 +14,7 @@ export const apps = [
     },
     {
         name: 'mock-oauth2-server',
-        script: 'yarn workspace @canton-network/mock-oauth2 start',
+        script: 'yarn workspace @canton-network/mock-oauth2 dev',
         env_development: sharedEnvDevelopment,
     },
     {
@@ -33,12 +33,12 @@ export const apps = [
         env_development: sharedEnvDevelopment,
     },
     {
-        name: 'splice-wallet-sdk',
+        name: 'wallet-sdk',
         script: 'yarn workspace @canton-network/wallet-sdk dev',
         env_development: sharedEnvDevelopment,
     },
     {
-        name: 'splice-dapp-sdk',
+        name: 'dapp-sdk',
         script: 'yarn workspace @canton-network/dapp-sdk dev',
         env_development: sharedEnvDevelopment,
     },

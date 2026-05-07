@@ -9,7 +9,6 @@ import { generateDamlJsBindings } from './lib/daml-codegen.js'
 const repoRoot = getRepoRoot()
 
 const TOKEN_STANDARD_CONFIG = {
-    sourceDir: path.join(repoRoot, '.splice/token-standard'),
     destDir: path.join(repoRoot, 'damljs/token-standard-models'),
     packageName: 'token-standard-models',
     version: '1.0.0',

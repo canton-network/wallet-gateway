@@ -9,10 +9,6 @@ import { generateDamlJsBindings } from './lib/daml-codegen.js'
 const repoRoot = getRepoRoot()
 
 const FEATURED_APP_PROXIES_CONFIG = {
-    sourceDir: path.join(
-        repoRoot,
-        '.splice/daml/splice-util-featured-app-proxies'
-    ),
     destDir: path.join(repoRoot, 'damljs/featured-app-proxies'),
     packageName: 'splice-util-featured-app-proxies',
     version: '1.0.0',

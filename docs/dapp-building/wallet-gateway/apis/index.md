@@ -23,7 +23,7 @@ Authorization: Bearer <jwt-token>
 
 **Full API Specification:**
 
-The complete OpenRPC specification is available at [openrpc-dapp-api.json](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/api-specs/openrpc-dapp-api.json).
+The complete OpenRPC specification is available at [openrpc-dapp-api.json](https://github.com/canton-network/wallet-gateway/blob/main/api-specs/openrpc-dapp-api.json).
 
 ## User API Reference
 
@@ -63,7 +63,7 @@ Most User API methods require authentication via JWT token. However, the followi
 
 **Full API Specification:**
 
-The complete OpenRPC specification is available at [openrpc-user-api.json](https://github.com/hyperledger-labs/splice-wallet-kernel/blob/main/api-specs/openrpc-user-api.json).
+The complete OpenRPC specification is available at [openrpc-user-api.json](https://github.com/canton-network/wallet-gateway/blob/main/api-specs/openrpc-user-api.json).
 
 ## Server-Sent Events (SSE) Support
 

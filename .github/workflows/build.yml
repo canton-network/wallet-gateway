@@ -26,14 +26,48 @@ jobs:
             - name: Build project
               run: yarn build:all
 
-            - name: Save Nx cache
-              if: always()
-              uses: actions/cache@v5
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v7
               with:
+                  name: build-dist-${{ github.run_id }}
                   path: |
+                      .yarn/cache/
+                      .yarn/unplugged/
+                      .yarn/install-state.gz
+                      .pnp.cjs
+                      .pnp.loader.mjs
+                      core/*/dist/
+                      sdk/*/dist/
+                      sdk-support/*/dist/
+                      wallet-gateway/*/dist/
+                      damljs/*/dist/
                       .nx/cache
                       .nx/workspace-data
-                  key: nx-${{ github.ref }}
+                  if-no-files-found: error
+                  retention-days: 1
+
+    clear-blockdaemon-policies:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Clear Blockdaemon policies
+              run: |
+
+                  BLOCKDAEMON_API_URL="${{ vars.BLOCKDAEMON_API_URL }}"
+                  BLOCKDAEMON_POLICY_BASE_URL="${BLOCKDAEMON_API_URL%/api/cwp/canton}"
+
+                  # this clear policies, with each deployment blockdaemon renables them
+                  curl -s -X PUT "$BLOCKDAEMON_POLICY_BASE_URL/api/v2/policies/12" \
+                    -H "authorization: Bearer ${{ vars.BLOCKDAEMON_API_KEY }}" \
+                    -H "content-type: application/json" \
+                    -H "x-api-version: 2.0" \
+                    -d '{"entries":[],"skipConfirmations":true}'
+
+                  # this clear policies, with each deployment blockdaemon renables them
+                  curl -s -X PUT "$BLOCKDAEMON_POLICY_BASE_URL/api/v2/policies/29" \
+                    -H "authorization: Bearer ${{ vars.BLOCKDAEMON_API_KEY }}" \
+                    -H "content-type: application/json" \
+                    -H "x-api-version: 2.0" \
+                    -d '{"entries":[],"skipConfirmations":true}'
 
     build-docs:
         runs-on: ubuntu-latest
@@ -254,20 +288,12 @@ jobs:
                   network: ${{ matrix.network }}
                   instance: canton
 
-            - name: Build project
-              run: yarn build:all
-
             - name: Start remote WK
               run: |
                   BLOCKDAEMON_API_URL="${{ vars.BLOCKDAEMON_API_URL }}" \
                   BLOCKDAEMON_API_KEY="${{ vars.BLOCKDAEMON_API_KEY }}" \
-                  yarn nx run @canton-network/wallet-gateway-remote:start &
-
-            - run: yarn nx run @canton-network/example-ping:dev > "example-ping.log" 2>&1 &
-
-            - run: |
                   BLOCKDAEMON_API_EMAIL="${{ vars.BLOCKDAEMON_API_EMAIL }}" \
-                  yarn nx run @canton-network/mock-oauth2:start &
+                  yarn pm2 start ecosystem.ci.config.js --env development
 
             - uses: ./.github/actions/setup_playwright
 
@@ -276,18 +302,22 @@ jobs:
                   CI_SECRET_DEPENDENCY: ${{ github.event.pull_request.head.repo.fork == false }}
               run: yarn nx playwright:e2e @canton-network/example-ping
 
+            - name: Collect remote PM2 logs
+              if: ${{ !cancelled() }}
+              run: yarn pm2 logs remote --raw --nostream --lines 10000 > "wallet-gateway-remote.log" 2>&1 || true
+
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
-                  name: playwright-report-${{ matrix.network }}
+                  name: example-ping-playwright-report-${{ matrix.network }}
                   path: examples/ping/playwright-report/
                   retention-days: 5
 
             - uses: actions/upload-artifact@v7
-              if: ${{ failure() }}
+              if: ${{ !cancelled() }}
               with:
-                  name: example-ping-logs-${{ matrix.network }}
-                  path: example-ping.log
+                  name: ping-wallet-gateway-remote-log-${{ matrix.network }}
+                  path: wallet-gateway-remote.log
                   retention-days: 5
 
     test-ping-e2e:
@@ -350,20 +380,17 @@ jobs:
                   network: ${{ matrix.network }}
                   instance: localnet
 
-            - name: Build project
-              run: yarn build:all
-
             - name: Start remote WK
-              run: yarn nx run @canton-network/wallet-gateway-remote:start > "wallet-gateway-remote.log" 2>&1 &
-
-            - run: yarn nx run @canton-network/example-portfolio:dev > "example-portfolio.log" 2>&1 &
-
-            - run: yarn nx run @canton-network/mock-oauth2:start &
+              run: yarn pm2 start ecosystem.ci.config.js --env development
 
             - uses: ./.github/actions/setup_playwright
 
             - name: Run example e2e
               run: yarn nx playwright:e2e @canton-network/example-portfolio
+
+            - name: Collect remote PM2 logs
+              if: ${{ !cancelled() }}
+              run: yarn pm2 logs remote --raw --nostream --lines 10000 > "wallet-gateway-remote.log" 2>&1 || true
 
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
@@ -373,10 +400,10 @@ jobs:
                   retention-days: 5
 
             - uses: actions/upload-artifact@v7
-              if: ${{ failure() }}
+              if: ${{ !cancelled() }}
               with:
-                  name: example-portfolio-logs-${{ matrix.network }}
-                  path: '*.log'
+                  name: portfolio-wallet-gateway-remote-log-${{ matrix.network }}
+                  path: wallet-gateway-remote.log
                   retention-days: 5
 
     test-portfolio-e2e:
@@ -491,9 +518,6 @@ jobs:
                   instance: localnet
 
             - uses: ./.github/actions/check_resources
-
-            - name: Build project
-              run: yarn build:all
 
             - name: Test example scripts (${{ matrix.network }})
               env:
