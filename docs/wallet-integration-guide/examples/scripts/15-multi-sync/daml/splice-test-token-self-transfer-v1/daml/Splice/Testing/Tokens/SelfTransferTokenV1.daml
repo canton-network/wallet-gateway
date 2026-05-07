@@ -61,6 +61,39 @@ template Token with
               holding = holding with amount = remainder, lock = None
         pure (splitCid, remCid)
 
+    -- | Owner-only choice that creates a `TokenAllocation` directly from this
+    -- Token, bypassing `TokenRules.AllocationFactory_Allocate`. The standard
+    -- `TokenAllocation` template (see below) makes the settlement executor an
+    -- observer of the allocation, which forces the allocation transaction to
+    -- run on a synchronizer where the executor's hosting participant is
+    -- connected. By dropping that observer (see this variant) and creating
+    -- the allocation via this Token-level choice, the allocation can be
+    -- created on any synchronizer that hosts the holding owner, without
+    -- involving the executor at creation time. The allocation is later
+    -- disclosed to the executor via `createdEventBlob` for settlement.
+    choice Token_Allocate :
+        (ContractId TokenAllocation, Optional (ContractId Token))
+      with
+        allocation : V1.AllocationSpecification
+      controller holding.owner
+      do
+        require "allocation amount must be positive"
+          (allocation.transferLeg.amount > 0.0)
+        require "allocation amount must not exceed balance"
+          (allocation.transferLeg.amount <= holding.amount)
+        require "allocation sender must be the holding owner"
+          (allocation.transferLeg.sender == holding.owner)
+        require "allocation instrumentId must match the holding"
+          (allocation.transferLeg.instrumentId == holding.instrumentId)
+        allocCid <- create TokenAllocation with allocation
+        let remainder = holding.amount - allocation.transferLeg.amount
+        remCid <-
+          if remainder == 0.0
+            then pure None
+            else Some <$> create this with
+              holding = holding with amount = remainder, lock = None
+        pure (allocCid, remCid)
+
 -- | Transfer instruction representing a Token offer.
 template TokenTransferOffer with
     transfer : V1.Transfer
@@ -112,11 +145,17 @@ template TokenTransferOffer with
 
 
 -- | Allocation of a Token.
+--
+-- NOTE: unlike `splice-test-token-v1`'s `TokenAllocation`, this variant does
+-- NOT list `allocation.settlement.executor` as observer. That allows the
+-- allocation to be created on a synchronizer where the executor's hosting
+-- participant is not connected. The trade-off is that the executor must
+-- receive the allocation via `createdEventBlob` disclosure at settlement
+-- time (instead of being an automatic informee through the contract).
 template TokenAllocation with
     allocation : V1.AllocationSpecification
   where
     signatory allocation.transferLeg.sender, allocation.transferLeg.instrumentId.admin
-    observer allocation.settlement.executor
     ensure isValidAllocationSpecificationV1 allocation
 
     interface instance V1.Holding for TokenAllocation where

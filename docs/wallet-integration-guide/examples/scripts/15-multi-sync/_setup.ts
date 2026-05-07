@@ -135,7 +135,7 @@ export async function setupMultiSyncTrade(
         here,
         'daml',
         'splice-test-token-self-transfer-v1',
-        'splice-test-token-self-transfer-v1-1.0.0.dar'
+        'splice-test-token-self-transfer-v1-1.0.1.dar'
     )
     const selfTransferDar = await fs.readFile(SELF_TRANSFER_DAR)
     await Promise.all([

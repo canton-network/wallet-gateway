@@ -67,43 +67,48 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Steps 9–10: Allocate in parallel ────────────────────────────────────────
 // Step 9:  Alice allocates Amulet for leg-0 (global synchronizer)
-// Step 10: Bob allocates Token for leg-1 (global — Canton auto-reassigns from app-synchronizer)
-const [legIdAlice, { legId: legIdBob, tokenRulesCid }] = await Promise.all([
-    allocateAmuletForAlice(setup, logger),
-    allocateTokenForBob(setup, logger),
-])
+// Step 10: Bob allocates Token for leg-1 via the custom Token_Allocate choice
+//          on app-synchronizer (TokenRules + Bob's input Token stay on app).
+//          Then the resulting TokenAllocation is solo-reassigned app → global
+//          (Bob is sole signatory) so OTCTrade_Settle can consume it.
+const [legIdAlice, { legId: legIdBob, tokenAllocationContract }] =
+    await Promise.all([
+        allocateAmuletForAlice(setup, logger),
+        allocateTokenForBob(setup, logger),
+    ])
 logger.info('Contracts after allocations:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 11a: Locate Bob's TestToken allocation ────────────────────────────────────
+// (TokenAllocation is on global after step 10's reassignment; ACS read on P2.)
 const allocationsBob = await tokenP2.allocation.pending(bob.partyId)
 const testTokenAllocation = allocationsBob.find(
     (a) => a.interfaceViewValue.allocation.transferLegId === legIdBob
 )
 if (!testTokenAllocation) throw new Error('TestToken allocation not found')
-const testTokenAllocationCid = testTokenAllocation.contractId
 
 // ── Step 11b: TradingApp settles the OTCTrade ─────────────────────────────────
 await settleOtcTrade(
     setup,
-    { otcTradeCid, legIdAlice, legIdBob, testTokenAllocationCid },
+    {
+        otcTradeCid,
+        legIdAlice,
+        legIdBob,
+        testTokenAllocationContract: tokenAllocationContract,
+    },
     logger
 )
 logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 12: Bob self-transfers remaining TestToken on app-synchronizer ──────
-// After settlement, Bob's senderChange Token (480) lives on global. Using the
-// `Token_SelfTransfer` choice on Token (added by splice-test-token-self-transfer-v1),
-// no TokenRules contract is needed. P2 hosts Bob (signatory of Token), so
-// Canton auto-reassigns Bob's Token global → app for this command.
-await selfTransferToken(setup, { tokenRulesCid }, logger)
-logger.info('Contracts after Bob self-transfer (Bob Token on app):')
-await logAllContracts(logger, synchronizers, allPartySpecs)
+// ── Step 12: (no-op) Bob's TestToken never moved ─────────────────────────────
+// Step 10 ran on app-synchronizer, so TokenRules and Bob's senderChange Token
+// both stayed on app the entire time. Nothing to bring back.
+// await selfTransferToken(setup, { tokenRulesCid }, logger)
 
 // ── Step 13: Alice self-transfers her TestToken to app-synchronizer ─────────
-// Alice's Token (received from settlement) is on global. Using the same
-// `Token_SelfTransfer` choice on Token, no TokenRules contract is involved.
+// Alice's Token (received from settlement) is on global. The Token_SelfTransfer
+// choice operates only on Token, so no TokenRules contract is involved.
 // P1 hosts Alice (signatory of her Token), so Canton auto-reassigns Alice's
 // Token global → app as part of this command.
 await aliceSelfTransferToApp(setup, logger)

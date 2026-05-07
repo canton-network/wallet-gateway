@@ -373,10 +373,10 @@ export async function allocateTokenForBob(
     logger: Logger
 ): Promise<{
     legId: string
-    tokenRulesCid: string
-    tokenRulesContract: AcsContractEntry
+    tokenAllocationContract: AcsContractEntry
 }> {
-    const { p2Sdk, tokenP2, bob, globalSynchronizerId } = setup
+    const { p2Sdk, tokenP2, bob, globalSynchronizerId, appSynchronizerId } =
+        setup
 
     const pendingRequests = await tokenP2.allocation.request.pending(
         bob.partyId
@@ -387,68 +387,88 @@ export async function allocateTokenForBob(
     )!
     if (!legId) throw new Error('No transfer leg found for Bob')
 
-    const [tokenHoldings, tokenRulesContracts] = await Promise.all([
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-    ])
-
+    const tokenHoldings = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
     const tokenHoldingCid = tokenHoldings[0]?.contractId
     if (!tokenHoldingCid) throw new Error('Token holding not found for Bob')
-    const tokenRulesCid = tokenRulesContracts[0]?.contractId
-    if (!tokenRulesCid) throw new Error('TokenRules contract not found')
-    const tokenRulesContract = tokenRulesContracts[0]
 
+    // Use the custom `Token_Allocate` choice (controller=owner) on Bob's Token
+    // to create a TokenAllocation directly, bypassing TokenRules entirely.
+    // Runs on app-synchronizer: TokenRules and Bob's Token both stay on app,
+    // and the new TokenAllocation lives on app (no executor observer).
     await p2Sdk.ledger
         .prepare({
             partyId: bob.partyId,
             commands: [
                 {
                     ExerciseCommand: {
-                        templateId: ALLOCATION_FACTORY_IFACE,
-                        contractId: tokenRulesCid,
-                        choice: 'AllocationFactory_Allocate',
+                        templateId: `${TEST_TOKEN_PREFIX}:Token`,
+                        contractId: tokenHoldingCid,
+                        choice: 'Token_Allocate',
                         choiceArgument: {
-                            expectedAdmin: bob.partyId,
                             allocation: {
                                 settlement: requestView.settlement,
                                 transferLegId: legId,
                                 transferLeg: requestView.transferLegs[legId],
-                            },
-                            requestedAt: new Date(
-                                Date.now() - 60_000
-                            ).toISOString(),
-                            inputHoldingCids: [tokenHoldingCid],
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
                             },
                         },
                     },
                 },
             ],
             disclosedContracts: [],
-            synchronizerId: globalSynchronizerId,
+            synchronizerId: appSynchronizerId,
         })
         .sign(bob.keyPair.privateKey)
         .execute({ partyId: bob.partyId })
 
-    logger.info('Bob: TestToken allocated for leg-1 (global)')
-    return { legId, tokenRulesCid, tokenRulesContract }
+    logger.info(
+        'Bob: TestToken allocated for leg-1 via Token_Allocate (app-synchronizer)'
+    )
+
+    // Settlement runs on global, so move just the TokenAllocation app → global.
+    // Bob is sole signatory (sender + admin), so P2 can perform the
+    // reassignment alone. TokenRules is untouched.
+    const allocations = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:TokenAllocation`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
+    const tokenAllocationCid = allocations[0]?.contractId
+    if (!tokenAllocationCid)
+        throw new Error('TokenAllocation not found after Token_Allocate')
+
+    await p2Sdk.ledger.internal.reassign({
+        submitter: bob.partyId,
+        contractId: tokenAllocationCid,
+        source: appSynchronizerId,
+        target: globalSynchronizerId,
+    })
+    logger.info('Bob: TokenAllocation reassigned app → global for settlement')
+
+    // Re-read after reassignment so we have the up-to-date entry (incl.
+    // synchronizerId=global) for disclosure to TradingApp at settlement.
+    const allocationsOnGlobal = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:TokenAllocation`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
+    const tokenAllocationContract = allocationsOnGlobal.find(
+        (c) => c.contractId === tokenAllocationCid
+    )
+    if (!tokenAllocationContract)
+        throw new Error('TokenAllocation not found after reassignment')
+
+    return { legId, tokenAllocationContract }
 }
 
 export interface SettleParams {
     otcTradeCid: string
     legIdAlice: string
     legIdBob: string
-    testTokenAllocationCid: string
+    testTokenAllocationContract: AcsContractEntry
 }
 
 export async function settleOtcTrade(
@@ -464,7 +484,8 @@ export async function settleOtcTrade(
         globalSynchronizerId,
         scanProxy,
     } = setup
-    const { otcTradeCid, legIdAlice, legIdBob, testTokenAllocationCid } = params
+    const { otcTradeCid, legIdAlice, legIdBob, testTokenAllocationContract } =
+        params
 
     const allocationsAlice = await tokenP1.allocation.pending(alice.partyId)
     const amuletAllocation = allocationsAlice.find(
@@ -492,15 +513,26 @@ export async function settleOtcTrade(
             },
         },
         [legIdBob]: {
-            _1: testTokenAllocationCid,
+            _1: testTokenAllocationContract.contractId,
             _2: { context: { values: {} }, meta: { values: {} } },
         },
     }
 
-    // Amulet system contracts from scan proxy; synchronizerId='' → Canton infers from blob
-    const disclosedContracts = (amuletExecCtx.disclosedContracts ?? []).map(
-        (c) => ({ ...c, synchronizerId: '' })
-    )
+    // Disclose Amulet system contracts from scan proxy AND Bob's TokenAllocation
+    // (TradingApp is no longer an observer of TokenAllocation, so it must be
+    // disclosed via createdEventBlob to allow Allocation_ExecuteTransfer).
+    const disclosedContracts = [
+        ...(amuletExecCtx.disclosedContracts ?? []).map((c) => ({
+            ...c,
+            synchronizerId: '',
+        })),
+        {
+            templateId: testTokenAllocationContract.templateId,
+            contractId: testTokenAllocationContract.contractId,
+            createdEventBlob: testTokenAllocationContract.createdEventBlob!,
+            synchronizerId: '',
+        },
+    ]
 
     await p3Sdk.ledger
         .prepare({
