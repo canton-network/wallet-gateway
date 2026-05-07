@@ -17,8 +17,11 @@ interface AcsContractEntry {
 // ── Template / interface identifiers ─────────────────────────────────────────
 
 export const AMULET_TEMPLATE_ID = '#splice-amulet:Splice.Amulet:Amulet'
+// Custom token package (splice-test-token-self-transfer-v1) — a variant of
+// splice-test-token-v1 that adds a `Token_SelfTransfer` choice on `Token`,
+// so self-transfers do not need the `TokenRules` factory contract.
 export const TEST_TOKEN_PREFIX =
-    '#splice-test-token-v1:Splice.Testing.Tokens.TestTokenV1'
+    '#splice-test-token-self-transfer-v1:Splice.Testing.Tokens.SelfTransferTokenV1'
 export const TRADING_APP_PREFIX =
     '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp'
 
@@ -565,39 +568,18 @@ export async function selfTransferToken(
             commands: [
                 {
                     ExerciseCommand: {
-                        templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: tokenRulesCid,
-                        choice: 'TransferFactory_Transfer',
+                        templateId: `${TEST_TOKEN_PREFIX}:Token`,
+                        contractId: bobTokenCid,
+                        choice: 'Token_SelfTransfer',
                         choiceArgument: {
-                            expectedAdmin: bob.partyId,
-                            transfer: {
-                                sender: bob.partyId,
-                                receiver: bob.partyId,
-                                amount: selfTransferAmount,
-                                instrumentId: {
-                                    admin: bob.partyId,
-                                    id: 'TestToken',
-                                },
-                                requestedAt: new Date(
-                                    Date.now() - 60_000
-                                ).toISOString(),
-                                executeBefore: new Date(
-                                    Date.now() + 86_400_000
-                                ).toISOString(),
-                                inputHoldingCids: [bobTokenCid],
-                                meta: { values: {} },
-                            },
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
+                            splitAmount: selfTransferAmount,
                         },
                     },
                 },
             ],
-            // P2 hosts Bob (stakeholder of both TokenRules and Token), so no
-            // disclosed contracts are needed and Canton can auto-reassign both
-            // global-resident contracts to app-synchronizer as part of this command.
+            // No TokenRules needed: `Token_SelfTransfer` operates only on the
+            // Token contract itself. P2 hosts Bob (signatory of Token), so
+            // Canton auto-reassigns the Token global → app for this command.
             disclosedContracts: [],
             synchronizerId: appSynchronizerId,
         })
@@ -606,41 +588,34 @@ export async function selfTransferToken(
 
     logger.info(
         `Bob: ${selfTransferAmount} TestToken self-transferred on app-synchronizer ` +
-            `(Canton auto-reassigned TokenRules + Token from global → app)`
+            `(Token_SelfTransfer choice — no TokenRules involved; ` +
+            `Canton auto-reassigned Token global → app)`
     )
 }
 
 /**
  * Alice self-transfers her TestToken (received from the OTC settlement) from
- * global back to app-synchronizer. After Bob's self-transfer, TokenRules already
- * lives on app-synchronizer; Alice's Token is still on global. P1 hosts Alice,
- * who is the owner (and a signatory) of her Token, so Canton can auto-reassign
- * her Token global → app as part of this command. TokenRules is disclosed since
- * P1 does not host Bob.
+ * global to app-synchronizer using the new `Token_SelfTransfer` choice on
+ * `Token`. Because that choice operates only on the Token contract (and the
+ * input Token already carries admin's signature, authorizing the new outputs),
+ * no `TokenRules` contract has to be referenced or disclosed at all.
+ * P1 hosts Alice (signatory of her Token), so Canton auto-reassigns the
+ * Token global → app as part of this command.
  */
 export async function aliceSelfTransferToApp(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p1Sdk, p2Sdk, alice, bob, appSynchronizerId } = setup
+    const { p1Sdk, alice, appSynchronizerId } = setup
 
-    const [aliceTokens, tokenRulesContracts] = await Promise.all([
-        p1Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [alice.partyId],
-            filterByParty: true,
-        }),
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-    ])
+    const aliceTokens = await p1Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [alice.partyId],
+        filterByParty: true,
+    })
     const aliceTokenCid = aliceTokens[0]?.contractId
     if (!aliceTokenCid)
         throw new Error('Alice: Token holding not found after settlement')
-    const tokenRules = tokenRulesContracts[0]
-    if (!tokenRules) throw new Error('TokenRules not found')
 
     await p1Sdk.ledger
         .prepare({
@@ -648,46 +623,16 @@ export async function aliceSelfTransferToApp(
             commands: [
                 {
                     ExerciseCommand: {
-                        templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: tokenRules.contractId,
-                        choice: 'TransferFactory_Transfer',
+                        templateId: `${TEST_TOKEN_PREFIX}:Token`,
+                        contractId: aliceTokenCid,
+                        choice: 'Token_SelfTransfer',
                         choiceArgument: {
-                            expectedAdmin: bob.partyId,
-                            transfer: {
-                                sender: alice.partyId,
-                                receiver: alice.partyId,
-                                amount: TRADE_TOKEN_AMOUNT,
-                                instrumentId: {
-                                    admin: bob.partyId,
-                                    id: 'TestToken',
-                                },
-                                requestedAt: new Date(
-                                    Date.now() - 60_000
-                                ).toISOString(),
-                                executeBefore: new Date(
-                                    Date.now() + 86_400_000
-                                ).toISOString(),
-                                inputHoldingCids: [aliceTokenCid],
-                                meta: { values: {} },
-                            },
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
+                            splitAmount: TRADE_TOKEN_AMOUNT,
                         },
                     },
                 },
             ],
-            // TokenRules is disclosed (P1 doesn't host Bob); Alice's Token is
-            // auto-reassigned global → app by Canton because P1 hosts Alice.
-            disclosedContracts: [
-                {
-                    templateId: tokenRules.templateId,
-                    contractId: tokenRules.contractId,
-                    createdEventBlob: tokenRules.createdEventBlob!,
-                    synchronizerId: tokenRules.synchronizerId,
-                },
-            ],
+            disclosedContracts: [],
             synchronizerId: appSynchronizerId,
         })
         .sign(alice.keyPair.privateKey)
@@ -695,6 +640,7 @@ export async function aliceSelfTransferToApp(
 
     logger.info(
         `Alice: ${TRADE_TOKEN_AMOUNT} TestToken self-transferred on app-synchronizer ` +
-            `(Canton auto-reassigned Alice's Token from global → app)`
+            `(Token_SelfTransfer choice — no TokenRules involved; ` +
+            `Canton auto-reassigned Alice's Token global → app)`
     )
 }

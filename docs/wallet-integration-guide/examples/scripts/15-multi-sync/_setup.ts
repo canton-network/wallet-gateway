@@ -11,11 +11,15 @@ import {
 } from '@canton-network/wallet-sdk'
 import type { KeyPair } from '@canton-network/core-signing-lib'
 import type { GenerateTransactionResponse } from '@canton-network/core-ledger-client'
+import path from 'path'
+import fs from 'fs/promises'
+import { fileURLToPath } from 'url'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     resolvePreferredSynchronizerId,
     createScanProxyClient,
+    vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -120,11 +124,30 @@ export async function setupMultiSyncTrade(
         appSynchronizerId,
     }
 
-    // NOTE (experiment): with splice ≥ 0.6.1 the test-token-v1 and
-    // trading-app DARs are pre-installed and pre-vetted on the localnet
-    // participants/synchronizers, so the local upload+vet block is skipped.
+    // The standard splice-test-token-v1 and trading-app DARs are pre-installed
+    // and pre-vetted on the localnet (splice ≥ 0.6.1). We additionally upload
+    // and vet our custom `splice-test-token-self-transfer-v1` DAR which adds a
+    // `Token_SelfTransfer` choice on `Token` so post-settlement self-transfers
+    // do not require the `TokenRules` factory contract — letting `TokenRules`
+    // stay on the app-synchronizer permanently.
+    const here = path.dirname(fileURLToPath(import.meta.url))
+    const SELF_TRANSFER_DAR = path.join(
+        here,
+        'daml',
+        'splice-test-token-self-transfer-v1',
+        'splice-test-token-self-transfer-v1-1.0.0.dar'
+    )
+    const selfTransferDar = await fs.readFile(SELF_TRANSFER_DAR)
+    await Promise.all([
+        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
+            [globalSynchronizerId, appSynchronizerId].map((sid) =>
+                vetDar(ctx.ledgerProvider, selfTransferDar, sid)
+            )
+        ),
+        vetDar(p3SdkCtx.ledgerProvider, selfTransferDar, globalSynchronizerId),
+    ])
     logger.info(
-        'Skipping local DAR upload — relying on splice-bundled DARs (test-token-v1, trading-app)'
+        'Custom self-transfer DAR vetted: P1+P2 on both synchronizers, P3 on global only'
     )
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3 (all on global synchronizer)

@@ -93,22 +93,19 @@ logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 12: Bob self-transfers remaining TestToken on app-synchronizer ──────
-// After settlement, Bob's senderChange Token (480) and TokenRules both live on
-// global. Bob is signatory of both contracts and is hosted on P2, so when P2
-// submits this self-transfer targeting app-synchronizer, Canton automatically
-// reassigns BOTH contracts global → app — demonstrating a second auto-reassign
-// (the inverse direction of step 10) with no manual reassignment.
+// After settlement, Bob's senderChange Token (480) lives on global. Using the
+// `Token_SelfTransfer` choice on Token (added by splice-test-token-self-transfer-v1),
+// no TokenRules contract is needed. P2 hosts Bob (signatory of Token), so
+// Canton auto-reassigns Bob's Token global → app for this command.
 await selfTransferToken(setup, { tokenRulesCid }, logger)
-logger.info(
-    'Contracts after Bob self-transfer (TokenRules + Bob Token on app):'
-)
+logger.info('Contracts after Bob self-transfer (Bob Token on app):')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 13: Alice self-transfers her TestToken back to app-synchronizer ─────
-// TokenRules now lives on app-synchronizer (after step 12). Alice's Token is
-// still on global. P1 hosts Alice (signatory of her Token), so Canton auto-
-// reassigns Alice's Token global → app as part of this command. TokenRules is
-// disclosed because P1 doesn't host Bob.
+// ── Step 13: Alice self-transfers her TestToken to app-synchronizer ─────────
+// Alice's Token (received from settlement) is on global. Using the same
+// `Token_SelfTransfer` choice on Token, no TokenRules contract is involved.
+// P1 hosts Alice (signatory of her Token), so Canton auto-reassigns Alice's
+// Token global → app as part of this command.
 await aliceSelfTransferToApp(setup, logger)
 logger.info('Final contract state:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
