@@ -4,8 +4,8 @@
 import type {
     WalletPickerEntry,
     WalletPickerResult,
-} from '../components/wallet-picker.js'
-import { WalletPicker } from '../components/wallet-picker.js'
+} from '../components/wallet-picker/index.js'
+import { WalletPicker } from '../components/wallet-picker/index.js'
 import { popup } from './popup.js'
 
 let activeWalletPickerWindow: WindowProxy | undefined

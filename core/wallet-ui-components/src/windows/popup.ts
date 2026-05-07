@@ -1,6 +1,8 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { CSSResultGroup } from 'lit'
+
 interface PopupOptions {
     title?: string
     target?: string
@@ -12,7 +14,7 @@ interface PopupOptions {
 
 interface StyledElement {
     new (): HTMLElement
-    styles: string
+    styles: string | CSSResultGroup
 }
 
 let globalPopupInstance: WindowProxy | undefined
@@ -81,7 +83,9 @@ class PopupInstance {
         const { title = 'Custom Popup' } = options || {}
 
         // Extract and safely escape styles for use in template literal within <script> tag
-        const escapedStyles = this.escapeStylesForTemplate(component.styles)
+        const escapedStyles = this.escapeStylesForTemplate(
+            component.styles.toString()
+        )
 
         // Get serialized component and remove any static styles assignments
         // This prevents minification issues where identifiers get renamed
