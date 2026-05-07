@@ -133,7 +133,7 @@ export async function setupMultiSyncTrade(
     const darsDir = path.join(here, DARS_PATH)
     for (const [darPath, darName] of [
         [path.join(darsDir, TRADING_APP_DAR), TRADING_APP_DAR],
-        [path.join(darsDir, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
+        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
     ] as [string, string][]) {
         try {
             await fs.stat(darPath)
@@ -147,7 +147,7 @@ export async function setupMultiSyncTrade(
 
     const [tradingAppDar, testTokenV1Dar] = await Promise.all([
         fs.readFile(path.join(darsDir, TRADING_APP_DAR)),
-        fs.readFile(path.join(darsDir, TEST_TOKEN_V1_DAR)),
+        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
     ])
 
     // P1 and P2 vet DARs on both synchronizers; P3 vets on global only
