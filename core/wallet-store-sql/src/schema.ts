@@ -105,7 +105,7 @@ interface MessageRawTable {
     origin: string | null
     userId: UserId
     networkId: string
-    createdAt: string | null
+    createdAt: string
     signedAt: string | null
     signature: string | null
 }
@@ -358,7 +358,7 @@ export const fromMessageRaw = (
         message: message.message,
         origin: message.origin || null,
         networkId,
-        createdAt: message.createdAt?.toISOString() || null,
+        createdAt: message.createdAt.toISOString(),
         signedAt: message.signedAt?.toISOString() || null,
         signature: message.signature ?? null,
     }
@@ -373,11 +373,9 @@ export const toMessageRaw = (table: MessageRawTable): MessageRaw => {
         publicKey: table.publicKey,
         message: table.message,
         origin: table.origin || null,
+        createdAt: new Date(table.createdAt),
     }
 
-    if (table.createdAt) {
-        result.createdAt = new Date(table.createdAt)
-    }
     if (table.signedAt) {
         result.signedAt = new Date(table.signedAt)
     }

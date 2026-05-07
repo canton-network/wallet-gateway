@@ -105,7 +105,7 @@ export interface MessageRaw {
     publicKey: string
     message: string
     origin: string | null
-    createdAt?: Date
+    createdAt: Date
     signedAt?: Date
     signature?: string
 }

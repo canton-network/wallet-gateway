@@ -14,7 +14,7 @@ export async function up(db: Kysely<unknown>): Promise<void> {
         .addColumn('origin', 'text')
         .addColumn('userId', 'text', (col) => col.notNull())
         .addColumn('networkId', 'text', (col) => col.notNull())
-        .addColumn('createdAt', 'text')
+        .addColumn('createdAt', 'text', (col) => col.notNull())
         .addColumn('signedAt', 'text')
         .addColumn('signature', 'text')
         .execute()

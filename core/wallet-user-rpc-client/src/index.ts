@@ -133,6 +133,11 @@ export type PartyHint = string
  *
  */
 export type SigningProviderId = string
+/**
+ *
+ * The party id of the wallet to be removed.
+ *
+ */
 export type PartyId = string
 /**
  *
@@ -163,13 +168,13 @@ export interface WalletFilter {
 export type TransactionId = string
 /**
  *
- * Arbitrary UTF-8 message to sign.
+ * The internal identifier of the pending message-signing request.
  *
  */
-export type Message = string
+export type MessageId = string
 /**
  *
- * Base64-encoded Ed25519 signature over the message.
+ * The signature of the message.
  *
  */
 export type Signature = string
@@ -190,7 +195,7 @@ export type WalletStatus = 'initialized' | 'allocated' | 'removed'
 export type Hint = string
 /**
  *
- * Base64-encoded Ed25519 public key of the wallet that produced the signature.
+ * The public key of the party.
  *
  */
 export type PublicKey = string
@@ -304,16 +309,52 @@ export interface SignResultFailed {
 }
 /**
  *
- * The access token for the session.
- *
- */
-export type AccessToken = string
-/**
- *
  * The status of the transaction.
  *
  */
 export type Status = string
+/**
+ *
+ * The message to sign.
+ *
+ */
+export type Message = string
+/**
+ *
+ * The origin (dApp URL) that initiated this transaction request.
+ *
+ */
+export type Origin = string
+/**
+ *
+ * The timestamp when the transaction was created.
+ *
+ */
+export type CreatedAt = string
+/**
+ *
+ * The timestamp when the transaction was signed.
+ *
+ */
+export type SignedAt = string
+export interface MessageRaw {
+    id: MessageId
+    status: Status
+    partyId: PartyId
+    publicKey: PublicKey
+    message: Message
+    origin?: Origin
+    createdAt: CreatedAt
+    signedAt?: SignedAt
+    signature?: Signature
+}
+export type Messages = MessageRaw[]
+/**
+ *
+ * The access token for the session.
+ *
+ */
+export type AccessToken = string
 export type UserLevelRight = any
 /**
  *
@@ -338,18 +379,6 @@ export type Sessions = Session[]
 export type CommandId = string
 /**
  *
- * The timestamp when the transaction was created.
- *
- */
-export type CreatedAt = string
-/**
- *
- * The timestamp when the transaction was signed.
- *
- */
-export type SignedAt = string
-/**
- *
  * The transaction data corresponding to the command ID.
  *
  */
@@ -366,12 +395,6 @@ export type PreparedTransactionHash = string
  *
  */
 export type Payload = string
-/**
- *
- * The origin (dApp URL) that initiated this transaction request.
- *
- */
-export type Origin = string
 export interface Transaction {
     id: TransactionId
     commandId: CommandId
@@ -431,35 +454,14 @@ export interface SignParams {
     partyId: PartyId
 }
 export interface SignMessageParams {
-    messageId: string
+    messageId: MessageId
+    partyId?: PartyId
 }
-
 export interface GetMessageToSignParams {
-    messageId: string
+    messageId: MessageId
 }
-
 export interface DeleteMessageToSignParams {
-    messageId: string
-}
-
-export interface MessageToSign {
-    id: string
-    status: Status
-    partyId: PartyId
-    publicKey: PublicKey
-    message: Message
-    createdAt?: CreatedAt
-    signedAt?: SignedAt
-    origin?: Origin
-    signature?: Signature
-}
-
-export interface GetMessageToSignResult {
-    message: MessageToSign
-}
-
-export interface ListMessagesToSignResult {
-    messages: MessageToSign[]
+    messageId: MessageId
 }
 export interface ExecuteParams {
     signature: Signature
@@ -524,6 +526,12 @@ export type SignResult =
 export interface SignMessageResult {
     signature: Signature
     publicKey: PublicKey
+}
+export interface GetMessageToSignResult {
+    message: MessageRaw
+}
+export interface ListMessagesToSignResult {
+    messages: Messages
 }
 export interface ExecuteResult {
     [key: string]: any
@@ -755,7 +763,7 @@ export type RpcTypes = {
     }
 }
 
-export class SpliceWalletJSONRPCUserAPI {
+export class WalletJSONRPCUserAPI {
     public transport: RpcTransport
 
     constructor(transport: RpcTransport) {
@@ -779,4 +787,4 @@ export class SpliceWalletJSONRPCUserAPI {
         }
     }
 }
-export default SpliceWalletJSONRPCUserAPI
+export default WalletJSONRPCUserAPI

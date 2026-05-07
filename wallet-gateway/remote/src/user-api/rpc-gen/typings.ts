@@ -132,6 +132,11 @@ export type PartyHint = string
  *
  */
 export type SigningProviderId = string
+/**
+ *
+ * The party id of the wallet to be removed.
+ *
+ */
 export type PartyId = string
 /**
  *
@@ -162,19 +167,13 @@ export interface WalletFilter {
 export type TransactionId = string
 /**
  *
- * The internal message identifier.
+ * The internal identifier of the pending message-signing request.
  *
  */
 export type MessageId = string
 /**
  *
- * Arbitrary UTF-8 message to sign.
- *
- */
-export type Message = string
-/**
- *
- * Base64-encoded Ed25519 signature over the message.
+ * The signature of the message.
  *
  */
 export type Signature = string
@@ -195,7 +194,7 @@ export type WalletStatus = 'initialized' | 'allocated' | 'removed'
 export type Hint = string
 /**
  *
- * Base64-encoded Ed25519 public key of the wallet that produced the signature.
+ * The public key of the party.
  *
  */
 export type PublicKey = string
@@ -309,16 +308,52 @@ export interface SignResultFailed {
 }
 /**
  *
- * The access token for the session.
- *
- */
-export type AccessToken = string
-/**
- *
  * The status of the transaction.
  *
  */
 export type Status = string
+/**
+ *
+ * The message to sign.
+ *
+ */
+export type Message = string
+/**
+ *
+ * The origin (dApp URL) that initiated this transaction request.
+ *
+ */
+export type Origin = string
+/**
+ *
+ * The timestamp when the transaction was created.
+ *
+ */
+export type CreatedAt = string
+/**
+ *
+ * The timestamp when the transaction was signed.
+ *
+ */
+export type SignedAt = string
+export interface MessageRaw {
+    id: MessageId
+    status: Status
+    partyId: PartyId
+    publicKey: PublicKey
+    message: Message
+    origin?: Origin
+    createdAt: CreatedAt
+    signedAt?: SignedAt
+    signature?: Signature
+}
+export type Messages = MessageRaw[]
+/**
+ *
+ * The access token for the session.
+ *
+ */
+export type AccessToken = string
 export type UserLevelRight = any
 /**
  *
@@ -343,18 +378,6 @@ export type Sessions = Session[]
 export type CommandId = string
 /**
  *
- * The timestamp when the transaction was created.
- *
- */
-export type CreatedAt = string
-/**
- *
- * The timestamp when the transaction was signed.
- *
- */
-export type SignedAt = string
-/**
- *
  * The transaction data corresponding to the command ID.
  *
  */
@@ -371,12 +394,6 @@ export type PreparedTransactionHash = string
  *
  */
 export type Payload = string
-/**
- *
- * The origin (dApp URL) that initiated this transaction request.
- *
- */
-export type Origin = string
 export interface Transaction {
     id: TransactionId
     commandId: CommandId
@@ -437,12 +454,11 @@ export interface SignParams {
 }
 export interface SignMessageParams {
     messageId: MessageId
+    partyId?: PartyId
 }
-
 export interface GetMessageToSignParams {
     messageId: MessageId
 }
-
 export interface DeleteMessageToSignParams {
     messageId: MessageId
 }
@@ -510,25 +526,11 @@ export interface SignMessageResult {
     signature: Signature
     publicKey: PublicKey
 }
-
-export interface MessageToSign {
-    id: MessageId
-    status: Status
-    partyId: PartyId
-    publicKey: PublicKey
-    message: Message
-    createdAt?: CreatedAt
-    signedAt?: SignedAt
-    origin?: Origin
-    signature?: Signature
-}
-
 export interface GetMessageToSignResult {
-    message: MessageToSign
+    message: MessageRaw
 }
-
 export interface ListMessagesToSignResult {
-    messages: MessageToSign[]
+    messages: Messages
 }
 export interface ExecuteResult {
     [key: string]: any
