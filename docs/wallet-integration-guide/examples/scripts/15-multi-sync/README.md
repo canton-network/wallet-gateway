@@ -33,13 +33,15 @@ yarn script:fetch:localnet -- --network=mainnet
 
 This populates `.localnet/docker-compose/` and `.localnet/dars/`.
 
-The two DARs required by this example are fetched into `.localnet/dars/` by the
-`yarn script:fetch:localnet` step:
+The DARs required by this example come from two locations:
 
-| DAR file                                  | Purpose                                                                            |
-| ----------------------------------------- | ---------------------------------------------------------------------------------- |
-| `splice-token-test-trading-app-1.0.0.dar` | `OTCTrade` and `OTCTradeAllocationRequest` templates for orchestrating the trade   |
-| `splice-test-token-v1-1.0.0.dar`          | `Token` and `TokenRules` templates — the custom instrument on the app-synchronizer |
+| DAR file                                  | Location                 | Purpose                                                                            |
+| ----------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| `splice-token-test-trading-app-1.0.0.dar` | `.localnet/dars/`        | `OTCTrade` and `OTCTradeAllocationRequest` templates for orchestrating the trade   |
+| `splice-test-token-v1-1.0.0.dar`          | `scripts/15-multi-sync/` | `Token` and `TokenRules` templates — the custom instrument on the app-synchronizer |
+
+`splice-token-test-trading-app-1.0.0.dar` is fetched by `yarn script:fetch:localnet`.
+`splice-test-token-v1-1.0.0.dar` is bundled directly in the script directory.
 
 ## Running Locally
 
@@ -137,12 +139,20 @@ All commands run from the **repository root**.
 yarn script:test:examples
 ```
 
-If the DARs are missing from `.localnet/dars/`, example 15 will fail immediately with:
-`Required DAR not found`
+If `splice-token-test-trading-app-1.0.0.dar` is missing from `.localnet/dars/`, run
+`yarn script:fetch:localnet` from the repository root.
+If `splice-test-token-v1-1.0.0.dar` is missing from the script directory, it has been
+accidentally deleted — restore it from version control.
 
 ### Expected output
 
 ```
+[v1-15-multi-sync-trade] Connected synchronizers: global-synchronizer, app-synchronizer
+[v1-15-multi-sync-trade] Synchronizer IDs — global: ..., app: ...
+[v1-15-multi-sync-trade] DARs vetted: P1+P2 on both synchronizers, P3 on global only
+[v1-15-multi-sync-trade] Parties allocated — alice: ... (P1), bob: ... (P2), tradingApp: ... (P3)
+[v1-15-multi-sync-trade] Alice and Bob registered on app-synchronizer
+[v1-15-multi-sync-trade] Amulet asset discovered — admin: ...
 [v1-15-multi-sync-trade] Alice: Amulet minted (2000000) on global synchronizer
 [v1-15-multi-sync-trade] Bob: TokenRules created + Token minted (500 TestToken) on app-synchronizer
 [v1-15-multi-sync-trade] Alice: OTCTradeProposal created (leg-0: 100 Amulet → Bob, leg-1: 20 TestToken → Alice)
@@ -161,7 +171,7 @@ If the DARs are missing from `.localnet/dars/`, example 15 will fail immediately
 | Step | Who         | What                                                                                                | Synchronizer        |
 | ---- | ----------- | --------------------------------------------------------------------------------------------------- | ------------------- |
 | 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers                                                 | global + app        |
-| 2    | —           | Vet DARs on all synchronizers and all participants                                                  | global + app        |
+| 2    | —           | Vet DARs: P1+P2 on both synchronizers, P3 on global only                                            | global + app        |
 | 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)                                                  | global              |
 | 4    | —           | Discover Token interface on app synchronizer                                                        | app                 |
 | 5    | Alice       | Mint 2,000,000 Amulet for Alice                                                                     | global              |
@@ -182,11 +192,14 @@ If the DARs are missing from `.localnet/dars/`, example 15 will fail immediately
 
 ### `Required DAR not found`
 
-Verify the DAR files are present in `.localnet/dars/` (run from the repository root):
+Verify the DAR files are present in their expected locations:
 
 ```bash
-ls -la .localnet/dars/splice-token-test-trading-app-1.0.0.dar \
-        .localnet/dars/splice-test-token-v1-1.0.0.dar
+# Trading-app DAR — fetched into .localnet/dars/ by yarn script:fetch:localnet
+ls -la .localnet/dars/splice-token-test-trading-app-1.0.0.dar
+
+# Test-token DAR — bundled in the script directory
+ls -la docs/wallet-integration-guide/examples/scripts/15-multi-sync/splice-test-token-v1-1.0.0.dar
 ```
 
 ### `App synchronizer not found (alias: app-synchronizer)`
