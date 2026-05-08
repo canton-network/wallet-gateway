@@ -74,7 +74,7 @@ export class TransactionService {
         const signingProvider =
             this.signingDrivers[SigningProvider.WALLET_KERNEL]
         if (!signingProvider) {
-            throw new Error('Wallet Kernel signing driver not available')
+            throw new Error('Wallet Gateway signing driver not available')
         }
         const driver = signingProvider.controller(userId)
 

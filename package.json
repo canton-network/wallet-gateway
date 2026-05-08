@@ -1,5 +1,5 @@
 {
-    "name": "splice-wallet-kernel",
+    "name": "wallet-kernel",
     "private": true,
     "scripts": {
         "start:all": "yarn pm2 start ecosystem.config.js --env development",

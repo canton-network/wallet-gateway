@@ -4,9 +4,9 @@ The Wallet Gateway supports multiple signing providers that handle cryptographic
 
 ## Available Providers
 
-## Wallet Kernel (Internal)
+## Wallet Gateway (Internal)
 
-The Wallet Kernel provider stores private keys directly in the signing store database. This is suitable for development and testing but **not recommended for production** use cases where security is critical.
+The Wallet Gateway provider stores private keys directly in the signing store database. This is suitable for development and testing but **not recommended for production** use cases where security is critical.
 
 **Configuration:**
 
@@ -114,7 +114,7 @@ When creating a new party through the User API or web UI, you can select which s
 
 **Recommendations:**
 
-- **Development/Testing**: Use Wallet Kernel (internal) or Participant-based signing
+- **Development/Testing**: Use Wallet Gateway (internal) or Participant-based signing
 - **Production (Enterprise)**: Use Fireblocks, Dfns, or Participant-based signing
 - **Production (Managed)**: Use Blockdaemon, Dfns, or Participant-based signing
 
@@ -124,7 +124,7 @@ The signing provider is selected per-party, so you can have different parties us
 
 Each provider handles key management differently:
 
-- **Wallet Kernel**: Keys are stored in the signing store database
+- **Wallet Gateway**: Keys are stored in the signing store database
 - **Participant**: Keys are managed by the Canton participant node
 - **Fireblocks**: Keys are stored in Fireblocks' secure infrastructure (HSM-backed)
 - **Blockdaemon**: Keys are managed by Blockdaemon's infrastructure

@@ -46,6 +46,29 @@ jobs:
                   if-no-files-found: error
                   retention-days: 1
 
+    clear-blockdaemon-policies:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Clear Blockdaemon policies
+              run: |
+
+                  BLOCKDAEMON_API_URL="${{ vars.BLOCKDAEMON_API_URL }}"
+                  BLOCKDAEMON_POLICY_BASE_URL="${BLOCKDAEMON_API_URL%/api/cwp/canton}"
+
+                  # this clear policies, with each deployment blockdaemon renables them
+                  curl -s -X PUT "$BLOCKDAEMON_POLICY_BASE_URL/api/v2/policies/12" \
+                    -H "authorization: Bearer ${{ vars.BLOCKDAEMON_API_KEY }}" \
+                    -H "content-type: application/json" \
+                    -H "x-api-version: 2.0" \
+                    -d '{"entries":[],"skipConfirmations":true}'
+
+                  # this clear policies, with each deployment blockdaemon renables them
+                  curl -s -X PUT "$BLOCKDAEMON_POLICY_BASE_URL/api/v2/policies/29" \
+                    -H "authorization: Bearer ${{ vars.BLOCKDAEMON_API_KEY }}" \
+                    -H "content-type: application/json" \
+                    -H "x-api-version: 2.0" \
+                    -d '{"entries":[],"skipConfirmations":true}'
+
     build-docs:
         runs-on: ubuntu-latest
         steps:

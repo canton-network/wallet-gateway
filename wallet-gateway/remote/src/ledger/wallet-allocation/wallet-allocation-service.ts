@@ -110,7 +110,7 @@ export class WalletAllocationService {
             case SigningProvider.WALLET_KERNEL:
                 if (!this.kernelAllocator) {
                     throw new Error(
-                        'Wallet Kernel signing driver not available'
+                        'Wallet Gateway signing driver not available'
                     )
                 }
                 return this.kernelAllocator.createWallet(
@@ -177,7 +177,7 @@ export class WalletAllocationService {
             case SigningProvider.WALLET_KERNEL:
                 if (!this.kernelAllocator) {
                     throw new Error(
-                        'Wallet Kernel signing driver not available'
+                        'Wallet Gateway signing driver not available'
                     )
                 }
                 return this.kernelAllocator.allocateParty(
