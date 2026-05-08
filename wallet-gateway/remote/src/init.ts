@@ -80,6 +80,59 @@ async function initializeDatabase(
                 .execute(db)
                 .catch(() => {})
             exists = false
+        } else {
+            const appDb = connection(config.store)
+            try {
+                const idpsTable = await sql
+                    .raw<{
+                        exists: boolean
+                    }>(`select exists(select 1 from information_schema.tables where table_schema='public' and table_name='idps') as exists;`)
+                    .execute(appDb)
+                const networksTable = await sql
+                    .raw<{
+                        exists: boolean
+                    }>(`select exists(select 1 from information_schema.tables where table_schema='public' and table_name='networks') as exists;`)
+                    .execute(appDb)
+
+                const idpsExists = Boolean(idpsTable.rows[0]?.exists)
+                const networksExists = Boolean(networksTable.rows[0]?.exists)
+
+                let idpsHasRows = false
+                let networksHasRows = false
+
+                if (idpsExists) {
+                    const idpsCount = await sql
+                        .raw<{
+                            rowCount: number | string
+                        }>(`select count(*) as "rowCount" from idps;`)
+                        .execute(appDb)
+                    idpsHasRows = Number(idpsCount.rows[0]?.rowCount ?? 0) > 0
+                }
+
+                if (networksExists) {
+                    const networksCount = await sql
+                        .raw<{
+                            rowCount: number | string
+                        }>(`select count(*) as "rowCount" from networks;`)
+                        .execute(appDb)
+                    networksHasRows =
+                        Number(networksCount.rows[0]?.rowCount ?? 0) > 0
+                }
+
+                if (
+                    !idpsExists ||
+                    !networksExists ||
+                    !idpsHasRows ||
+                    !networksHasRows
+                ) {
+                    logger.warn(
+                        'Database exists but required tables are missing or empty. Attempting to bootstrap...'
+                    )
+                    exists = false
+                }
+            } finally {
+                await appDb.destroy()
+            }
         }
         await db.destroy()
     }
