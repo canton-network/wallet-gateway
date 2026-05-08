@@ -33,12 +33,15 @@ yarn script:fetch:localnet -- --network=mainnet
 
 This populates `.localnet/docker-compose/` and `.localnet/dars/`.
 
-The two DARs required by this example are bundled in the same folder as the script:
+The DARs required by this example come from two locations:
 
-| DAR file                                     | Purpose                                                                            |
-| -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `splice-token-test-trading-app-v2-1.0.0.dar` | `OTCTrade` and `OTCTradeAllocationRequest` templates for orchestrating the trade   |
-| `splice-test-token-v1-1.0.0.dar`             | `Token` and `TokenRules` templates — the custom instrument on the app-synchronizer |
+| DAR file                                  | Location                 | Purpose                                                                            |
+| ----------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------- |
+| `splice-token-test-trading-app-1.0.0.dar` | `.localnet/dars/`        | `OTCTrade` and `OTCTradeAllocationRequest` templates for orchestrating the trade   |
+| `splice-test-token-v1-1.0.0.dar`          | `scripts/15-multi-sync/` | `Token` and `TokenRules` templates — the custom instrument on the app-synchronizer |
+
+`splice-token-test-trading-app-1.0.0.dar` is fetched by `yarn script:fetch:localnet`.
+`splice-test-token-v1-1.0.0.dar` is bundled directly in the script directory.
 
 ## Running Locally
 
@@ -136,63 +139,67 @@ All commands run from the **repository root**.
 yarn script:test:examples
 ```
 
-If the DARs are missing from the script folder, example 15 will fail immediately with:
-`Required DAR not found`
+If `splice-token-test-trading-app-1.0.0.dar` is missing from `.localnet/dars/`, run
+`yarn script:fetch:localnet` from the repository root.
+If `splice-test-token-v1-1.0.0.dar` is missing from the script directory, it has been
+accidentally deleted — restore it from version control.
 
 ### Expected output
 
 ```
-[v1-15-multi-sync-trade] Connected synchronizers: global, app-synchronizer
-[v1-15-multi-sync-trade] All required DARs uploaded successfully
-[v1-15-multi-sync-trade] All DARs vetted on app-synchronizer
-[v1-15-multi-sync-trade] Parties allocated — alice: ..., bob: ..., tradingApp: ...
-[v1-15-multi-sync-trade] alice: registered on app-synchronizer
-[v1-15-multi-sync-trade] bob: registered on app-synchronizer
-[v1-15-multi-sync-trade] tradingApp: registered on app-synchronizer
-[v1-15-multi-sync-trade] Alice: Amulet holding minted (2,000,000)
-[v1-15-multi-sync-trade] TokenRules created by Bob (on app-synchronizer)
-[v1-15-multi-sync-trade] Bob: Token holding minted (500 TestToken, on app-synchronizer)
-[v1-15-multi-sync-trade] OTCTrade created by Trading App
-[v1-15-multi-sync-trade] Trading App: Allocation requests created
-[v1-15-multi-sync-trade] Alice: Amulet allocation created for leg-0
-[v1-15-multi-sync-trade] Bob: TestToken allocation created for leg-1 (on app-synchronizer)
-[v1-15-multi-sync-trade] Trading App: OTCTrade settled
-[v1-15-multi-sync-trade] Alice: TestToken self-transferred on app-synchronizer
-[v1-15-multi-sync-trade] Final contract state after step 12 (Transfer): ...
+[v1-15-multi-sync-trade] Connected synchronizers: global-synchronizer, app-synchronizer
+[v1-15-multi-sync-trade] Synchronizer IDs — global: ..., app: ...
+[v1-15-multi-sync-trade] DARs vetted: P1+P2 on both synchronizers, P3 on global only
+[v1-15-multi-sync-trade] Parties allocated — alice: ... (P1), bob: ... (P2), tradingApp: ... (P3)
+[v1-15-multi-sync-trade] Alice and Bob registered on app-synchronizer
+[v1-15-multi-sync-trade] Amulet asset discovered — admin: ...
+[v1-15-multi-sync-trade] Alice: Amulet minted (2000000) on global synchronizer
+[v1-15-multi-sync-trade] Bob: TokenRules created + Token minted (500 TestToken) on app-synchronizer
+[v1-15-multi-sync-trade] Alice: OTCTradeProposal created (leg-0: 100 Amulet → Bob, leg-1: 20 TestToken → Alice)
+[v1-15-multi-sync-trade] Bob: OTCTradeProposal_Accept executed
+[v1-15-multi-sync-trade] TradingApp: OTCTradeProposal_InitiateSettlement executed → OTCTrade created
+[v1-15-multi-sync-trade] Alice: Amulet allocated for leg-0 (global synchronizer)
+[v1-15-multi-sync-trade] Bob: TestToken allocated for leg-1 (global)
+[v1-15-multi-sync-trade] TradingApp: OTCTrade settled — 100 Amulet transferred to Bob, 20 TestToken transferred to Alice
+[v1-15-multi-sync-trade] Bob: TokenRules + Token explicitly reassigned global → app-synchronizer
+[v1-15-multi-sync-trade] Alice: 20 TestToken self-transferred on app-synchronizer (Canton auto-reassigned Alice's Token from global → app)
+[v1-15-multi-sync-trade] Final contract state:
 ```
 
 ## How it Works
 
-| Step | Who         | What                                                        | Synchronizer |
-| ---- | ----------- | ----------------------------------------------------------- | ------------ |
-| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers         | global + app |
-| 2    | —           | Vet DARs on all synchronizers and all participants          | global + app |
-| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)          | global       |
-| 4    | —           | Discover Token interface on app synchronizer                | app          |
-| 5    | Alice       | Mint 2,000,000 Amulet for Alice                             | global       |
-| 6a   | Bob         | Create `TokenRules` contract                                | app          |
-| 6b   | Bob         | Mint 500 `TestToken` holding                                | app          |
-| 6c   | Bob         | Reassign `TokenRules` + `Token` to global-domain            | app → global |
-| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                          | global       |
-| 7b   | Bob         | `OTCTradeProposal_Accept`                                   | global       |
-| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created  | global       |
-| 8    | —           | Read `OTCTrade` contract ID                                 | global       |
-| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0)                | global       |
-| 10   | Bob         | `AllocationFactory_Allocate` (TestToken, leg-1)             | global       |
-| 11a  | —           | Locate Bob's TestToken allocation                           | global       |
-| 11b  | Trading App | `OTCTrade_Settle` (multi-party signing)                     | global       |
-| 11c  | Bob + Alice | Reassign `TokenRules` + Alice's `Token` to app-synchronizer | global → app |
-| 12   | Alice       | `TransferFactory_Transfer` self-transfer                    | app          |
+| Step | Who         | What                                                                                                | Synchronizer        |
+| ---- | ----------- | --------------------------------------------------------------------------------------------------- | ------------------- |
+| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers                                                 | global + app        |
+| 2    | —           | Vet DARs: P1+P2 on both synchronizers, P3 on global only                                            | global + app        |
+| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)                                                  | global              |
+| 4    | —           | Discover Token interface on app synchronizer                                                        | app                 |
+| 5    | Alice       | Mint 2,000,000 Amulet for Alice                                                                     | global              |
+| 6a   | Bob         | Create `TokenRules` contract                                                                        | app                 |
+| 6b   | Bob         | Mint 500 `TestToken` holding                                                                        | app                 |
+| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                                                                  | global              |
+| 7b   | Bob         | `OTCTradeProposal_Accept`                                                                           | global              |
+| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created                                          | global              |
+| 8    | —           | Read `OTCTrade` contract ID                                                                         | global              |
+| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0)                                                        | global              |
+| 10   | Bob         | `AllocationFactory_Allocate` (TestToken, leg-1); Canton auto-reassigns `Token` + `TokenRules`       | app → global (auto) |
+| 11a  | —           | Locate Bob's TestToken allocation                                                                   | global              |
+| 11b  | Trading App | `OTCTrade_Settle` (multi-party signing)                                                             | global              |
+| 12   | Bob         | Explicitly reassign `TokenRules` + `Token` to app-synchronizer (two-phase Unassign → Assign)        | global → app        |
+| 13   | Alice       | `TransferFactory_Transfer` self-transfer; Canton auto-reassigns Alice's `Token` to app-synchronizer | global → app (auto) |
 
 ## Troubleshooting
 
 ### `Required DAR not found`
 
-Verify the DAR files are present in the script folder:
+Verify the DAR files are present in their expected locations:
 
 ```bash
-ls -la docs/wallet-integration-guide/examples/scripts/15-multi-sync/splice-token-test-trading-app-v2-1.0.0.dar \
-        docs/wallet-integration-guide/examples/scripts/15-multi-sync/splice-test-token-v1-1.0.0.dar
+# Trading-app DAR — fetched into .localnet/dars/ by yarn script:fetch:localnet
+ls -la .localnet/dars/splice-token-test-trading-app-1.0.0.dar
+
+# Test-token DAR — bundled in the script directory
+ls -la docs/wallet-integration-guide/examples/scripts/15-multi-sync/splice-test-token-v1-1.0.0.dar
 ```
 
 ### `App synchronizer not found (alias: app-synchronizer)`

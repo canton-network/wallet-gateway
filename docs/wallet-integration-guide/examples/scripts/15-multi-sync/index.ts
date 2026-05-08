@@ -10,7 +10,7 @@ import {
     allocateAmuletForAlice,
     allocateTokenForBob,
     settleOtcTrade,
-    selfTransferToken,
+    reassignBobTokensToApp,
     aliceSelfTransferToApp,
     buildAllPartySpecs,
 } from './_trade_ops.js'
@@ -92,16 +92,12 @@ await settleOtcTrade(
 logger.info('Contracts after settlement:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
-// ── Step 12: Bob self-transfers remaining TestToken on app-synchronizer ──────
-// After settlement, Bob's senderChange Token (480) and TokenRules both live on
-// global. Bob is signatory of both contracts and is hosted on P2, so when P2
-// submits this self-transfer targeting app-synchronizer, Canton automatically
-// reassigns BOTH contracts global → app — demonstrating a second auto-reassign
-// (the inverse direction of step 10) with no manual reassignment.
-await selfTransferToken(setup, { tokenRulesCid }, logger)
-logger.info(
-    'Contracts after Bob self-transfer (TokenRules + Bob Token on app):'
-)
+// ── Step 12: Bob explicitly reassigns TokenRules + Token back to app-sync ────
+// After settlement, both contracts live on global. Bob is signatory of both and
+// P2 is connected to both synchronizers, so he can initiate the two-phase Canton
+// reassignment (Unassign → Assign) directly — no Daml transaction needed.
+await reassignBobTokensToApp(setup, { tokenRulesCid }, logger)
+logger.info('Contracts after Bob reassignment (TokenRules + Bob Token on app):')
 await logAllContracts(logger, synchronizers, allPartySpecs)
 
 // ── Step 13: Alice self-transfers her TestToken back to app-synchronizer ─────
