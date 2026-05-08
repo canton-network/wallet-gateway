@@ -24,7 +24,9 @@
         "clean": "tsc -b --clean; rm -rf dist",
         "test": "vitest run --project node --passWithNoTests",
         "test:coverage": "vitest run --project node --coverage --passWithNoTests",
-        "test:migrations": "vitest run --project migrations"
+        "test:migrations": "vitest run --project migrations",
+        "migrations:check-lock": "tsx ../../scripts/src/check-migration-lock.ts",
+        "migrations:update-lock": "tsx ../../scripts/src/check-migration-lock.ts --update"
     },
     "dependencies": {
         "@canton-network/core-ledger-client": "workspace:^",
