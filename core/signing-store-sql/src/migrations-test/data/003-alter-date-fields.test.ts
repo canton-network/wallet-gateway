@@ -21,8 +21,6 @@ import { insertSigningTransaction002 } from '../seeds/002-add-signed-at.js'
 
 const TARGET = 3
 
-// const TEXT_TYPE = /^(text)/
-
 forEachDialect('migration 003 - alter date fields to text', ({ getDb }) => {
     test('switches signing_keys timestamps from integer to text and casts existing values to strings', async () => {
         const db = getDb()
