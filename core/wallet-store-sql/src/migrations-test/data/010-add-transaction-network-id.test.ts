@@ -32,7 +32,7 @@ async function insertOwnedNetwork(
         userId,
     })
 }
-
+//test
 forEachDialect('migration 010 - transaction network_id', ({ getDb }) => {
     test('adds NOT NULL network_id and preserves other transaction columns after backfill', async () => {
         const db = getDb()
