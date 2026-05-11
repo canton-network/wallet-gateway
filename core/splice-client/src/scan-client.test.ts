@@ -2,16 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { vi, describe, it, beforeEach, expect } from 'vitest'
-import { ScanProxyClient } from './scan-proxy-client'
 import {
     AuthTokenProvider,
     TokenProviderConfig,
 } from '@canton-network/core-wallet-auth'
 import createClient from 'openapi-fetch'
-import {
-    makeAmuletRulesResponse,
-    makeOpenAndIssuingMiningRoundsResponse,
-} from './unit-tests-consts.test'
+import { makeAmuletRulesResponse } from './unit-tests-consts.test'
+import { ScanClient } from './scan-client.js'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 vi.mock('openapi-fetch', () => ({
     default: vi.fn(),
@@ -19,8 +16,8 @@ vi.mock('openapi-fetch', () => ({
 
 const mockCreateClient = vi.mocked(createClient)
 
-describe('Scan proxy client', () => {
-    let scanProxyClient: ScanProxyClient
+describe('Scan client', () => {
+    let scanClient: ScanClient
 
     const config: TokenProviderConfig = {
         method: 'self_signed',
@@ -40,8 +37,6 @@ describe('Scan proxy client', () => {
         vi.resetAllMocks()
         const ledgerApiUrl = new URL('https://fakeBaseUrl')
 
-        ScanProxyClient.invalidateAmuletRulesCache(ledgerApiUrl)
-        ScanProxyClient.invalidateOpenMiningRoundsCache(ledgerApiUrl)
         mockGet = vi.fn()
         mockPost = vi.fn()
 
@@ -49,36 +44,27 @@ describe('Scan proxy client', () => {
             GET: mockGet,
             POST: mockPost,
         } as any)
-        scanProxyClient = new ScanProxyClient(
+        scanClient = new ScanClient(
             ledgerApiUrl,
             console,
             mockAccessTokenProvider
         )
     })
 
-    it('should correctly determine devnet if isDevNet is true in amuletRules', async () => {
+    it('should correctly get the amulet synchronizer id', async () => {
         mockGet.mockResolvedValue(makeAmuletRulesResponse(true))
-        const result = await scanProxyClient.isDevNet()
+        const result = await scanClient.getAmuletSynchronizerId()
 
-        expect(result).toBeTruthy()
+        expect(result).toBe(
+            'global-domain::1220c0e3494aacc431feb89cde65d265e904019a48e11ff16ad5d43dd15c1a33d3db'
+        )
     })
 
-    it('should correctly determine devnet if isDevNet is false in amuletRules', async () => {
-        mockGet.mockResolvedValue(makeAmuletRulesResponse(false))
-        const result = await scanProxyClient.isDevNet()
+    it('should correctly get the amulet synchronizer id iif there are future values', async () => {
+        mockGet.mockResolvedValue(makeAmuletRulesResponse(true, true))
+        const result = await scanClient.getAmuletSynchronizerId()
 
-        expect(result).toBeFalsy()
-    })
-
-    it('should correctly reject when the scanProxy return an error for isDevNet', async () => {
-        mockGet.mockResolvedValue({
-            data: undefined,
-            error: { message: 'Unauthorized' },
-        })
-
-        await expect(scanProxyClient.isDevNet()).rejects.toEqual({
-            message: 'Unauthorized',
-        })
+        expect(result).toBe('global-domain::newsynchronizer')
     })
 
     it('should throw an error if AmuletRules is malformed', async () => {
@@ -87,40 +73,33 @@ describe('Scan proxy client', () => {
             error: undefined,
         })
 
-        await expect(scanProxyClient.isDevNet()).rejects.toThrow(
-            'Malformed AmuletRules response'
+        await expect(scanClient.getAmuletSynchronizerId()).rejects.toThrow(
+            `Cannot read properties of undefined (reading 'payload')`
         )
     })
 
-    it('should used cached amulet rules on second call', async () => {
-        mockGet.mockResolvedValue(makeAmuletRulesResponse(true))
-        await scanProxyClient.isDevNet()
-        await scanProxyClient.isDevNet()
+    it('should complete a post request', async () => {
+        mockPost.mockResolvedValue({
+            data: {
+                activity_type: 'round',
+                event_id: 'blah123',
+                date: '05-12-2026',
+                domain_id: 'global-domain::syncid',
+                round: 10,
+            },
+            error: undefined,
+        })
 
-        expect(mockGet).toHaveBeenCalledOnce()
-    })
-
-    it('should used get the amulet synchronizerId', async () => {
-        mockGet.mockResolvedValue(makeAmuletRulesResponse(true))
-        const synchronizerId = await scanProxyClient.getAmuletSynchronizerId()
-
-        expect(synchronizerId).toEqual(
-            'global-domain::1220c0e3494aacc431feb89cde65d265e904019a48e11ff16ad5d43dd15c1a33d3db'
-        )
-    })
-
-    it('should used get new synchronizerId if there are future values', async () => {
-        mockGet.mockResolvedValue(makeAmuletRulesResponse(true, true))
-        const synchronizerId = await scanProxyClient.getAmuletSynchronizerId()
-
-        expect(synchronizerId).toEqual('global-domain::newsynchronizer')
-    })
-
-    it('should get openMiningRounds', async () => {
-        mockGet.mockResolvedValue(makeOpenAndIssuingMiningRoundsResponse())
-
-        const response = await scanProxyClient.getActiveOpenMiningRound()
-        console.log('opening mining rounds response: ' + response)
-        expect(response).toBeNull()
+        const result = await scanClient.post('/v0/activities', {
+            begin_after_id: '123',
+            page_size: 150,
+        })
+        expect(result).toStrictEqual({
+            activity_type: 'round',
+            date: '05-12-2026',
+            domain_id: 'global-domain::syncid',
+            event_id: 'blah123',
+            round: 10,
+        })
     })
 })
