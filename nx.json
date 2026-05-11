@@ -69,6 +69,14 @@
             "dependsOn": ["^build"],
             "cache": true
         },
+        "migrations:check-lock": {
+            "cache": true,
+            "inputs": [
+                "{projectRoot}/src/migrations/**/*",
+                "{projectRoot}/migrations.lock.json",
+                "{workspaceRoot}/scripts/src/check-migration-lock.ts"
+            ]
+        },
         "typecheck": {
             "dependsOn": ["^build"]
         },

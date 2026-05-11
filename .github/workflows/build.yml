@@ -154,6 +154,26 @@ jobs:
                     --head=HEAD \
                     --parallel
 
+    check-migration-lock:
+        # Verifies migrations.lock.json is in sync with src/migrations for any
+        # affected SQL store package that defines a `migrations:check-lock`
+        # script. Catches accidental migration edits
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
+
+            - uses: ./.github/actions/setup_yarn
+
+            - name: Check migration lock files
+              run: |
+                  yarn nx affected -t migrations:check-lock \
+                    --base=origin/${{ github.base_ref }} \
+                    --head=HEAD \
+                    --parallel
+
     test-migrations:
         # Runs SQL migration tests for any affected package that defines a
         # `test:migrations` script
