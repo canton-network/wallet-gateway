@@ -1,8 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// TODO how can I share it nicely with signing store?
-
 import { randomUUID } from 'node:crypto'
 import { afterEach, beforeEach, describe } from 'vitest'
 import { Kysely, sql } from 'kysely'
