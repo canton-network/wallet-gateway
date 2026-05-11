@@ -11,7 +11,11 @@ import {
     primaryKeyColumns,
     tableExists,
 } from '../helpers.js'
-import { insertSigningKey } from '../seeds/001-init.js'
+import {
+    insertSigningDriverConfig,
+    insertSigningKey,
+    insertSigningTransaction,
+} from '../seeds/001-init.js'
 
 const TARGET = 1
 
@@ -112,6 +116,42 @@ forEachDialect('migration 001 - init signing store schema', ({ getDb }) => {
                 userId: 'same-user',
                 name: 'duplicate',
                 publicKey: 'pk2',
+            })
+        ).rejects.toThrow()
+    })
+
+    test('enforces unique constraint (user_id, id) on signing_transactions', async () => {
+        const db = getDb()
+        await migrateUpThrough(db, TARGET)
+
+        await insertSigningTransaction(db, {
+            id: 'same-key-id',
+            userId: 'same-user',
+            publicKey: 'pk1',
+        })
+
+        await expect(
+            insertSigningTransaction(db, {
+                id: 'same-key-id',
+                userId: 'same-user',
+                publicKey: 'pk2',
+            })
+        ).rejects.toThrow()
+    })
+
+    test('enforces primary key constraint (user_id, driver_id) on signing_driver_configs', async () => {
+        const db = getDb()
+        await migrateUpThrough(db, TARGET)
+
+        await insertSigningDriverConfig(db, {
+            driverId: 'same-driver-id',
+            userId: 'same-user',
+        })
+
+        await expect(
+            insertSigningDriverConfig(db, {
+                driverId: 'same-driver-id',
+                userId: 'same-user',
             })
         ).rejects.toThrow()
     })
