@@ -19,6 +19,8 @@
         "react-dom": "^19.2.4"
     },
     "devDependencies": {
+        "@canton-network/core-ledger-client-types": "workspace:^",
+        "@canton-network/core-splice-provider": "workspace:^",
         "@canton-network/core-tx-visualizer": "workspace:^",
         "@canton-network/core-wallet-test-utils": "workspace:^",
         "@canton-network/core-wallet-ui-components": "workspace:^",

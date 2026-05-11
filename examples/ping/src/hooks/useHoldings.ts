@@ -5,6 +5,8 @@ import { useContext, useEffect, useState } from 'react'
 import * as sdk from '@canton-network/dapp-sdk'
 import { ErrorContext } from '../ErrorContext'
 import * as walletSDK from '@canton-network/wallet-sdk'
+import { type Provider } from '@canton-network/core-splice-provider'
+import { type LedgerTypes } from '@canton-network/core-ledger-client-types'
 
 export function useHoldings(
     connectResult?: sdk.dappAPI.ConnectResult,
@@ -17,7 +19,8 @@ export function useHoldings(
 
     useEffect(() => {
         if (connectResult?.isConnected && validatorUrl && registryUrl) {
-            const ledgerProvider = window.canton
+            const ledgerProvider =
+                window.canton as unknown as Provider<LedgerTypes>
 
             if (!ledgerProvider) {
                 return

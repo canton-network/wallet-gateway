@@ -9,7 +9,7 @@ import { PartyNamespace } from '../namespace/party/index.js'
 import { UserNamespace } from '../namespace/user/index.js'
 import { TokenNamespace } from '../namespace/token/index.js'
 import { AssetNamespace } from '../namespace/asset/index.js'
-import { OfflineSdkContext, SDKContext } from '../sdk.js'
+import { OfflineSDKContext, SDKContext } from '../sdk.js'
 import { SDKUtilsNamespace } from '../namespace/utils/index.js'
 import {
     AmuletConfig,
@@ -160,7 +160,7 @@ export class InitializedSDK implements BasicSDKInterface {
 export class OfflineInitializedSDK implements OfflineSDKInterface {
     public readonly utils: SDKUtilsNamespace
     public readonly keys = new KeysNamespace()
-    constructor(protected ctx: OfflineSdkContext) {
+    constructor(protected ctx: OfflineSDKContext) {
         this.utils = new SDKUtilsNamespace(ctx)
     }
 }

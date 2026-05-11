@@ -67,7 +67,11 @@ export type SDKOptions<ExtendedItems extends keyof ExtendedSDKOptions = never> =
 
 // Helper type to extract which extended options are present in an options object
 export type GetExtendedKeys<T> = {
-    [K in keyof ExtendedSDKOptions]: K extends keyof T ? K : never
+    [K in keyof ExtendedSDKOptions]: K extends keyof T
+        ? undefined extends T[K]
+            ? never
+            : K
+        : never
 }[keyof ExtendedSDKOptions]
 
 // SDK INTERFACE
