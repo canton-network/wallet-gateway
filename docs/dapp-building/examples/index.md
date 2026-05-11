@@ -30,3 +30,18 @@ yarn stop:all
 ```
 
 [Source code](https://github.com/canton-network/wallet-gateway/tree/main/examples/portfolio)
+
+## Traffic paymaster
+
+A **React + Tailwind** example with companion **Daml** contracts: demo holdings, conversion rate, `PurchaseTraffic` choice, and `TrafficPurchaseReceipt` for indexer-friendly purchase events. Uses the dApp SDK’s `init`, `connect`, and `prepareExecuteAndWait`.
+
+**Running:**
+
+```bash
+yarn install
+yarn workspace @canton-network/example-traffic-paymaster dev
+```
+
+Build Daml from `examples/traffic-paymaster` with `daml build`, then configure `.env` (see `.env.example`).
+
+[Source code](https://github.com/canton-network/wallet-gateway/tree/main/examples/traffic-paymaster)

@@ -1,0 +1,115 @@
+-- Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+-- Reference paymaster / traffic purchase templates (Traffic Accounting design doc).
+-- Purchase emits a user-signed receipt for off-chain enforcement indexing.
+module Paymaster where
+
+-- | Demo fungible holding (stand-in for CIP-56 assets in production).
+template DemoHolding
+  with
+    owner : Party
+    issuer : Party
+    symbol : Text
+    amount : Decimal
+  where
+    signatory issuer
+    observer owner
+
+    ensure amount > 0.0
+
+    choice DemoHolding_Split : (ContractId DemoHolding, ContractId DemoHolding)
+      with
+        splitAmount : Decimal
+      controller owner
+      do
+        assert (splitAmount > 0.0 && splitAmount < amount)
+        c1 <- create this with amount = splitAmount
+        c2 <- create this with amount = amount - splitAmount
+        archive self
+        return (c1, c2)
+
+    choice DemoHolding_TransferToPaymaster : ()
+      with
+        paymaster : Party
+        transferAmount : Decimal
+      controller owner
+      do
+        assert (transferAmount > 0.0 && transferAmount <= amount)
+        if transferAmount == amount
+          then do
+            _ <- create this with owner = paymaster
+            archive self
+            return ()
+          else do
+            _ <- create this with owner = paymaster, amount = transferAmount
+            _ <- create this with amount = amount - transferAmount
+            archive self
+            return ()
+
+-- | Published conversion: currency units charged per one Local Unit (LU) of traffic credit.
+template EligiblePaymentAssetConversionRate
+  with
+    paymaster : Party
+    currencySymbol : Text
+    unitsPerLu : Decimal
+    observers : [Party]
+  where
+    signatory paymaster
+    observer observers
+    key (paymaster, currencySymbol) : (Party, Text)
+    maintainer key._1
+
+    ensure unitsPerLu > 0.0
+
+-- | On-chain signal for indexers / enforcement (signatory payer; paymaster is observer).
+template TrafficPurchaseReceipt
+  with
+    payer : Party
+    paymaster : Party
+    account : Text
+    qty : Int
+    currencySymbol : Text
+    paidAmount : Decimal
+  where
+    signatory payer
+    observer paymaster
+
+    ensure qty > 0 && paidAmount > 0.0
+
+-- | Master purchase interface (signatory paymaster; user exercises PurchaseCredits).
+template PurchaseTraffic
+  with
+    paymaster : Party
+    payer : Party
+    rateCid : ContractId EligiblePaymentAssetConversionRate
+  where
+    signatory paymaster
+    observer payer
+
+    nonconsuming choice PurchaseTraffic_PurchaseCredits : ContractId TrafficPurchaseReceipt
+      with
+        party : Party
+        account : Text
+        qty : Int
+        holdingCid : ContractId DemoHolding
+      controller party
+      do
+        assert (qty > 0)
+        assert (party == payer)
+        rate <- fetch rateCid
+        assert (rate.paymaster == paymaster)
+        h <- fetch holdingCid
+        assert (h.owner == party)
+        assert (h.symbol == rate.currencySymbol)
+        assert (h.issuer == paymaster)
+        let required = intToDecimal qty * rate.unitsPerLu
+        assert (h.amount >= required)
+        exercise holdingCid DemoHolding_TransferToPaymaster with paymaster, transferAmount = required
+        create TrafficPurchaseReceipt with
+          payer = party
+          paymaster
+          account
+          qty
+          currencySymbol = rate.currencySymbol
+          paidAmount = required

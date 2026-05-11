@@ -1,0 +1,13 @@
+# Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+sdk-version: 2.9.4
+name: paymaster-traffic
+source: daml
+version: 1.0.0
+dependencies:
+    - daml-prim
+    - daml-stdlib
+    - daml-script
+build-options:
+    - --target=1.15

@@ -1,0 +1,29 @@
+-- Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+-- SPDX-License-Identifier: Apache-2.0
+
+-- Allocate demo paymaster topology (run with `daml script` on your ledger).
+module Setup where
+
+import Daml.Script
+import Paymaster
+
+data SetupArgs = SetupArgs with
+  paymaster : Party
+  user : Party
+
+setup : SetupArgs -> Script ()
+setup SetupArgs{paymaster, user} = do
+  rateCid <- submit paymaster do
+    createCmd EligiblePaymentAssetConversionRate with
+      paymaster
+      currencySymbol = "DEMO"
+      unitsPerLu = 1.0
+      observers = [user]
+  holdingCid <- submit paymaster do
+    createCmd DemoHolding with owner = user, issuer = paymaster, symbol = "DEMO", amount = 1000.0
+  purchaseCid <- submit paymaster do
+    createCmd PurchaseTraffic with paymaster, payer = user, rateCid
+  debug $ "EligiblePaymentAssetConversionRate: " <> show rateCid
+  debug $ "DemoHolding: " <> show holdingCid
+  debug $ "PurchaseTraffic: " <> show purchaseCid
+  return ()
