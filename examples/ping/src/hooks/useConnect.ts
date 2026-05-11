@@ -20,7 +20,7 @@ const wcAdapter = wcProjectId
               domain: 'http://localhost:3000',
               uri: 'http://localhost:3000/login',
               version: '1.0.0',
-              nonce: '1234567890',
+              nonce: '1234567890', // optional, defaults to a unique UUID
           },
           onSignInWithCanton: (result) => {
               console.log('onSignInWithCanton:', result)

@@ -23,6 +23,7 @@ import type {
 } from '@canton-network/core-wallet-dapp-rpc-client'
 import { WALLETCONNECT_ICON } from '../assets'
 import { composeSIWXMessage } from '../util'
+import { v4 as uuidv4 } from 'uuid'
 
 const CANTON_WC_METHODS = [
     'canton_prepareSignExecute',
@@ -55,7 +56,7 @@ export interface Metadata {
     domain: string
     uri: string
     version: string
-    nonce: string
+    nonce?: string
     notBefore?: Timestamp
     statement?: string
     resources?: string[]
@@ -426,6 +427,8 @@ export class WalletConnectAdapter
         this.session = await approval()
         this.setupSessionEvents()
         if (this.signInWithCanton) {
+            const nonce = this.signInWithCanton.nonce || uuidv4()
+
             try {
                 const account = this.session?.namespaces?.canton?.accounts?.[0]
                 const address = decodeURIComponent(account?.split(':')[2])
@@ -444,7 +447,7 @@ export class WalletConnectAdapter
                 })
                 this.onSignInWithCanton?.({
                     requestId: this.signInWithCanton.requestId,
-                    nonce: this.signInWithCanton.nonce,
+                    nonce,
                     account: account,
                     chainId: chainId,
                     message: message,
@@ -455,7 +458,7 @@ export class WalletConnectAdapter
                 const err = error as Error
                 this.onSignInWithCanton?.({
                     requestId: this.signInWithCanton.requestId,
-                    nonce: this.signInWithCanton.nonce,
+                    nonce,
                     account: '',
                     chainId: '',
                     message: '',
