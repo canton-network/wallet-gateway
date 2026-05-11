@@ -7,7 +7,7 @@ import { isPostgres } from '../utils.js'
 
 export async function up(db: Kysely<DB>): Promise<void> {
     console.log('Adding network_id column to transactions table')
-    // test
+
     await db.schema
         .alterTable('transactions')
         .addColumn('network_id', 'text')
