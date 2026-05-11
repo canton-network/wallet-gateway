@@ -9,6 +9,11 @@ import {
     AssetConfig,
 } from '@canton-network/wallet-sdk'
 
+export { resolveGlobalSynchronizerId } from '@canton-network/wallet-sdk'
+export type { SynchronizerMap } from '@canton-network/wallet-sdk'
+export { vetDar } from './dar.js'
+export { syncAlias, logAllContracts } from './acs-logger.js'
+export type { ContractReadSpec as ContractSpec } from './acs-logger.js'
 export function getActiveContractCid(entry: JSContractEntry) {
     if ('JsActiveContract' in entry) {
         return entry.JsActiveContract.createdEvent.contractId

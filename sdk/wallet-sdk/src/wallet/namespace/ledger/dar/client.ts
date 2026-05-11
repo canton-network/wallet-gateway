@@ -7,6 +7,7 @@ import { Ops } from '@canton-network/core-provider-ledger'
 export class DarNamespace {
     constructor(private readonly sdkContext: SDKContext) {}
 
+    // TODO (#1712): add checking of vetting state also for vetting on provided sync
     async upload(
         darBytes: Uint8Array | Buffer,
         packageId: string,
