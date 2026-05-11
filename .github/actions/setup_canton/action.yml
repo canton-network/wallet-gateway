@@ -7,6 +7,10 @@ inputs:
     instance:
         description: 'Instance type: canton or localnet'
         required: true
+    multi-sync:
+        description: 'Start localnet with --profile multi-sync'
+        required: false
+        default: 'false'
 runs:
     using: 'composite'
     steps:
@@ -101,11 +105,16 @@ runs:
                 cat "$LOGFILE"
                 exit 1
               '
-
+        # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
         - name: Start Localnet
           if: inputs.instance == 'localnet'
           shell: bash
-          run: yarn start:localnet -- --network=${{ inputs.network }}
+          run: |
+              MULTI_SYNC_FLAG=""
+              if [ "${{ inputs.multi-sync }}" = "true" ]; then
+                MULTI_SYNC_FLAG="--multi-sync"
+              fi
+              yarn start:localnet -- --network=${{ inputs.network }} $MULTI_SYNC_FLAG
 
         - name: Save Docker images to cache
           if: ${{ inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}

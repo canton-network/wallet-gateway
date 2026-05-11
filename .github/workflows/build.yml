@@ -474,7 +474,7 @@ jobs:
               run: yarn nx snippets docs-wallet-integration-guide-examples
 
             - uses: ./.github/actions/check_resources
-
+            # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
             - name: Stop Localnet (${{ matrix.network }})
               if: always()
               run: yarn stop:localnet -- --network=${{ matrix.network }}
@@ -525,7 +525,7 @@ jobs:
               run: yarn script:test:examples
 
             - uses: ./.github/actions/check_resources
-
+            # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
             - name: Stop Localnet (${{ matrix.network }})
               if: always()
               run: yarn stop:localnet -- --network=${{ matrix.network }}
@@ -547,14 +547,70 @@ jobs:
                   name: docker-logs-scripts-${{ matrix.network }}
                   path: logs/
 
+    # TODO (#1721): remove multi-sync scripts e2e tests once multi-sync is fully supported and tested in the main scripts e2e tests
+    wallet-sdk-scripts-e2e-multi-sync:
+        name: wallet-sdk-scripts-e2e-multi-sync (${{ matrix.network }})
+        runs-on: ubuntu-latest
+        needs: [build, e2e-affected]
+        if: needs.e2e-affected.outputs.affected_wallet_sdk == 'true'
+        strategy:
+            fail-fast: false
+            matrix:
+                network: [devnet, mainnet]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - uses: ./.github/actions/setup_yarn
+
+            - uses: ./.github/actions/setup_canton
+              with:
+                  network: ${{ matrix.network }}
+                  instance: localnet
+                  multi-sync: 'true'
+
+            - uses: ./.github/actions/check_resources
+
+            - name: Build project
+              run: yarn build:all
+
+            - name: Test multi-sync example script (${{ matrix.network }})
+              env:
+                  MAX_IO_LISTENERS: '50'
+              run: yarn script:test:examples:multi-sync
+
+            - uses: ./.github/actions/check_resources
+            # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
+            - name: Stop Localnet (${{ matrix.network }})
+              if: always()
+              run: yarn stop:localnet -- --network=${{ matrix.network }} --multi-sync
+
+            - name: Save container logs
+              if: failure()
+              run: |
+                  #!/usr/bin/env bash
+                  set -euo pipefail
+                  mkdir -p logs
+                  for c in $(docker ps -a --format '{{.Names}}'); do
+                    docker logs "$c" &> "logs/$c.log" || true
+                  done
+
+            - name: Upload logs as artifacts
+              if: failure()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: docker-logs-scripts-multi-sync-${{ matrix.network }}
+                  path: logs/
+
     test-wallet-sdk-e2e:
         name: test-wallet-sdk-e2e
         runs-on: ubuntu-latest
-        needs:
-            [
+        needs: [
                 e2e-affected,
                 wallet-sdk-snippets-e2e,
                 wallet-sdk-scripts-e2e,
+                wallet-sdk-scripts-e2e-multi-sync, # TODO (#1721): remove multi-sync scripts e2e tests once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as a gate to ensure multi-sync e2e tests are not accidentally skipped without updating the main scripts e2e tests to cover multi-sync as well
                 wallet-sdk-pkg,
             ]
         if: always()
@@ -575,6 +631,10 @@ jobs:
                     fi
                     if [ "${{ needs.wallet-sdk-scripts-e2e.result }}" != "success" ]; then
                       echo "wallet-sdk scripts e2e was scheduled but did not succeed"
+                      exit 1
+                    fi
+                    if [ "${{ needs.wallet-sdk-scripts-e2e-multi-sync.result }}" != "success" ]; then
+                      echo "wallet-sdk scripts e2e (multi-sync) was scheduled but did not succeed"
                       exit 1
                     fi
                     echo "all wallet-sdk-e2e jobs passed"

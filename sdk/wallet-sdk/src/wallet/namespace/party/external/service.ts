@@ -32,7 +32,7 @@ export class ExternalPartyNamespace {
             this.resolveParticipantUids(
                 options?.confirmingParticipantEndpoints ?? []
             ),
-            options?.synchronizerId || this.resolveSynchronizerId(),
+            options?.synchronizerId || this.findGlobalSynchronizer(),
         ]).then(
             ([
                 observingParticipantUids,
@@ -79,7 +79,7 @@ export class ExternalPartyNamespace {
         )
     }
 
-    private async resolveSynchronizerId() {
+    private async findGlobalSynchronizer() {
         const connectedSynchronizers =
             await this.ctx.ledgerProvider.request<Ops.GetV2StateConnectedSynchronizers>(
                 {
@@ -92,19 +92,16 @@ export class ExternalPartyNamespace {
                 }
             )
 
-        if (!connectedSynchronizers.connectedSynchronizers?.[0]) {
-            throw new Error('No connected synchronizers found')
-        }
-
-        const synchronizerId =
-            connectedSynchronizers.connectedSynchronizers[0].synchronizerId
-        if (connectedSynchronizers.connectedSynchronizers.length > 1) {
-            this.logger.warn(
-                `Found ${connectedSynchronizers.connectedSynchronizers.length} synchronizers, defaulting to ${synchronizerId}`
+        const global = connectedSynchronizers.connectedSynchronizers?.find(
+            (s) => s.synchronizerAlias === 'global'
+        )
+        if (!global) {
+            throw new Error(
+                'Global synchronizer not found among connected synchronizers'
             )
         }
 
-        return synchronizerId
+        return global.synchronizerId
     }
 
     /**

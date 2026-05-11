@@ -37,6 +37,7 @@
         "script:openrpc:titles": "tsx ./scripts/src/schema-title-validation.ts",
         "script:validate:package": "tsx ./scripts/src/package-and-verify-wallet-sdk.ts",
         "script:test:examples": "yarn node --trace-uncaught --enable-source-maps --import tsx ./scripts/src/test-example-scripts.ts",
+        "script:test:examples:multi-sync": "yarn node --trace-uncaught --enable-source-maps --import tsx ./scripts/src/test-multi-sync-scripts.ts",
         "script:test:examples-stress": "tsx ./scripts/src/test-examples-scripts-under-stress.ts",
         "script:test:stress-scripts": "tsx ./scripts/src/test-stress-scripts.ts",
         "script:release": "tsx ./scripts/src/release.ts",

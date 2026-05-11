@@ -9,6 +9,7 @@ import { SignedTransaction } from '../transactions/signed.js'
 import { Ops } from '@canton-network/core-provider-ledger'
 import { DarNamespace } from './dar/client.js'
 import { AcsOptions } from '@canton-network/core-acs-reader'
+import { State } from '../state/index.js'
 import { InternalLedgerNamespace } from './internal/index.js'
 import { PreparedTransactionNamespace } from './hash/namespace.js'
 
@@ -16,11 +17,12 @@ export class LedgerNamespace {
     public readonly dar: DarNamespace
     public readonly internal: InternalLedgerNamespace
     public readonly preparedTransaction: PreparedTransactionNamespace
-
+    public readonly state: State
     constructor(private readonly sdkContext: SDKContext) {
         this.dar = new DarNamespace(sdkContext)
         this.internal = new InternalLedgerNamespace(sdkContext)
         this.preparedTransaction = new PreparedTransactionNamespace(sdkContext)
+        this.state = new State(sdkContext)
     }
 
     public async ledgerEnd() {

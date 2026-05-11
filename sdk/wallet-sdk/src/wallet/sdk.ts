@@ -17,7 +17,11 @@ import {
     OfflineSDKInterface,
 } from './init/types/sdk.js'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
-import { toURL } from './common.js'
+import {
+    toURL,
+    SynchronizerMap,
+    resolveGlobalSynchronizerId,
+} from './common.js'
 import {
     ExtendedInitializedSDK,
     OfflineInitializedSDK,
@@ -57,6 +61,7 @@ export type * from './init/index.js'
 export { PrepareOptions, ExecuteOptions } from './namespace/ledger/index.js'
 export * from './namespace/transactions/prepared.js'
 export * from './namespace/transactions/signed.js'
+export { vetPackage } from './namespace/ledger/dar/vetting.js'
 
 export class SDK {
     static async create<L extends LedgerRpc = LedgerRpc>(
@@ -144,6 +149,9 @@ export class SDK {
         return new OfflineInitializedSDK({ logger, error })
     }
 }
+
+export type { SynchronizerMap }
+export { resolveGlobalSynchronizerId }
 
 async function getDefaultSynchronizerId(
     provider: AbstractLedgerProvider,
