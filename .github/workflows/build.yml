@@ -309,7 +309,7 @@ jobs:
                   echo "relevant_changed_files=${{ steps.affected_wallet_sdk.outputs.relevant_changed_files }}"
 
     ping-e2e:
-        name: ping-e2e (${{ matrix.network }})
+        name: ping-e2e (${{ matrix.network }}, ${{ matrix.db }})
         runs-on: ubuntu-latest
         needs: [build, e2e-affected]
         if: needs.e2e-affected.outputs.affected_ping == 'true'
@@ -317,6 +317,7 @@ jobs:
             fail-fast: false
             matrix:
                 network: [devnet, mainnet]
+                db: [sqlite, postgres]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
@@ -327,6 +328,45 @@ jobs:
               with:
                   network: ${{ matrix.network }}
                   instance: canton
+
+            - name: Start Postgres container
+              if: matrix.db == 'postgres'
+              run: |
+                  docker run -d --name wk-postgres \
+                    -e POSTGRES_USER=postgres \
+                    -e POSTGRES_PASSWORD=postgres \
+                    -e POSTGRES_DB=postgres \
+                    -p 5432:5432 \
+                    --health-cmd="pg_isready -U postgres" \
+                    --health-interval=2s \
+                    postgres:16-alpine
+
+                  until [ "$(docker inspect -f '{{.State.Health.Status}}' wk-postgres)" = "healthy" ]; do
+                    sleep 5
+                  done
+                  docker inspect -f '{{.State.Health.Status}}' wk-postgres | grep -q healthy
+
+            - name: Point gateway config at Postgres
+              if: matrix.db == 'postgres'
+              run: |
+                  CONFIG=wallet-gateway/test/config.json
+                  jq '.store.connection = {
+                        type: "postgres",
+                        host: "localhost",
+                        port: 5432,
+                        user: "postgres",
+                        password: "postgres",
+                        database: "wallet"
+                      }
+                      | .signingStore.connection = {
+                        type: "postgres",
+                        host: "localhost",
+                        port: 5432,
+                        user: "postgres",
+                        password: "postgres",
+                        database: "signing"
+                      }' "$CONFIG" > "$CONFIG.tmp"
+                  mv "$CONFIG.tmp" "$CONFIG"
 
             - name: Start remote WK
               run: |
@@ -349,16 +389,20 @@ jobs:
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
-                  name: example-ping-playwright-report-${{ matrix.network }}
+                  name: example-ping-playwright-report-${{ matrix.network }}-${{ matrix.db }}
                   path: examples/ping/playwright-report/
                   retention-days: 5
 
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
-                  name: ping-wallet-gateway-remote-log-${{ matrix.network }}
+                  name: ping-wallet-gateway-remote-log-${{ matrix.network }}-${{ matrix.db }}
                   path: wallet-gateway-remote.log
                   retention-days: 5
+
+            - name: Stop Postgres container
+              if: ${{ always() && matrix.db == 'postgres' }}
+              run: docker rm -f wk-postgres || true
 
     test-ping-e2e:
         runs-on: ubuntu-latest
