@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-signing-participant",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "packageManager": "yarn@4.9.4",
     "type": "module",
     "description": "Wallet Gateway driver for Canton participant internal parties",

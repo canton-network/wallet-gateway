@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-signing-internal",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "type": "module",
     "description": "Wallet Gateway driver for offline Ed25519 keypairs",
     "license": "Apache-2.0",
