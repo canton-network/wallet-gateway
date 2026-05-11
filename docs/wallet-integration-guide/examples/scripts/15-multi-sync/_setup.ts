@@ -14,7 +14,7 @@ import {
 } from '@canton-network/wallet-sdk'
 import type { KeyPair } from '@canton-network/core-signing-lib'
 import type { GenerateTransactionResponse } from '@canton-network/core-ledger-client'
-import { ScanProxyClient } from '@canton-network/core-splice-client'
+import { ScanProxyClient } from '@canton-network/wallet-sdk'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
