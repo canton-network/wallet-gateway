@@ -17,7 +17,7 @@ runs:
           id: daml_release_version
           shell: bash
           run: |
-              VERSION=$(jq -r '.DAML_RELEASE_VERSION' scripts/src/lib/version-config.json)
+              VERSION=$(jq -r '.DAML_RELEASE_VERSION' scripts/src/lib/version-config.json | tr -d '\r\n')
               echo "value=$VERSION" >> "$GITHUB_OUTPUT"
 
         - name: Restore DPM cache
