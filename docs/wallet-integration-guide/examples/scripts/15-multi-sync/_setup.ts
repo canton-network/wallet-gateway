@@ -26,6 +26,9 @@ import type { SynchronizerMap } from '../utils/index.js'
 import {
     LOCALNET_BOB_LEDGER_URL,
     LOCALNET_TRADING_APP_LEDGER_URL,
+    PARTY_HINT_ALICE,
+    PARTY_HINT_BOB,
+    PARTY_HINT_TRADING_APP,
 } from './_config.js'
 
 export type PartyInfo = Omit<
@@ -174,21 +177,21 @@ export async function setupMultiSyncTrade(
         await Promise.all([
             p1Sdk.party.external
                 .create(aliceKey.publicKey, {
-                    partyHint: 'v1-15-alice',
+                    partyHint: PARTY_HINT_ALICE,
                     synchronizerId: globalSynchronizerId,
                 })
                 .sign(aliceKey.privateKey)
                 .execute(),
             p2Sdk.party.external
                 .create(bobKey.publicKey, {
-                    partyHint: 'v1-15-bob',
+                    partyHint: PARTY_HINT_BOB,
                     synchronizerId: globalSynchronizerId,
                 })
                 .sign(bobKey.privateKey)
                 .execute(),
             p3Sdk.party.external
                 .create(tradingAppKey.publicKey, {
-                    partyHint: 'v1-15-trading-app',
+                    partyHint: PARTY_HINT_TRADING_APP,
                     synchronizerId: globalSynchronizerId,
                 })
                 .sign(tradingAppKey.privateKey)

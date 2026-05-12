@@ -5,6 +5,11 @@ import type { Logger } from 'pino'
 import { localNetStaticConfig } from '@canton-network/wallet-sdk'
 import type { ContractSpec } from '../utils/index.js'
 import type { MultiSyncSetup } from './_setup.js'
+import {
+    PARTY_HINT_ALICE,
+    PARTY_HINT_BOB,
+    PARTY_HINT_TRADING_APP,
+} from './_config.js'
 
 // ── ACS contract entry (as returned by ledger.acs.read) ───────────────────────
 
@@ -32,7 +37,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
     const { p1Sdk, p2Sdk, p3Sdk, alice, bob, tradingApp } = setup
     return [
         {
-            label: 'Alice',
+            label: PARTY_HINT_ALICE,
             sdk: p1Sdk,
             templateIds: [
                 AMULET_TEMPLATE_ID,
@@ -43,7 +48,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
             parties: [alice.partyId],
         },
         {
-            label: 'Bob',
+            label: PARTY_HINT_BOB,
             sdk: p2Sdk,
             templateIds: [
                 AMULET_TEMPLATE_ID,
@@ -53,7 +58,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
             parties: [bob.partyId],
         },
         {
-            label: 'TradingApp',
+            label: PARTY_HINT_TRADING_APP,
             sdk: p3Sdk,
             templateIds: [
                 `${TRADING_APP_PREFIX}:OTCTradeProposal`,

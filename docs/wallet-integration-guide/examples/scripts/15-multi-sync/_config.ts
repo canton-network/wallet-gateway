@@ -16,3 +16,8 @@ export const LOCALNET_BOB_LEDGER_URL = new URL('http://localhost:3975')
 
 // trading-app-participant JSON API (4 + PARTICIPANT_JSON_API_PORT_SUFFIX 975)
 export const LOCALNET_TRADING_APP_LEDGER_URL = new URL('http://localhost:4975')
+
+// Party hint labels used when allocating parties
+export const PARTY_HINT_ALICE = 'Alice'
+export const PARTY_HINT_BOB = 'Bob'
+export const PARTY_HINT_TRADING_APP = 'TradingApp'
