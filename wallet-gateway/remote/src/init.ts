@@ -86,12 +86,16 @@ async function initializeDatabase(
                 const idpsTable = await sql
                     .raw<{
                         exists: boolean
-                    }>(`select exists(select 1 from information_schema.tables where table_schema='public' and table_name='idps') as exists;`)
+                    }>(
+                        `select exists(select 1 from information_schema.tables where table_schema='public' and table_name='idps') as exists;`
+                    )
                     .execute(appDb)
                 const networksTable = await sql
                     .raw<{
                         exists: boolean
-                    }>(`select exists(select 1 from information_schema.tables where table_schema='public' and table_name='networks') as exists;`)
+                    }>(
+                        `select exists(select 1 from information_schema.tables where table_schema='public' and table_name='networks') as exists;`
+                    )
                     .execute(appDb)
 
                 const idpsExists = Boolean(idpsTable.rows[0]?.exists)

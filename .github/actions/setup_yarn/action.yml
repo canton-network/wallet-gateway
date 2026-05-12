@@ -46,7 +46,6 @@ runs:
                   ~/.cache/daml
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
 
-
         - name: Download build artifacts
           id: download_build_artifacts
           continue-on-error: true
