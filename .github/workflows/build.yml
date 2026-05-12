@@ -46,6 +46,27 @@ jobs:
                   if-no-files-found: error
                   retention-days: 1
 
+    hydrate-canton-caches:
+        name: hydrate-canton-caches (${{ matrix.network }}, ${{ matrix.instance }})
+        runs-on: ubuntu-latest
+        needs: build
+        strategy:
+            fail-fast: false
+            matrix:
+                network: [devnet, mainnet]
+                instance: [canton, localnet]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - uses: ./.github/actions/setup_yarn
+
+            - uses: ./.github/actions/setup_canton
+              with:
+                  network: ${{ matrix.network }}
+                  instance: ${{ matrix.instance }}
+                  start_services: 'false'
+
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
         steps:

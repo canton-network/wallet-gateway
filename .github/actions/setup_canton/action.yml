@@ -7,6 +7,10 @@ inputs:
     instance:
         description: 'Instance type: canton or localnet'
         required: true
+    start_services:
+        description: 'Whether to start canton/localnet services after setup'
+        required: false
+        default: 'true'
 runs:
     using: 'composite'
     steps:
@@ -77,7 +81,7 @@ runs:
           run: yarn script:fetch:localnet --network=${{ inputs.network }}
 
         - name: Start Canton
-          if: inputs.instance == 'canton'
+          if: inputs.instance == 'canton' && inputs.start_services == 'true'
           shell: bash
           run: |
               set -e
@@ -103,7 +107,7 @@ runs:
               '
 
         - name: Start Localnet
-          if: inputs.instance == 'localnet'
+          if: inputs.instance == 'localnet' && inputs.start_services == 'true'
           shell: bash
           run: yarn start:localnet -- --network=${{ inputs.network }}
 
