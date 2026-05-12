@@ -26,7 +26,6 @@ runs:
           with:
               path: |
                   ~/.dpm
-                  ~/.cache/daml
               key: dpm-${{ runner.os }}-${{ steps.daml_release_version.outputs.value }}
 
         - name: Add DPM to PATH
@@ -43,7 +42,6 @@ runs:
           with:
               path: |
                   ~/.dpm
-                  ~/.cache/daml
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
 
         - name: Download build artifacts
