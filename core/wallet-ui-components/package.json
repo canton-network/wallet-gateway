@@ -29,19 +29,19 @@
         "test:coverage": "vitest run --project browser --coverage --passWithNoTests"
     },
     "devDependencies": {
-        "@storybook/web-components-vite": "^10.2.14",
+        "@storybook/web-components-vite": "^10.3.6",
         "@types/bootstrap": "^5.2.10",
         "@types/fs-extra": "^11.0.4",
-        "@vitest/browser-playwright": "^4.1.2",
-        "@vitest/coverage-v8": "^4.1.2",
-        "fs-extra": "^11.3.3",
-        "playwright": "^1.58.2",
-        "storybook": "^10.2.16",
+        "@vitest/browser-playwright": "^4.1.6",
+        "@vitest/coverage-v8": "^4.1.6",
+        "fs-extra": "^11.3.5",
+        "playwright": "^1.60.0",
+        "storybook": "^10.3.6",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
-        "vite": "^7.3.2",
+        "vite": "^7.3.3",
         "vite-plugin-dts": "^4.5.4",
-        "vitest": "^4.1.2"
+        "vitest": "^4.1.6"
     },
     "packageManager": "yarn@4.9.4",
     "dependencies": {

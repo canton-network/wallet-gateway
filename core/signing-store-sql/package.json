@@ -31,23 +31,23 @@
         "@canton-network/core-signing-lib": "workspace:^",
         "@canton-network/core-wallet-auth": "workspace:^",
         "@canton-network/core-wallet-store": "workspace:^",
-        "better-sqlite3": "^12.6.2",
+        "better-sqlite3": "^12.10.0",
         "commander": "^14.0.3",
         "kysely": "^0.28.17",
-        "pg": "^8.19.0",
+        "pg": "^8.20.0",
         "pino": "^10.3.1",
-        "umzug": "^3.8.2",
-        "zod": "^4.3.6"
+        "umzug": "^3.8.3",
+        "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@swc/core": "^1.15.18",
+        "@swc/core": "^1.15.33",
         "@types/better-sqlite3": "^7.6.13",
-        "@types/pg": "^8.18.0",
-        "@vitest/coverage-v8": "^4.1.2",
+        "@types/pg": "^8.20.0",
+        "@vitest/coverage-v8": "^4.1.6",
         "tsup": "^8.5.1",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
-        "vitest": "^4.1.2"
+        "vitest": "^4.1.6"
     },
     "files": [
         "dist/**"
