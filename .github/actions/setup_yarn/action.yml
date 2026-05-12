@@ -43,7 +43,7 @@ runs:
           run: rm -rf ~/.dpm/cache/oci-layout
 
         - name: Save DPM cache
-          if: ${{ github.workflow == 'build' && steps.dpm_cache.outputs.cache-hit != 'true' }}
+          if: ${{ steps.dpm_cache.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: |
