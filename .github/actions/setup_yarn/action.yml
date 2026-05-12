@@ -38,14 +38,13 @@ runs:
           run: yarn install --immutable
 
         - name: Save DPM cache
-          if: ${{ steps.dpm_cache.outputs.cache-hit != 'true' }}
+          if: ${{ github.workflow == 'build' && steps.dpm_cache.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: |
                   ~/.dpm
                   ~/.cache/daml
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
-
 
         - name: Download build artifacts
           id: download_build_artifacts
