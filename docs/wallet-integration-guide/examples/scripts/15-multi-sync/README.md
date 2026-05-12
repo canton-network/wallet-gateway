@@ -11,9 +11,10 @@ Complete workflow covered:
 
 - SDK initialization with multiple synchronizers
 - Party allocation and registration across synchronizers
-- Parallel asset minting (Amulet on global, Token on private)
-- Multi-synchronizer trade settlement with multi-party signing
-- Cross-synchronizer contract reassignment
+- Parallel asset minting (Amulet on global, Token on app-synchronizer)
+- Multi-synchronizer trade settlement using only single-party submissions
+- Cross-synchronizer contract reassignment via `ledger.internal.reassign`
+- Canton disclosure-based authorization for cross-signatory contract creation
 
 ## Prerequisites
 
@@ -154,39 +155,45 @@ accidentally deleted — restore it from version control.
 [v1-15-multi-sync-trade] Alice and Bob registered on app-synchronizer
 [v1-15-multi-sync-trade] Amulet asset discovered — admin: ...
 [v1-15-multi-sync-trade] Alice: Amulet minted (2000000) on global synchronizer
-[v1-15-multi-sync-trade] Bob: TokenRules created + Token minted (500 TestToken) on app-synchronizer
+[v1-15-multi-sync-trade] TokenAdmin: TokenRules created on global + app synchronizers; Bob: 500 TestToken minted on app-synchronizer
 [v1-15-multi-sync-trade] Alice: OTCTradeProposal created (leg-0: 100 Amulet → Bob, leg-1: 20 TestToken → Alice)
 [v1-15-multi-sync-trade] Bob: OTCTradeProposal_Accept executed
 [v1-15-multi-sync-trade] TradingApp: OTCTradeProposal_InitiateSettlement executed → OTCTrade created
 [v1-15-multi-sync-trade] Alice: Amulet allocated for leg-0 (global synchronizer)
-[v1-15-multi-sync-trade] Bob: TestToken allocated for leg-1 (global)
+[v1-15-multi-sync-trade] Bob: TestToken allocated for leg-1 (global synchronizer, single-party)
 [v1-15-multi-sync-trade] TradingApp: OTCTrade settled — 100 Amulet transferred to Bob, 20 TestToken transferred to Alice
-[v1-15-multi-sync-trade] Bob: TokenRules + Token explicitly reassigned global → app-synchronizer
 [v1-15-multi-sync-trade] Alice: 20 TestToken self-transferred on app-synchronizer (Canton auto-reassigned Alice's Token from global → app)
+[v1-15-multi-sync-trade] Bob: 1 TestToken holding(s) reassigned to app-synchronizer
 [v1-15-multi-sync-trade] Final contract state:
 ```
 
+> **Note:** Steps 9 (Alice allocates Amulet) and 10 (Bob allocates TestToken) run in parallel,
+> as do the two self-transfers in step 12, so those log lines may appear in either order.
+
 ## How it Works
 
-| Step | Who         | What                                                                                                | Synchronizer        |
-| ---- | ----------- | --------------------------------------------------------------------------------------------------- | ------------------- |
-| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers                                                 | global + app        |
-| 2    | —           | Vet DARs: P1+P2 on both synchronizers, P3 on global only                                            | global + app        |
-| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)                                                  | global              |
-| 4    | —           | Discover Token interface on app synchronizer                                                        | app                 |
-| 5    | Alice       | Mint 2,000,000 Amulet for Alice                                                                     | global              |
-| 6a   | Bob         | Create `TokenRules` contract                                                                        | app                 |
-| 6b   | Bob         | Mint 500 `TestToken` holding                                                                        | app                 |
-| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                                                                  | global              |
-| 7b   | Bob         | `OTCTradeProposal_Accept`                                                                           | global              |
-| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created                                          | global              |
-| 8    | —           | Read `OTCTrade` contract ID                                                                         | global              |
-| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0)                                                        | global              |
-| 10   | Bob         | `AllocationFactory_Allocate` (TestToken, leg-1); Canton auto-reassigns `Token` + `TokenRules`       | app → global (auto) |
-| 11a  | —           | Locate Bob's TestToken allocation                                                                   | global              |
-| 11b  | Trading App | `OTCTrade_Settle` (multi-party signing)                                                             | global              |
-| 12   | Bob         | Explicitly reassign `TokenRules` + `Token` to app-synchronizer (two-phase Unassign → Assign)        | global → app        |
-| 13   | Alice       | `TransferFactory_Transfer` self-transfer; Canton auto-reassigns Alice's `Token` to app-synchronizer | global → app (auto) |
+| Step | Who         | What                                                                                                                                                                                                                                  | Synchronizer            |
+| ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 1    | —           | Create SDKs (P1, P2, P3) and discover synchronizers                                                                                                                                                                                   | global + app            |
+| 2    | —           | Vet DARs: P1+P2 on both synchronizers, P3 on global only                                                                                                                                                                              | global + app            |
+| 3    | —           | Allocate parties (Alice/P1, Bob/P2, TradingApp/P3)                                                                                                                                                                                    | global                  |
+| 4    | —           | Discover Token interface on app synchronizer                                                                                                                                                                                          | app                     |
+| 5    | Alice       | Mint 2,000,000 Amulet for Alice                                                                                                                                                                                                       | global                  |
+| 6a   | TokenAdmin  | Create `TokenRules` on global synchronizer (single-party)                                                                                                                                                                             | global                  |
+| 6b   | TokenAdmin  | Create `TokenRules` on app-synchronizer (single-party, parallel with 6a)                                                                                                                                                              | app                     |
+| 6c   | TokenAdmin  | Create `Token` (owner=TokenAdmin) on app-synchronizer — single-party because owner=admin=TokenAdmin                                                                                                                                   | app                     |
+| 6d   | TokenAdmin  | `TransferFactory_Transfer` on app `TokenRules` → `TokenTransferOffer` to Bob — single-party (sender=TokenAdmin)                                                                                                                       | app                     |
+| 6e   | Bob         | `TransferInstruction_Accept` → `Token` (owner=Bob, admin=TokenAdmin) on app-synchronizer — single-party (Bob is receiver/controller)                                                                                                  | app                     |
+| 7a   | Alice       | Create `OTCTradeProposal` (2 legs)                                                                                                                                                                                                    | global                  |
+| 7b   | Bob         | `OTCTradeProposal_Accept`                                                                                                                                                                                                             | global                  |
+| 7c   | Trading App | `OTCTradeProposal_InitiateSettlement` → `OTCTrade` created                                                                                                                                                                            | global                  |
+| 8    | —           | Read `OTCTrade` contract ID                                                                                                                                                                                                           | global                  |
+| 9    | Alice       | `AllocationFactory_Allocate` (Amulet, leg-0) — single-party                                                                                                                                                                           | global                  |
+| 10   | Bob         | `ledger.internal.reassign` Bob's `Token` app→global (interactive submission cannot auto-reassign multi-signatory contracts with single `actAs`), then `AllocationFactory_Allocate` (TestToken, leg-1), disclosing global `TokenRules` | app → global (explicit) |
+| 11a  | —           | Locate Bob's TestToken allocation                                                                                                                                                                                                     | global                  |
+| 11b  | Trading App | `OTCTrade_Settle` — single-party TradingApp submission                                                                                                                                                                                | global                  |
+| 12   | Alice       | `TransferFactory_Transfer` self-transfer; Canton auto-reassigns Alice's `Token` to app-synchronizer                                                                                                                                   | global → app (auto)     |
+| 12   | Bob         | `ledger.internal.reassign` — reassign remaining `Token` holding(s) to app-synchronizer (parallel with Alice's step 12)                                                                                                                | global → app            |
 
 ## Troubleshooting
 

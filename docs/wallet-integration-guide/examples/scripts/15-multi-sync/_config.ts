@@ -21,3 +21,4 @@ export const LOCALNET_TRADING_APP_LEDGER_URL = new URL('http://localhost:4975')
 export const PARTY_HINT_ALICE = 'Alice'
 export const PARTY_HINT_BOB = 'Bob'
 export const PARTY_HINT_TRADING_APP = 'TradingApp'
+export const PARTY_HINT_TOKEN_ADMIN = 'TokenAdmin'
