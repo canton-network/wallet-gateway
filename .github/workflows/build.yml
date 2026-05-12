@@ -45,6 +45,7 @@ jobs:
             - uses: ./.github/actions/setup_yarn
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
+                  save_cache: 'true'
 
             - name: run codegen
               run: yarn generate:all
@@ -90,12 +91,20 @@ jobs:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
+              if: matrix.instance == 'canton'
               with:
                   network: ${{ matrix.network }}
-                  instance: ${{ matrix.instance }}
                   start_services: 'false'
                   canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  save_cache: 'true'
+
+            - uses: ./.github/actions/setup_localnet
+              if: matrix.instance == 'localnet'
+              with:
+                  network: ${{ matrix.network }}
+                  start_services: 'false'
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
+                  save_cache: 'true'
 
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
@@ -230,9 +239,7 @@ jobs:
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
-                  instance: canton
                   canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
-                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - name: Start remote WK
               run: |
@@ -294,11 +301,9 @@ jobs:
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
-                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - name: Start remote WK
@@ -357,11 +362,9 @@ jobs:
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
-                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
@@ -409,11 +412,9 @@ jobs:
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
-                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources

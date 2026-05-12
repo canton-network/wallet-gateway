@@ -76,11 +76,9 @@ jobs:
             - name: Build project
               run: yarn build:all
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet
               with:
                   network: ${{ github.event.inputs.network || 'devnet' }}
-                  instance: localnet
-                  canton_version: ${{ (github.event.inputs.network || 'devnet') == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
                   splice_version: ${{ (github.event.inputs.network || 'devnet') == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
