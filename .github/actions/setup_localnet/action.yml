@@ -16,6 +16,10 @@ inputs:
         description: 'Whether to save the Localnet cache on a cache miss'
         required: false
         default: 'false'
+    lookup_only:
+        description: 'Whether to only check if the Localnet cache exists without restoring it'
+        required: false
+        default: 'false'
 runs:
     using: 'composite'
     steps:
@@ -47,6 +51,7 @@ runs:
                   .localnet/dars
                   /tmp/docker-images
               key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
+              lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Load cached Docker images
           if: steps.localnet-cache.outputs.cache-hit == 'true'

@@ -16,6 +16,10 @@ inputs:
         description: 'Whether to save the Canton cache on a cache miss'
         required: false
         default: 'false'
+    lookup_only:
+        description: 'Whether to only check if the Canton cache exists without restoring it'
+        required: false
+        default: 'false'
 runs:
     using: 'composite'
     steps:
@@ -44,6 +48,7 @@ runs:
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
+              lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Download Canton
           if: steps.canton-cache.outputs.cache-hit != 'true'

@@ -94,6 +94,7 @@ jobs:
                   start_services: 'false'
                   canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
                   save_cache: 'true'
+                  lookup_only: 'true'
 
             - uses: ./.github/actions/setup_localnet
               if: matrix.instance == 'localnet'
@@ -102,6 +103,7 @@ jobs:
                   start_services: 'false'
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
                   save_cache: 'true'
+                  lookup_only: 'true'
 
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
