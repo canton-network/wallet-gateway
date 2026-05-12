@@ -81,8 +81,8 @@ export class SDK {
                       })
                   })()
 
-        const authenticatedUser =
-            await ledgerProvider.request<Ops.GetV2AuthenticatedUser>({
+        const authenticatedUser = await ledgerProvider
+            .request<Ops.GetV2AuthenticatedUser>({
                 method: 'ledgerApi',
                 params: {
                     requestMethod: 'get',
@@ -90,8 +90,21 @@ export class SDK {
                     query: {},
                 },
             })
+            .catch((err) => {
+                if (
+                    err.cause.contains(
+                        'he submitted request is missing a user-id'
+                    )
+                ) {
+                    error.throw({
+                        message:
+                            'Wallet SDK does not support an unauthenticated ledger API. Please contact the participant operator and request they setup authentication.',
+                        type: 'Unauthenticated',
+                    })
+                } else throw err
+            })
 
-        const userId = authenticatedUser.user?.id
+        const userId = authenticatedUser?.user?.id
         if (!userId) {
             error.throw({
                 message: 'Not an authenticated user',
@@ -109,7 +122,7 @@ export class SDK {
         const ctx: SDKContext = {
             ledgerProvider,
             acsReader,
-            userId,
+            userId: userId!,
             logger,
             error,
             defaultSynchronizerId,
