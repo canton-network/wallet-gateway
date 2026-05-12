@@ -28,6 +28,7 @@ import {
     type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import { AllowedLogAdapters } from './logger/types.js'
+import { DappLedgerRpc } from '@canton-network/core-provider-dapp'
 export * from './namespace/asset/index.js'
 export type * from './namespace/token/index.js'
 export type * from './namespace/amulet/index.js'
@@ -61,7 +62,7 @@ export * from './namespace/transactions/signed.js'
 
 export class SDK {
     static async create<
-        L extends LedgerRpc = LedgerRpc,
+        L extends LedgerRpc = DappLedgerRpc,
         Options extends BasicSDKOptions<L> & Partial<ExtendedSDKOptions> =
             BasicSDKOptions<L> & Partial<ExtendedSDKOptions>,
     >(options: Options): Promise<SDKInterface<GetExtendedKeys<Options>>> {

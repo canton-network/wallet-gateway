@@ -17,8 +17,7 @@ export function useHoldings(
 
     useEffect(() => {
         if (connectResult?.isConnected && validatorUrl && registryUrl) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const ledgerProvider = window.canton as any // TODO: figure out a way to remove type assertion
+            const ledgerProvider = window.canton
 
             if (!ledgerProvider) {
                 return

@@ -30,6 +30,7 @@
         "@canton-network/core-asyncapi-client": "workspace:^",
         "@canton-network/core-ledger-client-types": "workspace:^",
         "@canton-network/core-ledger-proto": "workspace:^",
+        "@canton-network/core-provider-dapp": "workspace:^",
         "@canton-network/core-provider-ledger": "workspace:^",
         "@canton-network/core-signing-lib": "workspace:^",
         "@canton-network/core-splice-client": "workspace:^",
