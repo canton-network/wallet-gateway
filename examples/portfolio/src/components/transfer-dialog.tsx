@@ -1,6 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { useState } from 'react'
 import {
     Box,
     Button,
@@ -47,22 +48,23 @@ interface TransferDialogProps {
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
 export const TransferDialog: React.FC<TransferDialogProps> = ({
-    initialValues = {
+    initialValues,
+    open,
+    onClose,
+}) => {
+    const [defaultInitialValues] = useState<TransferFormData>(() => ({
         instrumentId: null,
         amount: '',
         recipient: '',
         memo: '',
         expiry: new Date(Date.now() + ONE_DAY_MS),
-    },
-    open,
-    onClose,
-}) => {
+    }))
     const primaryAccount = usePrimaryAccount()
     const primaryParty = primaryAccount?.partyId
     const createTransferMutation = useCreateTransfer()
 
     const form = useForm({
-        defaultValues: initialValues,
+        defaultValues: initialValues ?? defaultInitialValues,
 
         onSubmit: async ({ value: formData }) => {
             if (!primaryParty || !formData.instrumentId) {
@@ -100,14 +102,7 @@ export const TransferDialog: React.FC<TransferDialogProps> = ({
     }
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            maxWidth="sm"
-            fullWidth
-            // ensure dialog cannot be closed while form is submitting
-            disableEscapeKeyDown={createTransferMutation.isPending}
-        >
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>Make Transfer</DialogTitle>
             <form
                 onSubmit={(e) => {

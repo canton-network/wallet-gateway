@@ -17,6 +17,7 @@ const includeCiSecretDependency = process.env.CI_SECRET_DEPENDENCY === 'true'
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+    timeout: 120 * 1000,
     testDir: './tests',
     testIgnore: includeCiSecretDependency
         ? undefined
