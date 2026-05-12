@@ -58,7 +58,7 @@ jobs:
     stress-e2e:
         runs-on: ubuntu-latest
         timeout-minutes: 120
-        needs: version-config
+        needs: [version-config, hydrate-canton-caches]
 
         steps:
             - name: Checkout
@@ -69,12 +69,6 @@ jobs:
             - uses: ./.github/actions/setup_yarn
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
-
-            - name: run codegen
-              run: yarn generate:all
-
-            - name: Build project
-              run: yarn build:all
 
             - uses: ./.github/actions/setup_localnet
               with:

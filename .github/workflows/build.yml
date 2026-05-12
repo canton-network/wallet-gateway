@@ -47,9 +47,6 @@ jobs:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
                   save_cache: 'true'
 
-            - name: run codegen
-              run: yarn generate:all
-
             - name: Build project
               run: yarn build:all
 
