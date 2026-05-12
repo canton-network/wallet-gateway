@@ -1,5 +1,9 @@
 name: Setup Yarn
 description: 'Setup Yarn for the project'
+inputs:
+    daml_release_version:
+        description: 'Resolved DAML release version from workflow metadata job'
+        required: true
 runs:
     using: composite
     steps:
@@ -13,20 +17,13 @@ runs:
               node-version: 'v24.9.0'
               cache: 'yarn'
 
-        - name: Resolve DAML release version
-          id: daml_release_version
-          shell: bash
-          run: |
-              VERSION=$(jq -r '.DAML_RELEASE_VERSION' scripts/src/lib/version-config.json | tr -d '\r\n')
-              echo "value=$VERSION" >> "$GITHUB_OUTPUT"
-
         - name: Restore DPM cache
           id: dpm_cache
           uses: actions/cache/restore@v5
           with:
               path: |
                   ~/.dpm
-              key: dpm-${{ runner.os }}-${{ steps.daml_release_version.outputs.value }}
+              key: dpm-${{ runner.os }}-${{ inputs.daml_release_version }}
 
         - name: Add DPM to PATH
           shell: bash

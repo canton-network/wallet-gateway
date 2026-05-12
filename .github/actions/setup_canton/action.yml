@@ -7,6 +7,14 @@ inputs:
     instance:
         description: 'Instance type: canton or localnet'
         required: true
+    canton_version:
+        description: 'Resolved Canton version (optional override)'
+        required: false
+        default: ''
+    splice_version:
+        description: 'Resolved Splice version (optional override)'
+        required: false
+        default: ''
     start_services:
         description: 'Whether to start canton/localnet services after setup'
         required: false
@@ -14,13 +22,14 @@ inputs:
 runs:
     using: 'composite'
     steps:
-        - name: Read version config
+        - name: Resolve versions
           id: version-config
           shell: bash
           run: |
-              CONFIG=$(cat scripts/src/lib/version-config.json)
               NETWORK="${{ inputs.network }}"
               INSTANCE="${{ inputs.instance }}"
+              CANTON_VERSION="${{ inputs.canton_version }}"
+              SPLICE_VERSION="${{ inputs.splice_version }}"
 
               if [ "$NETWORK" != "devnet" ] && [ "$NETWORK" != "mainnet" ]; then
                 echo "Invalid network '$NETWORK'. Expected one of: devnet, mainnet" >&2
@@ -32,13 +41,22 @@ runs:
                 exit 1
               fi
 
-              CANTON_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].canton.version')
+              if [ -z "$CANTON_VERSION" ] || { [ "$INSTANCE" == "localnet" ] && [ -z "$SPLICE_VERSION" ]; }; then
+                CONFIG=$(cat scripts/src/lib/version-config.json)
+              fi
+
+              if [ -z "$CANTON_VERSION" ]; then
+                CANTON_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].canton.version')
+              fi
+
+              if [ "$INSTANCE" == "localnet" ] && [ -z "$SPLICE_VERSION" ]; then
+                SPLICE_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].splice.version')
+              fi
 
               if [ "$INSTANCE" == "canton" ]; then
                 SPLICE_VERSION=""
-              else
-                SPLICE_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].splice.version')
               fi
+
               echo "canton_version=$CANTON_VERSION" >> $GITHUB_OUTPUT
               echo "splice_version=$SPLICE_VERSION" >> $GITHUB_OUTPUT
 

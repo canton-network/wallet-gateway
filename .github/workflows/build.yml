@@ -12,13 +12,39 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    version-config:
+        runs-on: ubuntu-latest
+        outputs:
+            daml_release_version: ${{ steps.version.outputs.daml_release_version }}
+            devnet_canton_version: ${{ steps.version.outputs.devnet_canton_version }}
+            mainnet_canton_version: ${{ steps.version.outputs.mainnet_canton_version }}
+            devnet_splice_version: ${{ steps.version.outputs.devnet_splice_version }}
+            mainnet_splice_version: ${{ steps.version.outputs.mainnet_splice_version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Resolve version config outputs
+              id: version
+              shell: bash
+              run: |
+                  CONFIG=$(cat scripts/src/lib/version-config.json)
+                  echo "daml_release_version=$(echo "$CONFIG" | jq -r '.DAML_RELEASE_VERSION' | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.splice.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.splice.version')" >> "$GITHUB_OUTPUT"
+
     build:
         runs-on: ubuntu-latest
+        needs: version-config
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - name: run codegen
               run: yarn generate:all
@@ -49,7 +75,7 @@ jobs:
     hydrate-canton-caches:
         name: hydrate-canton-caches (${{ matrix.network }}, ${{ matrix.instance }})
         runs-on: ubuntu-latest
-        needs: build
+        needs: [version-config, build]
         strategy:
             fail-fast: false
             matrix:
@@ -60,12 +86,16 @@ jobs:
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
                   instance: ${{ matrix.instance }}
                   start_services: 'false'
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
@@ -127,12 +157,14 @@ jobs:
 
     test-static:
         runs-on: ubuntu-latest
-        needs: build
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - name: Validate current PR title with commitlint
               run: echo "$TITLE" | yarn commitlint --verbose
@@ -159,7 +191,7 @@ jobs:
 
     test-unit:
         runs-on: ubuntu-latest
-        needs: build
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
@@ -167,6 +199,8 @@ jobs:
                   fetch-depth: 0
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_playwright
 
@@ -180,7 +214,7 @@ jobs:
     ping-e2e:
         name: ping-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: hydrate-canton-caches
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -190,11 +224,15 @@ jobs:
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
                   instance: canton
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - name: Start remote WK
               run: |
@@ -244,7 +282,7 @@ jobs:
     portfolio-e2e:
         name: portfolio-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: hydrate-canton-caches
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -253,11 +291,15 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
                   instance: localnet
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - name: Start remote WK
               run: yarn pm2 start ecosystem.ci.config.js --env development
@@ -301,7 +343,7 @@ jobs:
     wallet-sdk-snippets-e2e:
         name: wallet-sdk-snippets-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: hydrate-canton-caches
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -312,11 +354,15 @@ jobs:
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
                   instance: localnet
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
 
@@ -349,7 +395,7 @@ jobs:
     wallet-sdk-scripts-e2e:
         name: wallet-sdk-scripts-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: hydrate-canton-caches
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -360,11 +406,15 @@ jobs:
               uses: actions/checkout@v6
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_canton
               with:
                   network: ${{ matrix.network }}
                   instance: localnet
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
 
@@ -420,11 +470,13 @@ jobs:
 
     wallet-sdk-pkg:
         runs-on: ubuntu-latest
-        needs: build
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - name: Validate SDK package install
               run: yarn script:validate:package
