@@ -63,7 +63,8 @@ runs:
           run: yarn script:fetch:localnet --network=${{ inputs.network }}
 
         - name: Start Localnet
-          if: inputs.start_services == 'true'
+          # We start the localnet on a cache miss to download docker images
+          if: ${{ steps.localnet-cache.outputs.cache-hit != 'true' || inputs.start_services == 'true' }}
           shell: bash
           run: yarn start:localnet -- --network=${{ inputs.network }}
 
