@@ -23,6 +23,7 @@
         "yarn workspace": true,
         "git add": true,
         "yarn build": true,
-        "yarn nx": true
+        "yarn nx": true,
+        "git commit": true
     },
 }
