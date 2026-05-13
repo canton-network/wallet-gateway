@@ -97,6 +97,8 @@ function installDpmForCi(osType: NodeJS.Platform): void {
     const dpmBinDir = path.join(getDpmHomeDir(), 'bin')
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dpm-ci-'))
     const tarball = path.join(tmpDir, assetName)
+    const extractDir = path.join(tmpDir, 'extract')
+    const installedDpmPath = path.join(dpmBinDir, 'dpm')
 
     console.log(info(`Downloading ${downloadUrl}...`))
     execSync(`curl -fsSL "${downloadUrl}" -o "${tarball}"`, {
@@ -104,10 +106,24 @@ function installDpmForCi(osType: NodeJS.Platform): void {
     })
 
     fs.mkdirSync(dpmBinDir, { recursive: true })
-    execSync(`tar -xzf "${tarball}" -C "${dpmBinDir}" --strip-components=1`, {
+    fs.mkdirSync(extractDir, { recursive: true })
+    execSync(`tar -xzf "${tarball}" -C "${extractDir}"`, {
         stdio: 'inherit',
     })
-    fs.chmodSync(path.join(dpmBinDir, 'dpm'), 0o755)
+
+    const extractedBinary = execSync(
+        `find "${extractDir}" -type f -name dpm | head -n1`,
+        { encoding: 'utf8', shell: '/bin/bash' }
+    ).trim()
+
+    if (!extractedBinary) {
+        throw new Error(
+            `Could not find dpm binary in extracted archive: ${tarball}`
+        )
+    }
+
+    fs.copyFileSync(extractedBinary, installedDpmPath)
+    fs.chmodSync(installedDpmPath, 0o755)
 
     ensureDpmInPath()
     console.log(
