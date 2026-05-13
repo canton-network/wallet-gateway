@@ -802,17 +802,16 @@ export class LedgerClient {
         const response = await this.getWithRetry(
             '/v2/state/connected-synchronizers'
         )
-        if (!response.connectedSynchronizers?.[0]) {
+        const synchronizers = response.connectedSynchronizers ?? []
+        if (synchronizers.length === 0) {
             throw new Error('No connected synchronizers found')
         }
-        const synchronizerId = response.connectedSynchronizers[0].synchronizerId
-        if (response.connectedSynchronizers.length > 1) {
-            this.logger.warn(
-                `Found ${response.connectedSynchronizers.length} synchronizers, defaulting to ${synchronizerId}`
-            )
-        }
-        this.synchronizerId = synchronizerId
-        return synchronizerId
+        // Prefer the synchronizer aliased 'global'; fall back to the first entry.
+        const chosen =
+            synchronizers.find((s) => s.synchronizerAlias === 'global') ??
+            synchronizers[0]
+        this.synchronizerId = chosen.synchronizerId
+        return chosen.synchronizerId
     }
 
     public async postWithRetry<Path extends PostEndpoint>(

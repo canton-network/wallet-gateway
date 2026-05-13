@@ -151,9 +151,11 @@ export class SignedPartyCreationService {
         } = options
         const ledgerProvider = defaultLedgerProvider ?? this.ctx.ledgerProvider
         try {
-            const synchronizerId =
-                this.createPartyOptions?.synchronizerId ??
-                this.ctx.defaultSynchronizerId
+            const synchronizerId = this.createPartyOptions?.synchronizerId
+            if (!synchronizerId)
+                throw new Error(
+                    'synchronizerId is required for external party allocation — pass it via createPartyOptions.synchronizerId'
+                )
 
             await this.allocate(
                 ledgerProvider,

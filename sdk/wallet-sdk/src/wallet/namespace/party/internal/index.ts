@@ -50,9 +50,9 @@ export class InternalPartyNamespace {
                     body: {
                         partyIdHint: params.partyHint ?? v4(),
                         identityProviderId: '',
-                        synchronizerId:
-                            params.synchronizerId ??
-                            this.ctx.defaultSynchronizerId,
+                        ...(params.synchronizerId !== undefined && {
+                            synchronizerId: params.synchronizerId,
+                        }),
                         userId: params.userId ?? this.ctx.userId,
                     },
                 },

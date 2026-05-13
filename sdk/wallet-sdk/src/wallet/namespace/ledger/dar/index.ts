@@ -29,8 +29,7 @@ export class DarService {
                 resource: '/v2/packages',
                 requestMethod: 'post',
                 query: {
-                    synchronizerId:
-                        synchronizerId ?? this.sdkContext.defaultSynchronizerId,
+                    ...(synchronizerId !== undefined && { synchronizerId }),
                     vetAllPackages: vetAllPackages ?? true,
                 },
                 body: darBytes as never,

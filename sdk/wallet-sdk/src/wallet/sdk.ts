@@ -47,7 +47,6 @@ export type SDKContext = {
     userId: string
     logger: SDKLogger
     error: SDKErrorHandler
-    defaultSynchronizerId: string
 }
 
 export type OfflineSDKContext = {
@@ -124,11 +123,6 @@ export class SDK {
             })
         }
 
-        const defaultSynchronizerId = await getDefaultSynchronizerId(
-            ledgerProvider,
-            logger
-        )
-
         const acsReader = new AcsReader(ledgerProvider)
 
         const ctx: SDKContext = {
@@ -137,7 +131,6 @@ export class SDK {
             userId: userId!,
             logger,
             error,
-            defaultSynchronizerId,
         }
 
         const config = {} as Pick<
@@ -170,31 +163,4 @@ export class SDK {
     }
 }
 
-async function getDefaultSynchronizerId(
-    provider: AbstractLedgerProvider,
-    logger: SDKLogger
-) {
-    const connectedSynchronizers =
-        await provider.request<Ops.GetV2StateConnectedSynchronizers>({
-            method: 'ledgerApi',
-            params: {
-                resource: '/v2/state/connected-synchronizers',
-                requestMethod: 'get',
-                query: {},
-            },
-        })
 
-    if (!connectedSynchronizers.connectedSynchronizers?.[0]) {
-        throw new Error('No connected synchronizers found')
-    }
-
-    const defaultSynchronizerId =
-        connectedSynchronizers.connectedSynchronizers[0].synchronizerId
-    if (connectedSynchronizers.connectedSynchronizers.length > 1) {
-        logger.warn(
-            `Found ${connectedSynchronizers.connectedSynchronizers.length} synchronizers, defaulting to ${defaultSynchronizerId}`
-        )
-    }
-
-    return defaultSynchronizerId
-}
