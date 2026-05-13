@@ -98,8 +98,8 @@ export class SDK {
             .catch((err) => {
                 if (
                     //this is only the cause if authentication is completely disabled on the ledger.
-                    err.cause.contains(
-                        'the submitted request is missing a user-id'
+                    (err.cause as string).includes(
+                        'The submitted request is missing a user-id'
                     )
                 ) {
                     return undefined
