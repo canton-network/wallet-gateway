@@ -13,8 +13,9 @@ import {
     EXTENDED_SDK_OPTION_KEYS,
     ExtendedSDKOptions,
     BasicSDKOptions,
-    GetExtendedKeys,
     OfflineSDKInterface,
+    GetExtendedKeys,
+    SDKInterface,
 } from './init/types/sdk.js'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import { toURL } from './common.js'
@@ -27,6 +28,7 @@ import {
     type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import { AllowedLogAdapters } from './logger/types.js'
+import { DappLedgerRpc } from '@canton-network/core-provider-dapp'
 export * from './namespace/asset/index.js'
 export type * from './namespace/token/index.js'
 export type * from './namespace/amulet/index.js'
@@ -48,7 +50,7 @@ export type SDKContext = {
     defaultSynchronizerId: string
 }
 
-export type OfflineSdkContext = {
+export type OfflineSDKContext = {
     logger: SDKLogger
     error: SDKErrorHandler
 }
@@ -59,17 +61,20 @@ export * from './namespace/transactions/prepared.js'
 export * from './namespace/transactions/signed.js'
 
 export class SDK {
-    static async create<L extends LedgerRpc = LedgerRpc>(
-        options: BasicSDKOptions<L> & Partial<ExtendedSDKOptions>
-    ) {
+    static async create<
+        L extends LedgerRpc = DappLedgerRpc,
+        Options extends BasicSDKOptions<L> & Partial<ExtendedSDKOptions> =
+            BasicSDKOptions<L> & Partial<ExtendedSDKOptions>,
+    >(options: Options): Promise<SDKInterface<GetExtendedKeys<Options>>> {
         const logger = new SDKLogger(options.logAdapter ?? 'pino')
         const error = new SDKErrorHandler(logger)
+        let authTokenProvider: AuthTokenProvider | undefined
 
         const ledgerProvider =
             'ledgerProvider' in options
                 ? (options.ledgerProvider as AbstractLedgerProvider)
                 : (() => {
-                      const authTokenProvider = new AuthTokenProvider(
+                      authTokenProvider = new AuthTokenProvider(
                           options.auth,
                           logger
                       )
@@ -92,19 +97,24 @@ export class SDK {
             })
             .catch((err) => {
                 if (
-                    err.cause.contains(
-                        'he submitted request is missing a user-id'
+                    //this is only the cause if authentication is completely disabled on the ledger.
+                    (err.cause as string).includes(
+                        'The submitted request is missing a user-id'
                     )
                 ) {
-                    error.throw({
-                        message:
-                            'Wallet SDK does not support an unauthenticated ledger API. Please contact the participant operator and request they setup authentication.',
-                        type: 'Unauthenticated',
-                    })
+                    return undefined
                 } else throw err
             })
 
-        const userId = authenticatedUser?.user?.id
+        const userIdFromAuthContext =
+            !authenticatedUser?.user?.id && authTokenProvider
+                ? await authTokenProvider
+                      .getAuthContext()
+                      .then((authContext) => authContext.userId)
+                      .catch(() => undefined)
+                : undefined
+
+        const userId = authenticatedUser?.user?.id ?? userIdFromAuthContext
         if (!userId) {
             error.throw({
                 message: 'Not an authenticated user',

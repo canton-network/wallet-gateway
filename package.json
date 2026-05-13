@@ -9,6 +9,7 @@
         "start:canton:console": ".canton/bin/canton --config canton/canton.conf --bootstrap canton/bootstrap.canton",
         "stop:all": "yarn pm2 stop all",
         "stop:localnet": "tsx ./scripts/src/start-localnet.ts stop",
+        "pull:localnet": "tsx ./scripts/src/start-localnet.ts pull",
         "generate:dapp-remote": "yarn workspace @canton-network/core-rpc-generator build && yarn open-rpc-generator generate -c ./rpc-generator-config-dapp-remote.json",
         "generate:dapp": "yarn workspace @canton-network/core-rpc-generator build && yarn open-rpc-generator generate -c ./rpc-generator-config-dapp.json",
         "generate:user": "yarn workspace @canton-network/core-rpc-generator build && yarn open-rpc-generator generate -c ./rpc-generator-config-user.json",

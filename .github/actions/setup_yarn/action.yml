@@ -1,5 +1,13 @@
 name: Setup Yarn
 description: 'Setup Yarn for the project'
+inputs:
+    daml_release_version:
+        description: 'Resolved DAML release version from workflow metadata job'
+        required: true
+    save_cache:
+        description: 'Whether to save the DPM cache on a cache miss'
+        required: false
+        default: 'false'
 runs:
     using: composite
     steps:
@@ -13,20 +21,13 @@ runs:
               node-version: 'v24.9.0'
               cache: 'yarn'
 
-        - name: Resolve DAML release version
-          id: daml_release_version
-          shell: bash
-          run: |
-              VERSION=$(jq -r '.DAML_RELEASE_VERSION' scripts/src/lib/version-config.json)
-              echo "value=$VERSION" >> "$GITHUB_OUTPUT"
-
         - name: Restore DPM cache
           id: dpm_cache
           uses: actions/cache/restore@v5
           with:
               path: |
                   ~/.dpm
-              key: dpm-${{ runner.os }}-${{ steps.daml_release_version.outputs.value }}
+              key: dpm-${{ runner.os }}-${{ inputs.daml_release_version }}
 
         - name: Add DPM to PATH
           shell: bash
@@ -43,17 +44,18 @@ runs:
           run: rm -rf ~/.dpm/cache/oci-layout
 
         - name: Save DPM cache
-          if: ${{ github.workflow == 'build' && steps.dpm_cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
                   ~/.dpm
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.dpm_cache.outputs.cache-hit }}
 
         - name: Download build artifacts
           id: download_build_artifacts
           continue-on-error: true
-          uses: actions/download-artifact@v4
+          uses: actions/download-artifact@v5
           with:
               name: build-dist-${{ github.run_id }}
 
