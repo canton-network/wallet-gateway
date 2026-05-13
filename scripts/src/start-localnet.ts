@@ -78,7 +78,7 @@ if (command === 'pull') {
         stdio: 'inherit',
         env,
     })
-} else if(command === 'start') {
+} else if (command === 'start') {
     execFileSync(composeBase[0], [...composeBase.slice(1), 'up', '-d'], {
         stdio: 'inherit',
         env,
