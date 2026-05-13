@@ -62,8 +62,9 @@ runs:
               '
 
         - name: Save Canton cache
-          if: ${{ inputs.save_cache == 'true' && steps.canton-cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.canton-cache.outputs.cache-hit }}

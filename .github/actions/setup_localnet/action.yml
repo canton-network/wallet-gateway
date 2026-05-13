@@ -71,10 +71,12 @@ runs:
               fi
 
         - name: Save Localnet cache
-          if: ${{ inputs.save_cache == 'true' && steps.localnet-cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
                   .localnet/docker-compose/localnet
+                  .localnet/dars
                   /tmp/docker-images
-              key: ${{ runner.os }}-1-localnet-${{ inputs.splice_version }}
+              key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.localnet-cache.outputs.cache-hit }}
