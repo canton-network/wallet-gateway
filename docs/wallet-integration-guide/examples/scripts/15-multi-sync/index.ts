@@ -11,7 +11,7 @@ import {
     allocateTokenForBob,
     settleOtcTrade,
     aliceSelfTransferToApp,
-    bobReassignTokensToApp,
+    bobSelfTransferToApp,
     buildContractReadSpec,
 } from './_trade_ops.js'
 
@@ -98,7 +98,7 @@ await logAllContracts(logger, synchronizers, allPartySpecs)
 // ── Step 12: Self-transfer TestTokens back to app-synchronizer ─────────────────
 await Promise.all([
     aliceSelfTransferToApp(setup, logger),
-    bobReassignTokensToApp(setup, logger),
+    bobSelfTransferToApp(setup, logger),
 ])
 logger.info('Final contract state:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
