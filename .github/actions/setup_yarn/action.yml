@@ -27,7 +27,7 @@ runs:
           with:
               path: |
                   ~/.dpm
-              key: dpm-${{ runner.os }}-${{ inputs.daml_release_version }}
+              key: dpm-t-${{ runner.os }}-${{ inputs.daml_release_version }}
 
         - name: Add DPM to PATH
           shell: bash
