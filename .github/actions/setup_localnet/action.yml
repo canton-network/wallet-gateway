@@ -5,9 +5,8 @@ inputs:
         description: 'Network type: devnet or mainnet'
         required: true
     splice_version:
-        description: 'Resolved Splice version (optional override)'
-        required: false
-        default: ''
+        description: 'Splice version (required)'
+        required: true
     start_services:
         description: 'Whether to start localnet services after setup'
         required: false
@@ -23,34 +22,14 @@ inputs:
 runs:
     using: 'composite'
     steps:
-        - name: Resolve Splice version
-          id: version-config
-          shell: bash
-          run: |
-              NETWORK="${{ inputs.network }}"
-              SPLICE_VERSION="${{ inputs.splice_version }}"
-
-              if [ "$NETWORK" != "devnet" ] && [ "$NETWORK" != "mainnet" ]; then
-                echo "Invalid network '$NETWORK'. Expected one of: devnet, mainnet" >&2
-                exit 1
-              fi
-
-              if [ -z "$SPLICE_VERSION" ]; then
-                CONFIG=$(cat scripts/src/lib/version-config.json)
-                SPLICE_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].splice.version')
-              fi
-
-              echo "splice_version=$SPLICE_VERSION" >> $GITHUB_OUTPUT
-
         - name: Cache Localnet files
           uses: actions/cache/restore@v5
           id: localnet-cache
           with:
               path: |
                   .localnet/docker-compose/localnet
-                  .localnet/dars
                   /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
+              key: ${{ runner.os }}-1-localnet-${{ inputs.splice_version }}
               lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Load cached Docker images
@@ -78,7 +57,13 @@ runs:
           shell: bash
           run: |
               mkdir -p /tmp/docker-images
-              images=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" || true)
+              LOCALNET_DIR=.localnet/docker-compose/localnet
+              images=$(IMAGE_TAG=${{ inputs.splice_version }} docker compose \
+                --env-file "$LOCALNET_DIR/compose.env" \
+                --env-file "$LOCALNET_DIR/env/common.env" \
+                -f "$LOCALNET_DIR/compose.yaml" \
+                --profile sv --profile app-provider --profile app-user --profile multi-sync \
+                config --images 2>/dev/null || true)
               if [ -n "$images" ]; then
                 echo "$images" | xargs -r docker save -o /tmp/docker-images/images.tar
               else
@@ -91,6 +76,5 @@ runs:
           with:
               path: |
                   .localnet/docker-compose/localnet
-                  .localnet/dars
                   /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
+              key: ${{ runner.os }}-1-localnet-${{ inputs.splice_version }}
