@@ -64,12 +64,13 @@ export class SDK {
     ) {
         const logger = new SDKLogger(options.logAdapter ?? 'pino')
         const error = new SDKErrorHandler(logger)
+        let authTokenProvider: AuthTokenProvider | undefined
 
         const ledgerProvider =
             'ledgerProvider' in options
                 ? (options.ledgerProvider as AbstractLedgerProvider)
                 : (() => {
-                      const authTokenProvider = new AuthTokenProvider(
+                      authTokenProvider = new AuthTokenProvider(
                           options.auth,
                           logger
                       )
@@ -92,19 +93,24 @@ export class SDK {
             })
             .catch((err) => {
                 if (
+                    //this is only the cause if authentication is completely disabled on the ledger.
                     err.cause.contains(
-                        'he submitted request is missing a user-id'
+                        'the submitted request is missing a user-id'
                     )
                 ) {
-                    error.throw({
-                        message:
-                            'Wallet SDK does not support an unauthenticated ledger API. Please contact the participant operator and request they setup authentication.',
-                        type: 'Unauthenticated',
-                    })
+                    return undefined
                 } else throw err
             })
 
-        const userId = authenticatedUser?.user?.id
+        const userIdFromAuthContext =
+            !authenticatedUser?.user?.id && authTokenProvider
+                ? await authTokenProvider
+                      .getAuthContext()
+                      .then((authContext) => authContext.userId)
+                      .catch(() => undefined)
+                : undefined
+
+        const userId = authenticatedUser?.user?.id ?? userIdFromAuthContext
         if (!userId) {
             error.throw({
                 message: 'Not an authenticated user',
