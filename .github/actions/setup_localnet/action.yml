@@ -62,12 +62,7 @@ runs:
           run: |
               mkdir -p /tmp/docker-images
               LOCALNET_DIR=.localnet/docker-compose/localnet
-              images=$(IMAGE_TAG=${{ inputs.splice_version }} docker compose \
-                --env-file "$LOCALNET_DIR/compose.env" \
-                --env-file "$LOCALNET_DIR/env/common.env" \
-                -f "$LOCALNET_DIR/compose.yaml" \
-                --profile sv --profile app-provider --profile app-user --profile multi-sync \
-                config --images 2>/dev/null || true)
+              images=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" || true)
               if [ -n "$images" ]; then
                 echo "$images" | xargs -r docker save -o /tmp/docker-images/images.tar
               else
