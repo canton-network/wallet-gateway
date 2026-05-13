@@ -7,6 +7,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import {
     DAML_RELEASE_VERSION,
+    repoRoot,
     info,
     success,
     error,
@@ -20,6 +21,107 @@ function getDpmHomeDir(): string {
     }
 
     return path.join(os.homedir(), '.dpm')
+}
+
+const DPM_STANDALONE_VERSION = '1.0.16'
+const DPM_GITHUB_RELEASE_BASE = `https://github.com/digital-asset/dpm/releases/download/${DPM_STANDALONE_VERSION}`
+
+function isCiMode(): boolean {
+    return process.env.CI?.toLowerCase() === 'true'
+}
+
+function getStandaloneAssetName(osType: NodeJS.Platform, arch: string): string {
+    const osName =
+        osType === 'linux' ? 'linux' : osType === 'darwin' ? 'darwin' : null
+    const archName =
+        arch === 'x64' ? 'amd64' : arch === 'arm64' ? 'arm64' : null
+
+    if (!osName || !archName) {
+        throw new Error(
+            `Unsupported OS/arch for CI DPM install: ${osType}/${arch}`
+        )
+    }
+
+    return `dpm-${DPM_STANDALONE_VERSION}-${osName}-${archName}.tar.gz`
+}
+
+function installDpmForNormal(osType: NodeJS.Platform): void {
+    console.log(
+        info(
+            `== Installing DPM (normal mode) version ${DAML_RELEASE_VERSION} for ${osType} ==`
+        )
+    )
+    if (osType === 'linux' || osType === 'darwin') {
+        console.log(info('Downloading and running DPM installation script...'))
+        execSync(
+            `curl -sSL https://get.digitalasset.com/install/install.sh | sh -s ${DAML_RELEASE_VERSION}`,
+            { stdio: 'inherit' }
+        )
+        ensureDpmInPath()
+        console.log(info(`Installing SDK version ${DAML_RELEASE_VERSION}...`))
+        execSync(`dpm install ${DAML_RELEASE_VERSION}`, { stdio: 'inherit' })
+        console.log(success('== DPM installation complete =='))
+        console.log(
+            warn(
+                'Note: You may need to restart your terminal or run "source ~/.bashrc" (or ~/.zshrc) for PATH changes to take effect in new shells.'
+            )
+        )
+    } else if (osType === 'win32') {
+        console.log(
+            info(
+                'For Windows, please install DPM manually from https://docs.digitalasset.com/build/3.4/dpm/dpm.html'
+            )
+        )
+        console.log(info('After installation, run: dpm install'))
+        process.exit(1)
+    } else {
+        console.log(
+            error(
+                `Unsupported OS: ${osType}. Please install DPM manually from https://docs.digitalasset.com/build/3.4/dpm/dpm.html`
+            )
+        )
+        process.exit(1)
+    }
+}
+
+function installDpmForCi(osType: NodeJS.Platform): void {
+    console.log(
+        info(
+            `== Installing DPM (CI mode) standalone v${DPM_STANDALONE_VERSION} for ${osType} ==`
+        )
+    )
+
+    const arch = os.arch()
+    const assetName = getStandaloneAssetName(osType, arch)
+    const downloadUrl = `${DPM_GITHUB_RELEASE_BASE}/${assetName}`
+    const dpmBinDir = path.join(getDpmHomeDir(), 'bin')
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dpm-ci-'))
+    const tarball = path.join(tmpDir, assetName)
+
+    console.log(info(`Downloading ${downloadUrl}...`))
+    execSync(`curl -fsSL "${downloadUrl}" -o "${tarball}"`, {
+        stdio: 'inherit',
+    })
+
+    fs.mkdirSync(dpmBinDir, { recursive: true })
+    execSync(`tar -xzf "${tarball}" -C "${dpmBinDir}" --strip-components=1`, {
+        stdio: 'inherit',
+    })
+    fs.chmodSync(path.join(dpmBinDir, 'dpm'), 0o755)
+
+    ensureDpmInPath()
+    console.log(
+        success(`== DPM standalone v${DPM_STANDALONE_VERSION} installed ==`)
+    )
+
+    const tokenStandardDir = path.join(
+        repoRoot,
+        'damljs',
+        'token-standard-models'
+    )
+    console.log(info(`Running 'dpm install package' in ${tokenStandardDir}...`))
+    execSync('dpm install package', { cwd: tokenStandardDir, stdio: 'inherit' })
+    console.log(success('== DPM components installed =='))
 }
 
 /**
@@ -112,6 +214,8 @@ function compareDpmVersionWithDesired(desiredVersion: string): boolean {
  * DPM is the recommended way to manage Daml projects
  */
 export async function installDPM() {
+    const ciMode = isCiMode()
+
     // First, ensure DPM is in PATH if it's already installed
     ensureDpmInPath()
 
@@ -124,50 +228,11 @@ export async function installDPM() {
 
     const osType = os.platform()
 
-    console.log(
-        info(
-            `== Installing DPM (Daml Package Manager) version ${DAML_RELEASE_VERSION} for ${osType} ==`
-        )
-    )
-
     try {
-        // Install DPM using the official installation script
-        // The script automatically detects the OS and installs the appropriate version
-        if (osType === 'linux' || osType === 'darwin') {
-            console.log(
-                info('Downloading and running DPM installation script...')
-            )
-            execSync(
-                `curl -sSL https://get.digitalasset.com/install/install.sh | sh -s ${DAML_RELEASE_VERSION}`,
-                { stdio: 'inherit' }
-            )
-
-            // After installation, ensure DPM is in PATH
-            ensureDpmInPath()
-
-            console.log(success('== DPM installation complete =='))
-            if (process.env.CI !== 'true') {
-                console.log(
-                    warn(
-                        'Note: You may need to restart your terminal or run "source ~/.bashrc" (or ~/.zshrc) for PATH changes to take effect in new shells.'
-                    )
-                )
-            }
-        } else if (osType === 'win32') {
-            console.log(
-                info(
-                    'For Windows, please install DPM manually from https://docs.digitalasset.com/build/3.4/dpm/dpm.html'
-                )
-            )
-            console.log(info('After installation, run: dpm install'))
-            process.exit(1)
+        if (ciMode) {
+            installDpmForCi(osType)
         } else {
-            console.log(
-                error(
-                    `Unsupported OS: ${osType}. Please install DPM manually from https://docs.digitalasset.com/build/3.4/dpm/dpm.html`
-                )
-            )
-            process.exit(1)
+            installDpmForNormal(osType)
         }
     } catch (err) {
         console.error(error(`Failed to install DPM: ${err}`))

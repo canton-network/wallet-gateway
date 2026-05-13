@@ -67,70 +67,7 @@ export async function copyDamlFiles(
  */
 export function runDamlBuild(workingDir: string): void {
     console.log(info('Running "dpm build"...'))
-    try {
-        // Capture stdout/stderr to check for SDK_NOT_INSTALLED
-        const output = execSync('dpm build', {
-            cwd: workingDir,
-            encoding: 'utf-8',
-        })
-        console.log(output)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-        // Capture stdout/stderr from the error
-        const stdout = err.stdout?.toString() || ''
-        const stderr = err.stderr?.toString() || ''
-        const combinedOutput = stdout + stderr
-
-        // Display the output
-        if (stdout) console.log(stdout)
-        if (stderr) console.error(stderr)
-
-        // Check if SDK is not installed
-        if (combinedOutput.includes('SDK_NOT_INSTALLED')) {
-            console.log(warn('SDK not installed, attempting to install...'))
-
-            // Extract the install command from the output
-            // Pattern: "via 'dpm install X.X.X...'"
-            const installMatch = combinedOutput.match(
-                /via\s+'dpm install ([^']+)'/
-            )
-
-            if (installMatch && installMatch[1]) {
-                const version = installMatch[1]
-                console.log(info(`Installing SDK version: ${version}`))
-
-                try {
-                    execSync(`dpm install ${version}`, {
-                        cwd: workingDir,
-                        stdio: 'inherit',
-                    })
-
-                    console.log(info('SDK installed, retrying build...'))
-                    execSync('dpm build', {
-                        cwd: workingDir,
-                        stdio: 'inherit',
-                    })
-                    return
-                } catch (installErr) {
-                    console.error(
-                        error(
-                            `Failed to install SDK or retry build: ${installErr}`
-                        )
-                    )
-                    throw installErr
-                }
-            } else {
-                console.error(
-                    error(
-                        'Could not extract install command from error message'
-                    )
-                )
-            }
-        }
-
-        // Re-throw if not SDK_NOT_INSTALLED or if we couldn't handle it
-        throw err
-    }
+    execSync('dpm build', { cwd: workingDir, stdio: 'inherit' })
 }
 
 /**
