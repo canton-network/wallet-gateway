@@ -142,8 +142,6 @@ yarn script:test:examples
 
 If `splice-token-test-trading-app-1.0.0.dar` is missing from `.localnet/dars/`, run
 `yarn script:fetch:localnet` from the repository root.
-If `splice-test-token-v1-1.0.0.dar` is missing from the script directory, it has been
-accidentally deleted — restore it from version control.
 
 ### Expected output
 
