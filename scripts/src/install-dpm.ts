@@ -130,13 +130,9 @@ function installDpmForCi(osType: NodeJS.Platform): void {
         success(`== DPM standalone v${DPM_STANDALONE_VERSION} installed ==`)
     )
 
-    const tokenStandardDir = path.join(
-        repoRoot,
-        'damljs',
-        'token-standard-models'
-    )
-    console.log(info(`Running 'dpm install package' in ${tokenStandardDir}...`))
-    execSync('dpm install package', { cwd: tokenStandardDir, stdio: 'inherit' })
+    const ciDpmConfigDir = path.join(repoRoot, 'scripts', 'src', 'ci')
+    console.log(info(`Running 'dpm install package' in ${ciDpmConfigDir}...`))
+    execSync('dpm install package', { cwd: ciDpmConfigDir, stdio: 'inherit' })
     console.log(success('== DPM components installed =='))
 }
 
