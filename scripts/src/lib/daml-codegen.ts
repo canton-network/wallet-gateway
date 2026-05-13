@@ -74,11 +74,11 @@ export function runDamlBuild(workingDir: string): void {
  * Run dpm codegen js for a DAR file
  * Generates JavaScript/TypeScript bindings from compiled DAR
  */
-export function runDamlCodegen(workingDir: string, darFileName: string): void {
+export function runDamlCodegen(workingDir: string): void {
     console.log(info('Running "dpm codegen-js"...'))
     try {
         console.log(info(`dpm codegen-js`))
-        execSync(`dpm codegen-js .daml/dist/${darFileName} -o .`, {
+        execSync(`dpm codegen-js`, {
             cwd: workingDir,
             stdio: 'inherit',
         })
@@ -116,6 +116,5 @@ export async function generateDamlJsBindings(
         return
     }
 
-    const darFileName = `${config.packageName}-${config.version}.dar`
-    runDamlCodegen(config.destDir, darFileName)
+    runDamlCodegen(config.destDir)
 }
