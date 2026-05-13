@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-signing-dfns",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "type": "module",
     "description": "Dfns signing driver for Canton Network Wallet Gateway",
     "license": "Apache-2.0",
