@@ -74,6 +74,10 @@ export const BOB_TOKEN_MINT_AMOUNT = '500'
 export const TRADE_AMULET_AMOUNT = '100'
 export const TRADE_TOKEN_AMOUNT = '20'
 
+const MS_30_MIN = 30 * 60 * 1000
+const MS_1_HOUR = 60 * 60 * 1000
+const MS_24_HOURS = 24 * 60 * 60 * 1000
+
 export async function mintAmuletForAlice(
     setup: MultiSyncSetup,
     logger: Logger
@@ -237,11 +241,9 @@ export async function createTokenRulesAndMintForBob(
                                     admin: tokenAdmin.partyId,
                                     id: 'TestToken',
                                 },
-                                requestedAt: new Date(
-                                    Date.now() - 60_000
-                                ).toISOString(),
+                                requestedAt: new Date(Date.now()).toISOString(),
                                 executeBefore: new Date(
-                                    Date.now() + 86_400_000
+                                    Date.now() + MS_24_HOURS
                                 ).toISOString(),
                                 inputHoldingCids: [adminTokenCid],
                                 meta: { values: {} },
@@ -371,8 +373,8 @@ export async function createAndInitiateOtcTrade(
         .execute({ partyId: bob.partyId })
     logger.info('Bob: OTCTradeProposal_Accept executed')
 
-    const prepareUntil = new Date(Date.now() + 1800 * 1000).toISOString()
-    const settleBefore = new Date(Date.now() + 3600 * 1000).toISOString()
+    const prepareUntil = new Date(Date.now() + MS_30_MIN).toISOString()
+    const settleBefore = new Date(Date.now() + MS_1_HOUR).toISOString()
 
     await p3Sdk.ledger
         .prepare({
@@ -533,7 +535,7 @@ export async function allocateTokenForBob(
                 admin: tokenAdmin.partyId,
             },
             inputUtxos: [tokenHolding.contractId],
-            requestedAt: new Date(Date.now() - 60_000).toISOString(),
+            requestedAt: new Date(Date.now()).toISOString(),
             prefetchedRegistryChoiceContext: {
                 factoryId: tokenRulesOnGlobal.contractId,
                 choiceContext: {
@@ -695,11 +697,9 @@ export async function aliceSelfTransferToApp(
                                     admin: tokenAdmin.partyId,
                                     id: 'TestToken',
                                 },
-                                requestedAt: new Date(
-                                    Date.now() - 60_000
-                                ).toISOString(),
+                                requestedAt: new Date(Date.now()).toISOString(),
                                 executeBefore: new Date(
-                                    Date.now() + 86_400_000
+                                    Date.now() + MS_24_HOURS
                                 ).toISOString(),
                                 inputHoldingCids: [aliceTokenCid],
                                 meta: { values: {} },
