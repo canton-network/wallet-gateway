@@ -73,18 +73,16 @@ const env = { ...process.env, IMAGE_TAG: spliceVersion }
 
 ensureComposeOverride()
 
-if (command === 'start' || command === 'pull') {
-    if (command === 'pull') {
-        execFileSync(composeBase[0], [...composeBase.slice(1), 'pull'], {
-            stdio: 'inherit',
-            env,
-        })
-    } else {
-        execFileSync(composeBase[0], [...composeBase.slice(1), 'up', '-d'], {
-            stdio: 'inherit',
-            env,
-        })
-    }
+if (command === 'pull') {
+    execFileSync(composeBase[0], [...composeBase.slice(1), 'pull'], {
+        stdio: 'inherit',
+        env,
+    })
+} else if(command === 'start') {
+    execFileSync(composeBase[0], [...composeBase.slice(1), 'up', '-d'], {
+        stdio: 'inherit',
+        env,
+    })
 } else if (command === 'stop') {
     execFileSync(composeBase[0], [...composeBase.slice(1), 'down', '-v'], {
         stdio: 'inherit',
