@@ -53,7 +53,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
         },
         {
             label: PARTY_HINT_TOKEN_ADMIN,
-            sdk: p2Sdk,
+            sdk: p3Sdk,
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
         },
@@ -137,11 +137,17 @@ export async function createTokenRulesAndMintForBob(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p2Sdk, bob, tokenAdmin, globalSynchronizerId, appSynchronizerId } =
-        setup
+    const {
+        p2Sdk,
+        p3Sdk,
+        bob,
+        tokenAdmin,
+        globalSynchronizerId,
+        appSynchronizerId,
+    } = setup
 
     await Promise.all([
-        p2Sdk.ledger
+        p3Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -155,7 +161,7 @@ export async function createTokenRulesAndMintForBob(
             })
             .sign(tokenAdmin.keyPair.privateKey)
             .execute({ partyId: tokenAdmin.partyId }),
-        p2Sdk.ledger
+        p3Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -171,7 +177,7 @@ export async function createTokenRulesAndMintForBob(
             .execute({ partyId: tokenAdmin.partyId }),
     ])
 
-    await p2Sdk.ledger
+    await p3Sdk.ledger
         .prepare({
             partyId: tokenAdmin.partyId,
             commands: [
@@ -200,12 +206,12 @@ export async function createTokenRulesAndMintForBob(
         .execute({ partyId: tokenAdmin.partyId })
 
     const [tokenRulesContracts, adminTokenHoldings] = await Promise.all([
-        p2Sdk.ledger.acs.read({
+        p3Sdk.ledger.acs.read({
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
             filterByParty: true,
         }),
-        p2Sdk.ledger.acs.read({
+        p3Sdk.ledger.acs.read({
             templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
             parties: [tokenAdmin.partyId],
             filterByParty: true,
@@ -222,7 +228,7 @@ export async function createTokenRulesAndMintForBob(
     if (!adminTokenCid)
         throw new Error('TokenAdmin Token holding not found after mint')
 
-    await p2Sdk.ledger
+    await p3Sdk.ledger
         .prepare({
             partyId: tokenAdmin.partyId,
             commands: [
@@ -478,8 +484,14 @@ export async function allocateTokenForBob(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<{ legId: string }> {
-    const { p2Sdk, tokenNamespaceP2, bob, tokenAdmin, globalSynchronizerId } =
-        setup
+    const {
+        p2Sdk,
+        p3Sdk,
+        tokenNamespaceP2,
+        bob,
+        tokenAdmin,
+        globalSynchronizerId,
+    } = setup
 
     const pendingRequests = await tokenNamespaceP2.allocation.request.pending(
         bob.partyId
@@ -496,7 +508,7 @@ export async function allocateTokenForBob(
             parties: [bob.partyId],
             filterByParty: true,
         }),
-        p2Sdk.ledger.acs.read({
+        p3Sdk.ledger.acs.read({
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
             filterByParty: true,
@@ -656,7 +668,7 @@ export async function aliceSelfTransferToApp(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p1Sdk, p2Sdk, alice, tokenAdmin, appSynchronizerId } = setup
+    const { p1Sdk, p3Sdk, alice, tokenAdmin, appSynchronizerId } = setup
 
     const [aliceTokens, tokenRulesContracts] = await Promise.all([
         p1Sdk.ledger.acs.read({
@@ -664,7 +676,7 @@ export async function aliceSelfTransferToApp(
             parties: [alice.partyId],
             filterByParty: true,
         }),
-        p2Sdk.ledger.acs.read({
+        p3Sdk.ledger.acs.read({
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
             filterByParty: true,
@@ -731,38 +743,95 @@ export async function aliceSelfTransferToApp(
     )
 }
 
-export async function bobReassignTokensToApp(
+export async function bobSelfTransferToApp(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p2Sdk, bob, globalSynchronizerId, appSynchronizerId } = setup
+    const { p2Sdk, p3Sdk, bob, tokenAdmin, appSynchronizerId } = setup
 
-    const bobTokens = await p2Sdk.ledger.acs.read({
-        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-        parties: [bob.partyId],
-        filterByParty: true,
-    })
+    const [bobTokens, tokenRulesContracts] = await Promise.all([
+        p2Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+            parties: [bob.partyId],
+            filterByParty: true,
+        }),
+        p3Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
+            parties: [tokenAdmin.partyId],
+            filterByParty: true,
+        }),
+    ])
 
-    const globalTokens = bobTokens.filter(
-        (c) => c.synchronizerId === globalSynchronizerId
-    )
-    if (globalTokens.length === 0) {
-        logger.info(
-            'Bob: no TestToken holdings on global synchronizer to reassign'
-        )
+    if (bobTokens.length === 0) {
+        logger.info('Bob: no TestToken holdings to self-transfer')
         return
     }
+    const tokenRules = tokenRulesContracts.find(
+        (c) => c.synchronizerId === appSynchronizerId
+    )
+    if (!tokenRules) throw new Error('TokenRules not found on app-synchronizer')
 
-    for (const token of globalTokens) {
-        await p2Sdk.ledger.internal.reassign({
-            submitter: bob.partyId,
-            contractId: token.contractId,
-            source: globalSynchronizerId,
-            target: appSynchronizerId,
-        })
+    for (const token of bobTokens) {
+        const holdingAmount = (
+            token as unknown as {
+                createArgument: { holding: { amount: string } }
+            }
+        ).createArgument?.holding?.amount
+        if (!holdingAmount)
+            throw new Error('Cannot read amount from Bob Token holding')
+
+        await p2Sdk.ledger
+            .prepare({
+                partyId: bob.partyId,
+                commands: [
+                    {
+                        ExerciseCommand: {
+                            templateId: TRANSFER_FACTORY_IFACE,
+                            contractId: tokenRules.contractId,
+                            choice: 'TransferFactory_Transfer',
+                            choiceArgument: {
+                                expectedAdmin: tokenAdmin.partyId,
+                                transfer: {
+                                    sender: bob.partyId,
+                                    receiver: bob.partyId,
+                                    amount: holdingAmount,
+                                    instrumentId: {
+                                        admin: tokenAdmin.partyId,
+                                        id: 'TestToken',
+                                    },
+                                    requestedAt: new Date(
+                                        Date.now()
+                                    ).toISOString(),
+                                    executeBefore: new Date(
+                                        Date.now() + MS_24_HOURS
+                                    ).toISOString(),
+                                    inputHoldingCids: [token.contractId],
+                                    meta: { values: {} },
+                                },
+                                extraArgs: {
+                                    context: { values: {} },
+                                    meta: { values: {} },
+                                },
+                            },
+                        },
+                    },
+                ],
+                disclosedContracts: [
+                    {
+                        templateId: tokenRules.templateId,
+                        contractId: tokenRules.contractId,
+                        createdEventBlob: tokenRules.createdEventBlob!,
+                        synchronizerId: tokenRules.synchronizerId,
+                    },
+                ],
+                synchronizerId: appSynchronizerId,
+            })
+            .sign(bob.keyPair.privateKey)
+            .execute({ partyId: bob.partyId })
     }
 
     logger.info(
-        `Bob: ${globalTokens.length} TestToken holding(s) reassigned to app-synchronizer`
+        `Bob: TestToken self-transferred on app-synchronizer ` +
+            `(Canton auto-reassigned Bob's Token from global → app)`
     )
 }

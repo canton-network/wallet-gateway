@@ -155,26 +155,23 @@ export async function setupMultiSyncTrade(
         fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
     ])
 
-    // P1 and P2 vet DARs on both synchronizers; P3 vets on global only
-    await Promise.all([
-        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
+    // P1, P2 and P3 vet DARs on both synchronizers
+    await Promise.all(
+        [p1SdkCtx, p2SdkCtx, p3SdkCtx].flatMap((ctx) =>
             [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
                 [tradingAppDar, testTokenV1Dar].map((dar) =>
                     vetDar(ctx.ledgerProvider, dar, sid)
                 )
             )
-        ),
-        ...[tradingAppDar, testTokenV1Dar].map((dar) =>
-            vetDar(p3SdkCtx.ledgerProvider, dar, globalSynchronizerId)
-        ),
-    ])
-    logger.info('DARs vetted: P1+P2 on both synchronizers, P3 on global only')
+        )
+    )
+    logger.info('DARs vetted: P1+P2+P3 on both synchronizers')
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
     const aliceKey = p1Sdk.keys.generate()
     const bobKey = p1Sdk.keys.generate()
     const tradingAppKey = p1Sdk.keys.generate()
-    const tokenAdminKey = p2Sdk.keys.generate()
+    const tokenAdminKey = p3Sdk.keys.generate()
 
     const [
         allocatedAlice,
@@ -203,7 +200,7 @@ export async function setupMultiSyncTrade(
             })
             .sign(tradingAppKey.privateKey)
             .execute(),
-        p2Sdk.party.external
+        p3Sdk.party.external
             .create(tokenAdminKey.publicKey, {
                 partyHint: PARTY_HINT_TOKEN_ADMIN,
                 synchronizerId: globalSynchronizerId,
@@ -224,7 +221,7 @@ export async function setupMultiSyncTrade(
     }
 
     logger.info(
-        `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P2)`
+        `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P3)`
     )
 
     // Register Alice, Bob, and TokenAdmin on app-synchronizer so they can transact there.
@@ -243,7 +240,7 @@ export async function setupMultiSyncTrade(
             })
             .sign(bob.keyPair.privateKey)
             .execute({ grantUserRights: false }),
-        p2Sdk.party.external
+        p3Sdk.party.external
             .create(tokenAdmin.keyPair.publicKey, {
                 partyHint: tokenAdmin.partyId.split('::')[0],
                 synchronizerId: appSynchronizerId,
