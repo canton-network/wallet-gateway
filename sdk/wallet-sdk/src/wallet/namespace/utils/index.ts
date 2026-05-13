@@ -4,12 +4,12 @@
 import { HashNamespace } from './hash/service.js'
 import { PingService } from './ping/index.js'
 
-import { OfflineSdkContext } from '../../sdk.js'
+import { OfflineSDKContext } from '../../sdk.js'
 
 export class SDKUtilsNamespace {
     public readonly ping: PingService
     public readonly hash: HashNamespace
-    constructor(ctx: OfflineSdkContext) {
+    constructor(ctx: OfflineSDKContext) {
         this.ping = new PingService()
         this.hash = new HashNamespace(ctx)
     }

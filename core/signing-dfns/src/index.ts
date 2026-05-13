@@ -113,7 +113,11 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                         }
                     }
 
-                    const sig = await this.dfns.signHash(keyId, params.txHash)
+                    const sig = await this.dfns.signHash(
+                        keyId,
+                        params.txHash,
+                        params.internalTxId
+                    )
 
                     return toTransaction(sig, params.keyIdentifier.publicKey)
                 } catch (error) {

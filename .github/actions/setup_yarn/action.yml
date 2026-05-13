@@ -44,12 +44,13 @@ runs:
           run: rm -rf ~/.dpm/cache/oci-layout
 
         - name: Save DPM cache
-          if: ${{ inputs.save_cache == 'true' && steps.dpm_cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
                   ~/.dpm
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.dpm_cache.outputs.cache-hit }}
 
         - name: Download build artifacts
           id: download_build_artifacts

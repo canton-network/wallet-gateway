@@ -5,9 +5,8 @@ inputs:
         description: 'Network type: devnet or mainnet'
         required: true
     canton_version:
-        description: 'Resolved Canton version (optional override)'
-        required: false
-        default: ''
+        description: 'Canton version (required)'
+        required: true
     start_services:
         description: 'Whether to start canton services after setup'
         required: false
@@ -23,31 +22,12 @@ inputs:
 runs:
     using: 'composite'
     steps:
-        - name: Resolve Canton version
-          id: version-config
-          shell: bash
-          run: |
-              NETWORK="${{ inputs.network }}"
-              CANTON_VERSION="${{ inputs.canton_version }}"
-
-              if [ "$NETWORK" != "devnet" ] && [ "$NETWORK" != "mainnet" ]; then
-                echo "Invalid network '$NETWORK'. Expected one of: devnet, mainnet" >&2
-                exit 1
-              fi
-
-              if [ -z "$CANTON_VERSION" ]; then
-                CONFIG=$(cat scripts/src/lib/version-config.json)
-                CANTON_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].canton.version')
-              fi
-
-              echo "canton_version=$CANTON_VERSION" >> $GITHUB_OUTPUT
-
         - name: Cache Canton binaries
           uses: actions/cache/restore@v5
           id: canton-cache
           with:
               path: .canton
-              key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
+              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
               lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Download Canton
@@ -82,8 +62,9 @@ runs:
               '
 
         - name: Save Canton cache
-          if: ${{ inputs.save_cache == 'true' && steps.canton-cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: .canton
-              key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
+              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.canton-cache.outputs.cache-hit }}

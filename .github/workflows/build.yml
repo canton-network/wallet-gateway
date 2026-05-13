@@ -148,7 +148,7 @@ jobs:
             # load cached venv if cache exists
             - name: Load cached venv
               id: cached-poetry-dependencies
-              uses: actions/cache@v5
+              uses: actions/cache/restore@v5
               with:
                   path: docs/wallet-integration-guide/.venv
                   key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
@@ -158,6 +158,13 @@ jobs:
               if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
               working-directory: docs/wallet-integration-guide
               run: poetry install --no-interaction --no-root
+
+            - name: Save venv cache
+              uses: ./.github/actions/save_cache_if_absent
+              with:
+                  path: docs/wallet-integration-guide/.venv
+                  key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
+                  initial_cache_hit: ${{ steps.cached-poetry-dependencies.outputs.cache-hit }}
 
             - name: Build docs
               working-directory: docs/wallet-integration-guide
