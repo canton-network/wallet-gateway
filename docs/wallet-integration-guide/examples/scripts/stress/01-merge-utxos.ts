@@ -4,6 +4,7 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
+    getGlobalSynchronizerId,
 } from '../utils/index.js'
 import { batchTap } from './utils.js'
 import Decimal from 'decimal.js'
@@ -19,9 +20,12 @@ const sdk = await SDK.create({
 
 const aliceKeys = sdk.keys.generate()
 
+const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
+
 const alice = await sdk.party.external
     .create(aliceKeys.publicKey, {
         partyHint: 'v1-06-alice',
+        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeys.privateKey)
     .execute()

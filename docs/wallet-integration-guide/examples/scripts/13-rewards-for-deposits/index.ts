@@ -4,6 +4,7 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
+    getGlobalSynchronizerId,
 } from '../utils/index.js'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -34,9 +35,12 @@ const sdk = await SDK.create({
 const aliceKeys = sdk.keys.generate()
 const treasuryKeys = sdk.keys.generate()
 
+const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
+
 const alice = await sdk.party.external
     .create(aliceKeys.publicKey, {
         partyHint: 'v1-13-alice',
+        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeys.privateKey)
     .execute()
@@ -44,6 +48,7 @@ const alice = await sdk.party.external
 const treasury = await sdk.party.external
     .create(treasuryKeys.publicKey, {
         partyHint: 'v1-13-treasury',
+        synchronizerId: globalSynchronizerId,
     })
     .sign(treasuryKeys.privateKey)
     .execute()

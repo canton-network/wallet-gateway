@@ -10,6 +10,7 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
+    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
@@ -35,9 +36,12 @@ const sdkOptions = {
 const sdk = await SDK.create<LedgerTypes, typeof sdkOptions>(sdkOptions)
 const senderKeys = sdk.keys.generate()
 
+const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
+
 const sender = await sdk.party.external
     .create(senderKeys.publicKey, {
         partyHint: 'v1-10-alice',
+        synchronizerId: globalSynchronizerId,
     })
     .sign(senderKeys.privateKey)
     .execute()
@@ -50,6 +54,7 @@ const receiverPartyCreation = sdk.party.external.create(
     receiverKeys.publicKey,
     {
         partyHint: 'v1-10-bob',
+        synchronizerId: globalSynchronizerId,
     }
 )
 

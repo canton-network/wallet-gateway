@@ -4,7 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
 import { KeyPair } from '@canton-network/core-signing-lib'
-import { ASSET_CONFIG } from './utils/index.js'
+import { ASSET_CONFIG, getGlobalSynchronizerId } from './utils/index.js'
 import { GenerateTransactionResponse } from '@canton-network/core-ledger-client'
 import {
     TOKEN_NAMESPACE_CONFIG,
@@ -47,6 +47,8 @@ const tradingDarPath = path.join(
 const darBytes = await fs.readFile(tradingDarPath)
 await sdk.ledger.dar.upload(darBytes, TRADING_APP_PACKAGE_ID)
 
+const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
+
 //allocate parties
 const allocatedParties = await Promise.all(
     ['v1-04-alice', 'v1-04-bob', 'v1-04-venue'].map(async (partyHint) => {
@@ -54,6 +56,7 @@ const allocatedParties = await Promise.all(
         const party = await sdk.party.external
             .create(partyKeys.publicKey, {
                 partyHint,
+                synchronizerId: globalSynchronizerId,
             })
             .sign(partyKeys.privateKey)
             .execute()

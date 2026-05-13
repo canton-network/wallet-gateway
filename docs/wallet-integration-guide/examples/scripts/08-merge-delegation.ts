@@ -8,6 +8,7 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
+    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const logger = pino({ name: 'v1-08-merge-delegation', level: 'info' })
@@ -46,9 +47,12 @@ logger.info(`DAR ${PATH_TO_DAR_IN_LOCALNET} successfully uploaded`)
 
 const aliceKeys = sdk.keys.generate()
 
+const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
+
 const alice = await sdk.party.external
     .create(aliceKeys.publicKey, {
         partyHint: 'v1-08-alice',
+        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeys.privateKey)
     .execute()
