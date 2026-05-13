@@ -46,17 +46,10 @@ runs:
           shell: bash
           run: yarn script:fetch:localnet --network=${{ inputs.network }}
 
-        - name: Pull Localnet Docker images
+        - name: Pull Localnet
           if: steps.localnet-cache.outputs.cache-hit != 'true'
           shell: bash
-          run: |
-              LOCALNET_DIR=.localnet/docker-compose/localnet
-              IMAGE_TAG=${{ inputs.splice_version }} docker compose \
-                --env-file "$LOCALNET_DIR/compose.env" \
-                --env-file "$LOCALNET_DIR/env/common.env" \
-                -f "$LOCALNET_DIR/compose.yaml" \
-                --profile sv --profile app-provider --profile app-user --profile multi-sync \
-                pull
+          run: yarn pull:localnet
 
         - name: Start Localnet
           if: ${{ inputs.start_services == 'true' }}
