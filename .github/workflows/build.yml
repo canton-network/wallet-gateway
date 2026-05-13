@@ -195,6 +195,9 @@ jobs:
             - name: check open-rpc specs titles
               run: yarn script:openrpc:titles
 
+            - name: check daml release version alignment
+              run: yarn script:verify:daml-release-version
+
             - name: prettier code
               run: yarn run prettier . --check
 
