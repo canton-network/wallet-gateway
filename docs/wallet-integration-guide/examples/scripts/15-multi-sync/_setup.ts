@@ -19,7 +19,6 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
-    resolveGlobalSynchronizerId,
     vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
@@ -110,7 +109,7 @@ export async function setupMultiSyncTrade(
             `Expected at least 2 connected synchronizers (global + app), found ${allSynchronizers.length}`
         )
 
-    const globalSynchronizerId = resolveGlobalSynchronizerId(allSynchronizers)
+    const globalSynchronizerId = await p1Sdk.ledger.state.globalSynchronizerId()
     const appSynchronizerId = allSynchronizers.find(
         (s) => s.synchronizerAlias === 'app-synchronizer'
     )?.synchronizerId
