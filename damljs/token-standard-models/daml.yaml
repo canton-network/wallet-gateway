@@ -1,4 +1,3 @@
-sdk-version: 3.4.11
 build-options:
     - --enable-interfaces=yes
 name: token-standard-models
