@@ -795,25 +795,6 @@ export class LedgerClient {
         return filter
     }
 
-    // Retrieve an (arbitrary) synchronizer id from the validator.
-    // This synchronizer id is cached for the remainder of this object's life.
-    public async getSynchronizerId(): Promise<string> {
-        if (this.synchronizerId) return this.synchronizerId
-        const response = await this.getWithRetry(
-            '/v2/state/connected-synchronizers'
-        )
-        const synchronizers = response.connectedSynchronizers ?? []
-        if (synchronizers.length === 0) {
-            throw new Error('No connected synchronizers found')
-        }
-        // Prefer the synchronizer aliased 'global'; fall back to the first entry.
-        const chosen =
-            synchronizers.find((s) => s.synchronizerAlias === 'global') ??
-            synchronizers[0]
-        this.synchronizerId = chosen.synchronizerId
-        return chosen.synchronizerId
-    }
-
     public async postWithRetry<Path extends PostEndpoint>(
         path: Path,
         body: PostRequest<Path>,

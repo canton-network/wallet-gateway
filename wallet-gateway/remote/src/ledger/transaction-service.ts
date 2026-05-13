@@ -498,8 +498,11 @@ export class TransactionService {
         const { partyId } = executeParams
         const { commandId } = transaction
 
-        const synchronizerId =
-            network.synchronizerId ?? (await ledgerClient.getSynchronizerId())
+        const synchronizerId = network.synchronizerId
+        if (!synchronizerId)
+            throw new Error(
+                'synchronizerId is not configured for this network — set it in the network settings'
+            )
 
         const prep = ledgerPrepareParams(
             userId,
