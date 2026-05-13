@@ -679,7 +679,7 @@ export type RpcTypes = {
     }
 }
 
-export class SpliceWalletJSONRPCUserAPI {
+export class WalletJSONRPCUserAPI {
     public transport: RpcTransport
 
     constructor(transport: RpcTransport) {
@@ -703,4 +703,4 @@ export class SpliceWalletJSONRPCUserAPI {
         }
     }
 }
-export default SpliceWalletJSONRPCUserAPI
+export default WalletJSONRPCUserAPI

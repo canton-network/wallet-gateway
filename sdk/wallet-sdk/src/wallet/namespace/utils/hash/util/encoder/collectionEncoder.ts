@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { OfflineSdkContext } from '../../../../../sdk.js'
+import { OfflineSDKContext } from '../../../../../sdk.js'
 import { Encoder } from './encoder.js'
 import { PrimitiveEncoder } from './primitiveEncoder.js'
 
@@ -11,7 +11,7 @@ const isUint8Array = (value: unknown): value is Uint8Array => {
 
 export class CollectionEncoder extends Encoder {
     private readonly encodePrimitive: PrimitiveEncoder
-    constructor(protected readonly ctx: OfflineSdkContext) {
+    constructor(protected readonly ctx: OfflineSDKContext) {
         super(ctx)
         this.encodePrimitive = new PrimitiveEncoder(ctx)
     }

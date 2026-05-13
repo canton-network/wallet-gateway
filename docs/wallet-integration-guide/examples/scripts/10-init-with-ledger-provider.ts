@@ -13,6 +13,7 @@ import {
 } from './utils/index.js'
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
+import type { LedgerTypes } from '@canton-network/core-ledger-client-types'
 const logger = pino({ name: 'v1-10-init-with-provider', level: 'info' })
 
 const authTokenProvider = new AuthTokenProvider(
@@ -20,16 +21,18 @@ const authTokenProvider = new AuthTokenProvider(
     logger
 )
 
-const ledgerProvider: LedgerProvider = new LedgerProvider({
+const ledgerProvider = new LedgerProvider({
     baseUrl: localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL,
     accessTokenProvider: authTokenProvider,
 })
 
-const sdk = await SDK.create({
+const sdkOptions = {
     ledgerProvider,
     token: TOKEN_NAMESPACE_CONFIG,
     amulet: AMULET_NAMESPACE_CONFIG,
-})
+} as const
+
+const sdk = await SDK.create<LedgerTypes, typeof sdkOptions>(sdkOptions)
 const senderKeys = sdk.keys.generate()
 
 const sender = await sdk.party.external
