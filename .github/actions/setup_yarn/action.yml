@@ -40,10 +40,6 @@ runs:
           shell: bash
           run: echo "$HOME/.dpm/bin" >> "$GITHUB_PATH"
 
-        - name: Install dependencies
-          shell: bash
-          run: yarn install --immutable
-
         - name: reduce DPM size
           if: ${{ steps.dpm_cache.outputs.cache-hit != 'true' }}
           shell: bash
