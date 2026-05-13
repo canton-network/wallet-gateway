@@ -5,9 +5,8 @@ inputs:
         description: 'Network type: devnet or mainnet'
         required: true
     splice_version:
-        description: 'Resolved Splice version (optional override)'
-        required: false
-        default: ''
+        description: 'Splice version (required)'
+        required: true
     start_services:
         description: 'Whether to start localnet services after setup'
         required: false
@@ -23,34 +22,14 @@ inputs:
 runs:
     using: 'composite'
     steps:
-        - name: Resolve Splice version
-          id: version-config
-          shell: bash
-          run: |
-              NETWORK="${{ inputs.network }}"
-              SPLICE_VERSION="${{ inputs.splice_version }}"
-
-              if [ "$NETWORK" != "devnet" ] && [ "$NETWORK" != "mainnet" ]; then
-                echo "Invalid network '$NETWORK'. Expected one of: devnet, mainnet" >&2
-                exit 1
-              fi
-
-              if [ -z "$SPLICE_VERSION" ]; then
-                CONFIG=$(cat scripts/src/lib/version-config.json)
-                SPLICE_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].splice.version')
-              fi
-
-              echo "splice_version=$SPLICE_VERSION" >> $GITHUB_OUTPUT
-
         - name: Cache Localnet files
           uses: actions/cache/restore@v5
           id: localnet-cache
           with:
               path: |
                   .localnet/docker-compose/localnet
-                  .localnet/dars
                   /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
+              key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
               lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Load cached Docker images
@@ -67,9 +46,13 @@ runs:
           shell: bash
           run: yarn script:fetch:localnet --network=${{ inputs.network }}
 
+        - name: Pull Localnet
+          if: steps.localnet-cache.outputs.cache-hit != 'true'
+          shell: bash
+          run: yarn pull:localnet
+
         - name: Start Localnet
-          # We start the localnet on a cache miss to download docker images
-          if: ${{ steps.localnet-cache.outputs.cache-hit != 'true' || inputs.start_services == 'true' }}
+          if: ${{ inputs.start_services == 'true' }}
           shell: bash
           run: yarn start:localnet -- --network=${{ inputs.network }}
 
@@ -78,6 +61,7 @@ runs:
           shell: bash
           run: |
               mkdir -p /tmp/docker-images
+              LOCALNET_DIR=.localnet/docker-compose/localnet
               images=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" || true)
               if [ -n "$images" ]; then
                 echo "$images" | xargs -r docker save -o /tmp/docker-images/images.tar
@@ -86,11 +70,12 @@ runs:
               fi
 
         - name: Save Localnet cache
-          if: ${{ inputs.save_cache == 'true' && steps.localnet-cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
+          uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
                   .localnet/docker-compose/localnet
                   .localnet/dars
                   /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
+              key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
+              save_cache: ${{ inputs.save_cache }}
+              initial_cache_hit: ${{ steps.localnet-cache.outputs.cache-hit }}

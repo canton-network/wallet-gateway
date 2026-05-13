@@ -42,7 +42,7 @@ jobs:
     stress-tests:
         runs-on: ubuntu-latest
         timeout-minutes: 120
-        needs: [version-config, hydrate-canton-caches]
+        needs: [version-config]
 
         steps:
             - name: Checkout
