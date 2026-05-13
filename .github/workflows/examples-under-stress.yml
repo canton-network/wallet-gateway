@@ -30,9 +30,35 @@ on:
                 default: ''
 
 jobs:
+    version-config:
+        runs-on: ubuntu-latest
+        outputs:
+            daml_release_version: ${{ steps.version.outputs.daml_release_version }}
+            devnet_canton_version: ${{ steps.version.outputs.devnet_canton_version }}
+            mainnet_canton_version: ${{ steps.version.outputs.mainnet_canton_version }}
+            devnet_splice_version: ${{ steps.version.outputs.devnet_splice_version }}
+            mainnet_splice_version: ${{ steps.version.outputs.mainnet_splice_version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+              with:
+                  ref: ${{ github.event.inputs.ref || github.ref }}
+
+            - name: Resolve version config outputs
+              id: version
+              shell: bash
+              run: |
+                  CONFIG=$(cat scripts/src/lib/version-config.json)
+                  echo "daml_release_version=$(echo "$CONFIG" | jq -r '.DAML_RELEASE_VERSION' | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.splice.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.splice.version')" >> "$GITHUB_OUTPUT"
+
     stress-e2e:
         runs-on: ubuntu-latest
         timeout-minutes: 120
+        needs: [version-config, hydrate-canton-caches]
 
         steps:
             - name: Checkout
@@ -41,17 +67,13 @@ jobs:
                   ref: ${{ github.event.inputs.ref || github.ref }}
 
             - uses: ./.github/actions/setup_yarn
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - name: run codegen
-              run: yarn generate:all
-
-            - name: Build project
-              run: yarn build:all
-
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet
               with:
                   network: ${{ github.event.inputs.network || 'devnet' }}
-                  instance: localnet
+                  splice_version: ${{ (github.event.inputs.network || 'devnet') == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
 

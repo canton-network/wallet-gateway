@@ -75,7 +75,7 @@ export const InstrumentAccordion: React.FC<InstrumentAccordionProps> = ({
                         >
                             {name}
                         </Typography>
-                        <Typography variant="body1" fontWeight="bold">
+                        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                             {aggregatedHolding.totalAmount} {symbol}
                         </Typography>
                     </Box>

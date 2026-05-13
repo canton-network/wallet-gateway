@@ -1,83 +1,62 @@
-name: 'Setup Canton/Localnet'
-description: 'Cache, download and prepare Canton or Localnet environment'
+name: 'Setup Canton'
+description: 'Cache, download and optionally start Canton environment'
 inputs:
     network:
         description: 'Network type: devnet or mainnet'
         required: true
-    instance:
-        description: 'Instance type: canton or localnet'
-        required: true
+    canton_version:
+        description: 'Resolved Canton version (optional override)'
+        required: false
+        default: ''
+    start_services:
+        description: 'Whether to start canton services after setup'
+        required: false
+        default: 'true'
+    save_cache:
+        description: 'Whether to save the Canton cache on a cache miss'
+        required: false
+        default: 'false'
+    lookup_only:
+        description: 'Whether to only check if the Canton cache exists without restoring it'
+        required: false
+        default: 'false'
 runs:
     using: 'composite'
     steps:
-        - name: Read version config
+        - name: Resolve Canton version
           id: version-config
           shell: bash
           run: |
-              CONFIG=$(cat scripts/src/lib/version-config.json)
               NETWORK="${{ inputs.network }}"
-              INSTANCE="${{ inputs.instance }}"
+              CANTON_VERSION="${{ inputs.canton_version }}"
 
               if [ "$NETWORK" != "devnet" ] && [ "$NETWORK" != "mainnet" ]; then
                 echo "Invalid network '$NETWORK'. Expected one of: devnet, mainnet" >&2
                 exit 1
               fi
 
-              if [ "$INSTANCE" != "canton" ] && [ "$INSTANCE" != "localnet" ]; then
-                echo "Invalid instance '$INSTANCE'. Expected one of: canton, localnet" >&2
-                exit 1
+              if [ -z "$CANTON_VERSION" ]; then
+                CONFIG=$(cat scripts/src/lib/version-config.json)
+                CANTON_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].canton.version')
               fi
 
-              CANTON_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].canton.version')
-
-              if [ "$INSTANCE" == "canton" ]; then
-                SPLICE_VERSION=""
-              else
-                SPLICE_VERSION=$(echo "$CONFIG" | jq -r --arg net "$NETWORK" '.SUPPORTED_VERSIONS[$net].splice.version')
-              fi
               echo "canton_version=$CANTON_VERSION" >> $GITHUB_OUTPUT
-              echo "splice_version=$SPLICE_VERSION" >> $GITHUB_OUTPUT
 
         - name: Cache Canton binaries
-          if: inputs.instance == 'canton'
           uses: actions/cache/restore@v5
           id: canton-cache
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
-
-        - name: Cache Localnet files
-          if: inputs.instance == 'localnet'
-          uses: actions/cache/restore@v5
-          id: localnet-cache
-          with:
-              path: |
-                  .localnet/docker-compose/localnet
-                  .localnet/dars
-                  /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}
-
-        - name: Load cached Docker images
-          if: inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit == 'true'
-          shell: bash
-          run: |
-              if [ -f /tmp/docker-images/images.tar ]; then
-                docker load -i /tmp/docker-images/images.tar
-                echo "Docker images loaded from cache."
-              fi
+              lookup-only: ${{ inputs.lookup_only == 'true' }}
 
         - name: Download Canton
-          if: inputs.instance == 'canton' && steps.canton-cache.outputs.cache-hit != 'true'
+          if: steps.canton-cache.outputs.cache-hit != 'true'
           shell: bash
           run: yarn script:fetch:canton --network=${{ inputs.network }}
 
-        - name: Download Localnet
-          if: inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true'
-          shell: bash
-          run: yarn script:fetch:localnet --network=${{ inputs.network }}
-
         - name: Start Canton
-          if: inputs.instance == 'canton'
+          if: inputs.start_services == 'true'
           shell: bash
           run: |
               set -e
@@ -102,36 +81,9 @@ runs:
                 exit 1
               '
 
-        - name: Start Localnet
-          if: inputs.instance == 'localnet'
-          shell: bash
-          run: yarn start:localnet -- --network=${{ inputs.network }}
-
-        - name: Save Docker images to cache
-          if: ${{ inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
-          shell: bash
-          run: |
-              mkdir -p /tmp/docker-images
-              images=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -v "<none>" || true)
-              if [ -n "$images" ]; then
-                echo "$images" | xargs -r docker save -o /tmp/docker-images/images.tar
-              else
-                echo "No Docker images found to save."
-              fi
-
         - name: Save Canton cache
-          if: ${{ inputs.instance == 'canton' && steps.canton-cache.outputs.cache-hit != 'true' }}
+          if: ${{ inputs.save_cache == 'true' && steps.canton-cache.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ steps.version-config.outputs.canton_version }}
-
-        - name: Save Localnet cache
-          if: ${{ inputs.instance == 'localnet' && steps.localnet-cache.outputs.cache-hit != 'true' }}
-          uses: actions/cache/save@v5
-          with:
-              path: |
-                  .localnet/docker-compose/localnet
-                  .localnet/dars
-                  /tmp/docker-images
-              key: ${{ runner.os }}-localnet-${{ steps.version-config.outputs.splice_version }}

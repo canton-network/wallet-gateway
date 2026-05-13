@@ -51,7 +51,7 @@ export const TransferActionItemCard: React.FC<TransferActionItemCardProps> = (
                     <Typography variant="body2" color="textSecondary">
                         Type
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                         {item.type}
                     </Typography>
                 </Box>

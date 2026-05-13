@@ -50,15 +50,13 @@ export const AllocationActionDialog: React.FC<AllocationActionDialogProps> = (
     }
 
     return (
-        <Dialog
-            open={open}
-            onClose={handleClose}
-            maxWidth="md"
-            fullWidth
-            disableEscapeKeyDown={isLoading}
-        >
+        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ pb: 1 }}>
-                <Typography variant="h6" component="div" fontWeight="bold">
+                <Typography
+                    variant="h6"
+                    component="div"
+                    sx={{ fontWeight: 'bold' }}
+                >
                     Allocation Details
                 </Typography>
             </DialogTitle>
@@ -90,7 +88,10 @@ export const AllocationActionDialog: React.FC<AllocationActionDialogProps> = (
                             >
                                 Type
                             </Typography>
-                            <Typography variant="body2" fontWeight="medium">
+                            <Typography
+                                variant="body2"
+                                sx={{ fontWeight: 'medium' }}
+                            >
                                 Allocation Request
                             </Typography>
                         </Box>
@@ -150,7 +151,10 @@ export const AllocationActionDialog: React.FC<AllocationActionDialogProps> = (
                                 >
                                     Allocate Before
                                 </Typography>
-                                <Typography variant="body1" fontWeight="medium">
+                                <Typography
+                                    variant="body1"
+                                    sx={{ fontWeight: 'medium' }}
+                                >
                                     {item.expiry}
                                 </Typography>
                             </Box>
@@ -186,8 +190,7 @@ export const AllocationActionDialog: React.FC<AllocationActionDialogProps> = (
                         <Box>
                             <Typography
                                 variant="subtitle1"
-                                fontWeight="bold"
-                                sx={{ mb: 2 }}
+                                sx={{ fontWeight: 'bold', mb: 2 }}
                             >
                                 Transfer Legs ({item.transferLegs.length})
                             </Typography>
@@ -297,7 +300,7 @@ const TransferLegCard: React.FC<TransferLegCardProps> = ({
                         gap: 1,
                     }}
                 >
-                    <Typography variant="body2" fontWeight="medium">
+                    <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
                         Leg: {leg.transferLegId}
                     </Typography>
                     {getRoleChip()}

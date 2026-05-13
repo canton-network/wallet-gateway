@@ -63,7 +63,7 @@ export const AllocationActionItemCard: React.FC<
                     <Typography variant="body2" color="textSecondary">
                         Type
                     </Typography>
-                    <Typography variant="body1" fontWeight="medium">
+                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                         Allocation
                     </Typography>
                 </Box>
