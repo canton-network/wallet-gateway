@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-tx-visualizer",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "type": "module",
     "description": "Decode and visualize prepared transactions from Canton",
     "license": "Apache-2.0",
