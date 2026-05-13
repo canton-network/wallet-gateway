@@ -50,6 +50,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -77,6 +78,7 @@ const transferTestScriptParameters: TransferTestScriptParameters = {
     receiver,
     receiverKeys,
     logger,
+    synchronizerId: globalSynchronizerId,
 }
 
 await _accept(transferTestScriptParameters)

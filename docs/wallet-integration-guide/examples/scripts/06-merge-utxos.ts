@@ -38,6 +38,7 @@ const tapPromises = tapIndices.map(async () => {
 
     return sdk.ledger
         .prepare({
+            synchronizerId: globalSynchronizerId,
             partyId: alice.partyId,
             commands: amuletTapCommand,
             disclosedContracts: amuletTapDisclosedContracts,
@@ -62,6 +63,7 @@ const [mergeUtxoCommands, mergedDisclosedContracts] =
 const mergePromises = mergeUtxoCommands.map((mergeCommand) => {
     return sdk.ledger
         .prepare({
+            synchronizerId: globalSynchronizerId,
             partyId: alice.partyId,
             commands: mergeCommand,
             disclosedContracts: mergedDisclosedContracts,

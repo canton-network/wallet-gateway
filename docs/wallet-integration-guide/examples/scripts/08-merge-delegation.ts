@@ -63,6 +63,7 @@ const tapPromises = Array.from({ length: 15 }).map(async () => {
 
     return sdk.ledger
         .prepare({
+            synchronizerId: globalSynchronizerId,
             partyId: alice.partyId,
             commands: amuletTapCommand,
             disclosedContracts: amuletTapDisclosedContracts,
@@ -85,6 +86,7 @@ const mergeDelegationProposalCommand =
 
 const mergeDelegationProposalResult = await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: mergeDelegationProposalCommand,
     })

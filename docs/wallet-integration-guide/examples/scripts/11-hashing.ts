@@ -34,6 +34,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 )
 
 const preparedTapCommand = sdk.ledger.prepare({
+    synchronizerId: globalSynchronizerId,
     partyId: sender.partyId,
     commands: amuletTapCommand,
     disclosedContracts: amuletTapDisclosedContracts,

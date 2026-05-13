@@ -10,4 +10,5 @@ export type TransferTestScriptParameters = {
     senderKeys: KeyPair
     receiverKeys: KeyPair
     logger: pino.Logger
+    synchronizerId: string
 }

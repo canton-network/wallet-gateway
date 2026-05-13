@@ -2,7 +2,15 @@ import { localNetStaticConfig } from '@canton-network/wallet-sdk'
 import { TransferTestScriptParameters } from './types.js'
 
 export default async (args: TransferTestScriptParameters) => {
-    const { sdk, sender, receiver, senderKeys, receiverKeys, logger } = args
+    const {
+        sdk,
+        sender,
+        receiver,
+        senderKeys,
+        receiverKeys,
+        logger,
+        synchronizerId,
+    } = args
 
     const expiryIntervalSeconds = 5
 
@@ -25,6 +33,7 @@ export default async (args: TransferTestScriptParameters) => {
 
     await sdk.ledger
         .prepare({
+            synchronizerId,
             partyId: sender.partyId,
             commands: transferCommand,
             disclosedContracts: transferDisclosedContracts,
@@ -62,6 +71,7 @@ export default async (args: TransferTestScriptParameters) => {
         async () => {
             await sdk.ledger
                 .prepare({
+                    synchronizerId,
                     partyId: receiver.partyId,
                     commands: acceptCommand,
                     disclosedContracts: acceptDisclosedContracts,

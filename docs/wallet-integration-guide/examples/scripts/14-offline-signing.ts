@@ -150,6 +150,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] =
 
 const { response: preparedTapCommandResponse } = await onlineSDK.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: senderParty.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -208,6 +209,7 @@ const [transferCommand, transferDisclosedContracts] =
 
 const { response: preparedTransferResponse } = await onlineSDK.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: senderParty.partyId,
         commands: transferCommand,
         disclosedContracts: transferDisclosedContracts,
@@ -284,6 +286,7 @@ const [acceptTransferCommand, transferDisclosedContractsAccept] =
 
 const { response: preparedTransferAcceptResponse } = await onlineSDK.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: receiverParty.partyId,
         commands: acceptTransferCommand,
         disclosedContracts: transferDisclosedContractsAccept,

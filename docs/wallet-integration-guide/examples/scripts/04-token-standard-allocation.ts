@@ -89,6 +89,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -103,6 +104,7 @@ const [amuletTapCommandBob, amuletTapDisclosedContractsBob] =
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: amuletTapCommandBob,
         disclosedContracts: amuletTapDisclosedContractsBob,
@@ -149,6 +151,7 @@ const createProposal = {
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: createProposal,
         disclosedContracts: [],
@@ -189,6 +192,7 @@ const acceptCmd = [
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: acceptCmd,
         disclosedContracts: [],
@@ -228,6 +232,7 @@ const initiateSettlementCmd = [
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: venue.partyId,
         commands: initiateSettlementCmd,
         disclosedContracts: [],
@@ -280,6 +285,7 @@ const [allocateCmdAlice, allocateDisclosedAlice] =
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: allocateCmdAlice,
         disclosedContracts: allocateDisclosedAlice,
@@ -321,6 +327,7 @@ const [allocateCmdBob, allocateDisclosedBlice] =
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: allocateCmdBob,
         disclosedContracts: allocateDisclosedBlice,
@@ -395,6 +402,7 @@ const settleCmd = [
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: venue.partyId,
         commands: settleCmd,
         disclosedContracts: uniqueDisclosedContracts,

@@ -90,6 +90,7 @@ logger.info({ pingCommand }, 'Ping command to be submitted:')
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: pingCommand,
         disclosedContracts: [],
@@ -104,6 +105,7 @@ offline signing example
 */
 
 const preparedPingCommand = await sdk.ledger.prepare({
+    synchronizerId: globalSynchronizerId,
     partyId: sender.partyId,
     commands: pingCommand,
     disclosedContracts: [],
@@ -133,6 +135,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
+        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
