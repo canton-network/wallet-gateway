@@ -36,8 +36,6 @@ export default async function () {
 
     await sdk.amulet.traffic.status()
 
-    sdk.asset.list
-
     // OR, you can defer loading config by calling .extend()
 
     const basicSDK = await SDK.create({

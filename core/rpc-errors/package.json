@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-rpc-errors",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "type": "module",
     "description": "Wrapper for JSON-RPC error objects",
     "author": "Alex Matson <alex.matson@digitalasset.com>",

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PreparedTransaction } from '@canton-network/core-ledger-proto'
-import { OfflineSdkContext } from '../../../sdk.js'
+import { OfflineSDKContext } from '../../../sdk.js'
 import { PreparedTransactionEncoder } from './util/encoder/preparedTransactionEncoder.js'
 import {
     computeMultiHashForTopology,
@@ -11,7 +11,7 @@ import {
 
 export class HashNamespace {
     private readonly encodePreparedTransaction: PreparedTransactionEncoder
-    constructor(private readonly ctx: OfflineSdkContext) {
+    constructor(private readonly ctx: OfflineSDKContext) {
         this.encodePreparedTransaction = new PreparedTransactionEncoder(ctx)
     }
 
