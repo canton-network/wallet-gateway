@@ -116,8 +116,6 @@ export async function generateDamlJsBindings(
         return
     }
 
-    runDamlBuild(config.destDir)
-
     const darFileName = `${config.packageName}-${config.version}.dar`
     runDamlCodegen(config.destDir, darFileName)
 }

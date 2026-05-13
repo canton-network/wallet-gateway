@@ -23,6 +23,9 @@ export const success = (message: string): string => green(message)
 export const trimNewline = (message: string): string =>
     message.replace(/\n$/, '')
 
+export const isCiEnvironment = (): boolean =>
+    process.env.CI?.toLowerCase() === 'true'
+
 export const repoRoot = getRepoRoot()
 export const CANTON_PATH = path.join(repoRoot, '.canton')
 export const SPLICE_PATH = path.join(repoRoot, '.splice')

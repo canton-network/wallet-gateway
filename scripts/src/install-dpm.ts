@@ -12,6 +12,7 @@ import {
     success,
     error,
     warn,
+    isCiEnvironment,
 } from './lib/utils.js'
 
 function getDpmHomeDir(): string {
@@ -25,10 +26,6 @@ function getDpmHomeDir(): string {
 
 const DPM_STANDALONE_VERSION = '1.0.16'
 const DPM_GITHUB_RELEASE_BASE = `https://github.com/digital-asset/dpm/releases/download/${DPM_STANDALONE_VERSION}`
-
-function isCiMode(): boolean {
-    return process.env.CI?.toLowerCase() === 'true'
-}
 
 function getStandaloneAssetName(osType: NodeJS.Platform, arch: string): string {
     const osName =
@@ -156,7 +153,7 @@ function ensureDpmInPath(): void {
         console.log(info(`Added ${dpmBinPath} to PATH for current session`))
     }
 
-    if (process.env.CI === 'true') {
+    if (isCiEnvironment()) {
         return
     }
 
@@ -226,7 +223,7 @@ function compareDpmVersionWithDesired(desiredVersion: string): boolean {
  * DPM is the recommended way to manage Daml projects
  */
 export async function installDPM() {
-    const ciMode = isCiMode()
+    const ciMode = isCiEnvironment()
 
     // First, ensure DPM is in PATH if it's already installed
     ensureDpmInPath()
