@@ -46,9 +46,20 @@ runs:
           shell: bash
           run: yarn script:fetch:localnet --network=${{ inputs.network }}
 
+        - name: Pull Localnet Docker images
+          if: steps.localnet-cache.outputs.cache-hit != 'true'
+          shell: bash
+          run: |
+              LOCALNET_DIR=.localnet/docker-compose/localnet
+              IMAGE_TAG=${{ inputs.splice_version }} docker compose \
+                --env-file "$LOCALNET_DIR/compose.env" \
+                --env-file "$LOCALNET_DIR/env/common.env" \
+                -f "$LOCALNET_DIR/compose.yaml" \
+                --profile sv --profile app-provider --profile app-user --profile multi-sync \
+                pull
+
         - name: Start Localnet
-          # We start the localnet on a cache miss to download docker images
-          if: ${{ steps.localnet-cache.outputs.cache-hit != 'true' || inputs.start_services == 'true' }}
+          if: ${{ inputs.start_services == 'true' }}
           shell: bash
           run: yarn start:localnet -- --network=${{ inputs.network }}
 
