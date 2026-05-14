@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>CIP-103 Conformance Report</title>
+        <style>
+            :root {
+                --bg: #0b1020;
+                --card: #111a33;
+                --text: #e7ecff;
+                --muted: #a6b0d6;
+                --border: rgba(231, 236, 255, 0.12);
+                --pass: #24c08a;
+                --fail: #ff4d5f;
+                --skip: #f1b44c;
+                --btn: #1c2a55;
+                --btnHover: #24356d;
+                --mono:
+                    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                    'Liberation Mono', 'Courier New', monospace;
+            }
+            body {
+                margin: 0;
+                background: var(--bg);
+                color: var(--text);
+                font-family:
+                    ui-sans-serif,
+                    system-ui,
+                    -apple-system,
+                    Segoe UI,
+                    Roboto,
+                    Helvetica,
+                    Arial;
+            }
+            .wrap {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 24px;
+            }
+            .header {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            h1 {
+                margin: 0;
+                font-size: 20px;
+            }
+            .meta {
+                color: var(--muted);
+                font-size: 12px;
+            }
+            .card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 16px;
+                margin-top: 16px;
+            }
+            .controls {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            input[type='search'] {
+                flex: 1;
+                min-width: 280px;
+                padding: 10px 12px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                background: rgba(0, 0, 0, 0.2);
+                color: var(--text);
+            }
+            select {
+                padding: 10px 12px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                background: rgba(0, 0, 0, 0.2);
+                color: var(--text);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th,
+            td {
+                padding: 10px 10px;
+                border-bottom: 1px solid var(--border);
+                vertical-align: top;
+            }
+            th {
+                color: var(--muted);
+                font-weight: 600;
+                text-align: left;
+                font-size: 12px;
+            }
+            .wallet-name {
+                font-weight: 700;
+            }
+            .muted {
+                color: var(--muted);
+            }
+            .small {
+                font-size: 12px;
+            }
+            .mono {
+                font-family: var(--mono);
+                font-size: 12px;
+            }
+            .badge {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 700;
+            }
+            .badge.pass {
+                background: rgba(36, 192, 138, 0.15);
+                color: var(--pass);
+                border: 1px solid rgba(36, 192, 138, 0.35);
+            }
+            .badge.fail {
+                background: rgba(255, 77, 95, 0.12);
+                color: var(--fail);
+                border: 1px solid rgba(255, 77, 95, 0.35);
+            }
+            .badge.skip {
+                background: rgba(241, 180, 76, 0.12);
+                color: var(--skip);
+                border: 1px solid rgba(241, 180, 76, 0.35);
+            }
+            .btn {
+                padding: 8px 10px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                background: var(--btn);
+                color: var(--text);
+                cursor: pointer;
+            }
+            .btn:hover {
+                background: var(--btnHover);
+            }
+            .hidden {
+                display: none;
+            }
+            .detail-grid {
+                display: grid;
+                grid-template-columns: 1fr 2fr;
+                gap: 16px;
+                padding: 12px 0;
+            }
+            h3 {
+                margin: 0 0 10px 0;
+                font-size: 14px;
+            }
+            .mini th,
+            .mini td {
+                padding: 8px 8px;
+            }
+            .mini td {
+                font-size: 12px;
+            }
+            @media (max-width: 900px) {
+                .detail-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrap">
+            <div class="header">
+                <h1>CIP-103 Conformance Report</h1>
+                <div class="meta">
+                    Generated 2026-03-31T11:25:49.453Z • Source:
+                    tools/cip103-conformance/result-*.json
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="controls">
+                    <input
+                        id="q"
+                        type="search"
+                        placeholder="Filter wallets / endpoints / filenames…"
+                    />
+                    <select id="status">
+                        <option value="all">All statuses</option>
+                        <option value="pass">Pass</option>
+                        <option value="fail">Fail</option>
+                    </select>
+                    <select id="profile">
+                        <option value="all">All profiles</option>
+                        <option value="sync">sync</option>
+                        <option value="async">async</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <table id="tbl">
+                    <thead>
+                        <tr>
+                            <th>Wallet</th>
+                            <th>Overall</th>
+                            <th>Profile</th>
+                            <th>Methods covered</th>
+                            <th>Artifact</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="wallet">
+                        <tr class="wallet-row" data-wallet-index="0">
+                            <td>
+                                <div class="wallet-name">
+                                    Example Wallet Provider
+                                </div>
+                                <div class="muted small">
+                                    http • http://localhost:8081/json-rpc
+                                </div>
+                            </td>
+                            <td><span class="badge fail">FAIL</span></td>
+                            <td class="mono">sync</td>
+                            <td><span class="mono">12/12</span></td>
+                            <td class="mono">result-console.json</td>
+                            <td>
+                                <button class="btn" data-toggle="detail-0">
+                                    Details
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="detail-0" class="wallet-detail hidden">
+                            <td colspan="6">
+                                <div class="detail-grid">
+                                    <div>
+                                        <h3>Method coverage (schema)</h3>
+                                        <table class="mini">
+                                            <thead>
+                                                <tr>
+                                                    <th>Method</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="mono">
+                                                        accountsChanged
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        connect
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        disconnect
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        getActiveNetwork
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        getPrimaryAccount
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        ledgerApi
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        listAccounts
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        prepareExecute
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        prepareExecuteAndWait
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        signMessage
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">status</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        txChanged
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <h3>Other checks</h3>
+                                        <table class="mini">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Title</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Details</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-RPC-001
+                                                    </td>
+                                                    <td>
+                                                        Unknown method returns
+                                                        method-not-found
+                                                    </td>
+                                                    <td>protocol</td>
+                                                    <td>
+                                                        <span class="badge fail"
+                                                            >FAIL</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono">
+                                                        Expected -32601, got
+                                                        -32001
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-RPC-002
+                                                    </td>
+                                                    <td>
+                                                        Invalid JSON-RPC request
+                                                        returns error
+                                                    </td>
+                                                    <td>protocol</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-BEH-001
+                                                    </td>
+                                                    <td>
+                                                        Provider exposes
+                                                        &#39;connect&#39;
+                                                        lifecycle method
+                                                    </td>
+                                                    <td>behavior</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody class="wallet">
+                        <tr class="wallet-row" data-wallet-index="1">
+                            <td>
+                                <div class="wallet-name">
+                                    Wallet Gateway (Remote)
+                                </div>
+                                <div class="muted small">
+                                    http • http://localhost:3030/api/v0/dapp
+                                </div>
+                            </td>
+                            <td><span class="badge fail">FAIL</span></td>
+                            <td class="mono">sync</td>
+                            <td><span class="mono">12/12</span></td>
+                            <td class="mono">
+                                result-wallet-gateway-remote.json
+                            </td>
+                            <td>
+                                <button class="btn" data-toggle="detail-1">
+                                    Details
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="detail-1" class="wallet-detail hidden">
+                            <td colspan="6">
+                                <div class="detail-grid">
+                                    <div>
+                                        <h3>Method coverage (schema)</h3>
+                                        <table class="mini">
+                                            <thead>
+                                                <tr>
+                                                    <th>Method</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="mono">
+                                                        accountsChanged
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        connect
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        disconnect
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        getActiveNetwork
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        getPrimaryAccount
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        ledgerApi
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        listAccounts
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        prepareExecute
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        prepareExecuteAndWait
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        signMessage
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">status</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        txChanged
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <h3>Other checks</h3>
+                                        <table class="mini">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Title</th>
+                                                    <th>Category</th>
+                                                    <th>Status</th>
+                                                    <th>Details</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-RPC-001
+                                                    </td>
+                                                    <td>
+                                                        Unknown method returns
+                                                        method-not-found
+                                                    </td>
+                                                    <td>protocol</td>
+                                                    <td>
+                                                        <span class="badge fail"
+                                                            >FAIL</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono">
+                                                        Expected -32601, got
+                                                        -32001
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-RPC-002
+                                                    </td>
+                                                    <td>
+                                                        Invalid JSON-RPC request
+                                                        returns error
+                                                    </td>
+                                                    <td>protocol</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="mono">
+                                                        CIP103-BEH-001
+                                                    </td>
+                                                    <td>
+                                                        Provider exposes
+                                                        &#39;connect&#39;
+                                                        lifecycle method
+                                                    </td>
+                                                    <td>behavior</td>
+                                                    <td>
+                                                        <span class="badge pass"
+                                                            >PASS</span
+                                                        >
+                                                    </td>
+                                                    <td class="mono"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            const q = document.getElementById('q')
+            const statusSel = document.getElementById('status')
+            const profileSel = document.getElementById('profile')
+
+            function textOfRow(tbody) {
+                return tbody.innerText.toLowerCase()
+            }
+
+            function applyFilter() {
+                const needle = (q.value || '').trim().toLowerCase()
+                const status = statusSel.value
+                const profile = profileSel.value
+
+                for (const tbody of document.querySelectorAll('tbody.wallet')) {
+                    const row = tbody.querySelector('.wallet-row')
+                    const overallText = row.children[1].innerText
+                        .trim()
+                        .toLowerCase()
+                    const profileText = row.children[2].innerText
+                        .trim()
+                        .toLowerCase()
+                    const hay = textOfRow(tbody)
+
+                    const okNeedle = !needle || hay.includes(needle)
+                    const okStatus =
+                        status === 'all' || overallText.includes(status)
+                    const okProfile =
+                        profile === 'all' || profileText === profile
+
+                    tbody.style.display =
+                        okNeedle && okStatus && okProfile ? '' : 'none'
+                }
+            }
+
+            q.addEventListener('input', applyFilter)
+            statusSel.addEventListener('change', applyFilter)
+            profileSel.addEventListener('change', applyFilter)
+            applyFilter()
+
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-toggle]')
+                if (!btn) return
+                const id = btn.getAttribute('data-toggle')
+                const detail = document.getElementById(id)
+                if (!detail) return
+                detail.classList.toggle('hidden')
+                btn.textContent = detail.classList.contains('hidden')
+                    ? 'Details'
+                    : 'Hide'
+            })
+        </script>
+    </body>
+</html>

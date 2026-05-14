@@ -1,0 +1,10 @@
+{
+    "name": "Bron (Enterprise)",
+    "version": "unknown",
+    "transport": "http",
+    "endpoint": "https://bron.example.com/api/json-rpc",
+    "timeoutMs": 15000,
+    "headers": {
+        "authorization": "Bearer <oauth-access-token>"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "name": "Cantor8 (C8)",
+    "version": "unknown",
+    "transport": "http",
+    "endpoint": "http://localhost:8081/json-rpc",
+    "timeoutMs": 15000,
+    "headers": {
+        "authorization": "Bearer <access-token-if-required>"
+    }
+}

@@ -1,0 +1,272 @@
+:root {
+    color-scheme: light dark;
+    font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        Segoe UI,
+        Roboto,
+        Helvetica,
+        Arial,
+        'Apple Color Emoji',
+        'Segoe UI Emoji';
+}
+
+body {
+    margin: 0;
+    background: #0b0f17;
+    color: #e6eaf2;
+}
+
+button,
+select {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: inherit;
+    padding: 10px 12px;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+select {
+    padding: 8px 10px;
+}
+
+.page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 28px 18px 60px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.subtitle {
+    margin-top: 4px;
+    color: rgba(230, 234, 242, 0.7);
+}
+
+.headerActions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.card {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 14px;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.pill {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 8px 10px;
+    border-radius: 999px;
+}
+
+.pillLabel {
+    color: rgba(230, 234, 242, 0.7);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
+.sectionTitle {
+    font-weight: 700;
+}
+
+.mono {
+    font-family:
+        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        'Liberation Mono', 'Courier New', monospace;
+}
+
+.muted {
+    color: rgba(230, 234, 242, 0.65);
+}
+
+.ok {
+    color: #68f0b2;
+}
+
+.bad {
+    color: #ff7a8a;
+}
+
+.tag {
+    border-radius: 999px;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.tag.ok {
+    background: rgba(104, 240, 178, 0.12);
+    border-color: rgba(104, 240, 178, 0.25);
+}
+
+.tag.bad {
+    background: rgba(255, 122, 138, 0.12);
+    border-color: rgba(255, 122, 138, 0.25);
+}
+
+.tag.muted {
+    background: rgba(230, 234, 242, 0.08);
+}
+
+.errorBox {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 122, 138, 0.35);
+    background: rgba(255, 122, 138, 0.08);
+}
+
+.errorTitle {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.progressBox {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.progressTitle {
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.details {
+    margin-top: 12px;
+}
+
+.results {
+    margin-top: 10px;
+    display: grid;
+    gap: 10px;
+}
+
+.resultRow {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.14);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.resultLeft {
+    display: grid;
+    gap: 4px;
+}
+
+.resultTitle {
+    color: rgba(230, 234, 242, 0.85);
+}
+
+.resultRight {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.resultDetails {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(230, 234, 242, 0.88);
+    white-space: pre-wrap;
+}
+
+.observed {
+    margin-top: 10px;
+}
+
+.observedPre {
+    margin: 10px 0 0;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.14);
+    overflow: auto;
+    max-height: 260px;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background: #f5f7fb;
+        color: #0f172a;
+    }
+    .resultTitle {
+        color: rgba(15, 23, 42, 0.88);
+    }
+    .resultDetails,
+    .resultDetails.mono {
+        color: rgba(15, 23, 42, 0.9);
+    }
+    .observedPre {
+        color: rgba(15, 23, 42, 0.92);
+    }
+    .subtitle,
+    .muted,
+    .pillLabel {
+        color: rgba(15, 23, 42, 0.65);
+    }
+    .card,
+    button,
+    select,
+    .pill,
+    .tag,
+    .resultRow,
+    .observedPre {
+        border-color: rgba(15, 23, 42, 0.12);
+        background: rgba(15, 23, 42, 0.03);
+    }
+    .tag.ok {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.25);
+    }
+    .tag.bad {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.25);
+    }
+    .errorBox {
+        border-color: rgba(239, 68, 68, 0.28);
+        background: rgba(239, 68, 68, 0.08);
+    }
+}

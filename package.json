@@ -40,6 +40,9 @@
         "script:test:examples": "yarn node --trace-uncaught --enable-source-maps --import tsx ./scripts/src/test-example-scripts.ts",
         "script:test:examples-stress": "tsx ./scripts/src/test-examples-scripts-under-stress.ts",
         "script:test:stress-scripts": "tsx ./scripts/src/test-stress-scripts.ts",
+        "script:conformance:run": "yarn workspace @canton-network/cip103-conformance run run",
+        "script:conformance:validate-artifact": "yarn workspace @canton-network/cip103-conformance run validate-artifact",
+        "script:conformance:export-badge": "yarn workspace @canton-network/cip103-conformance run export-badge",
         "script:release": "tsx ./scripts/src/release.ts",
         "script:retag": "tsx ./scripts/src/retag.ts",
         "script:flat-pack": "tsx ./scripts/src/flat-pack.ts",
@@ -58,6 +61,7 @@
         "example-scripts",
         "sdk/**",
         "sdk-support/**",
+        "tools/**",
         "scripts",
         "mock-oauth2",
         "wallet-gateway/**"

@@ -1,0 +1,58 @@
+{
+    "name": "@canton-network/cip103-conformance",
+    "version": "0.1.0",
+    "type": "module",
+    "description": "Self-serve CIP-103 conformance CLI for sync/async wallet provider profiles.",
+    "license": "Apache-2.0",
+    "author": "Digital Asset",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "bin": {
+        "conformance-cli": "./dist/cli.js"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "default": "./dist/index.js"
+        },
+        "./browser": {
+            "types": "./dist/browser.d.ts",
+            "import": "./dist/browser.js",
+            "require": "./dist/browser.cjs",
+            "default": "./dist/browser.js"
+        }
+    },
+    "scripts": {
+        "build": "tsup && tsc -p tsconfig.types.json && yarn postbuild",
+        "postbuild": "mkdir -p dist/specs && cp ../../api-specs/openrpc-dapp-api.json ../../api-specs/openrpc-dapp-remote-api.json dist/specs/",
+        "dev": "tsup --watch --onSuccess \"tsc -p tsconfig.types.json\"",
+        "clean": "tsc -b --clean; rm -rf dist",
+        "run": "tsx src/cli.ts",
+        "report:html": "node ./generate-report.mjs"
+    },
+    "dependencies": {
+        "commander": "^14.0.3",
+        "playwright": "^1.58.2",
+        "zod": "^4.3.6"
+    },
+    "devDependencies": {
+        "@types/node": "^25.3.3",
+        "tsup": "^8.5.1",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3"
+    },
+    "files": [
+        "dist/**"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/hyperledger-labs/splice-wallet-kernel.git",
+        "directory": "tools/cip103-conformance"
+    }
+}

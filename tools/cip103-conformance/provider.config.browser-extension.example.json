@@ -1,0 +1,10 @@
+{
+    "name": "Example Browser Extension Wallet",
+    "version": "1.0.0",
+    "transport": "injected",
+    "appUrl": "http://localhost:8080",
+    "injectedNamespace": "canton.<providerKey>",
+    "extensionPath": "/absolute/path/to/unpacked-extension",
+    "headless": false,
+    "timeoutMs": 10000
+}

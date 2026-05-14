@@ -1,0 +1,10 @@
+{
+    "name": "Nightly Wallet",
+    "version": "unknown",
+    "transport": "injected",
+    "appUrl": "http://localhost:8080",
+    "providerId": "canton.nightly",
+    "extensionPath": "/absolute/path/to/unpacked-nightly-extension",
+    "headless": false,
+    "timeoutMs": 10000
+}

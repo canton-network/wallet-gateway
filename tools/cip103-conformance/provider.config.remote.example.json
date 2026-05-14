@@ -1,0 +1,10 @@
+{
+    "name": "Example Wallet Provider",
+    "version": "0.0.0",
+    "transport": "http",
+    "endpoint": "http://localhost:8081/json-rpc",
+    "timeoutMs": 10000,
+    "headers": {
+        "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJraWQiOiJmZGRlZjcyN2M1ZWNlNzU3NmQyYjg3YTJlY2Q5ZjQ4ZGUwZjY0MzgzYTc5OGE3NzE0MTMyZjUyNDBkM2RlZGQ0ZmNhMGY2MmRkNTQxMGEzNyIsImFsZyI6IlJTMjU2In0.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjg4ODkiLCJpYXQiOjE3NzMyMjcwNzYsImV4cCI6MTc3MzIzMDY3NiwibmJmIjoxNzczMjI3MDY2LCJzdWIiOiJvcGVyYXRvciIsImFtciI6WyJwd2QiXSwic2NvcGUiOiJkYW1sX2xlZGdlcl9hcGkiLCJhdWQiOiJodHRwczovL2RhbWwuY29tL2p3dC9hdWQvcGFydGljaXBhbnQvcGFydGljaXBhbnQxOjoxMjIwZDQ0ZmMxYzNiYTBiNWJkZjdiOTU2ZWU3MWJjOTRlYmUyZDIzMjU4ZGMyNjhmZGYwODI0ZmJhZWZmMmM2MTQyNCJ9.QkUyPvfAcVD_K_1nPjrCltq2sRk98fyosogEVaayH9AlZKr2HdP7X_RnCY_AisVFqE4PLHbYW69BqCIdhRR0WaBBmq83rH2K1xg8s8d0kITDQLdYo3n8sWbx1y2q2dnUEYJ3pUmfftuRAcLEvDCMaEG6RF6xLCvjMkb2yg6Uy33TafR6-Foj1uXpP5Cl2Ir6ONj3166yzjuPfuvwPbntNGD-dWzmFhaxoB1aM2sAnbnxdNdgemf55VIPORj4dL4eu9NHmTkCzgRAuv-qzVOvPp6ELKIVMPhD84r6iKCHm6jhE0iEF1PyovYHd-aLEeTm6_QUWz6POQyTMLaP6re-Ng"
+    }
+}

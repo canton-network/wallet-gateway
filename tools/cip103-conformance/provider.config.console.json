@@ -1,0 +1,10 @@
+{
+    "name": "Console Wallet",
+    "version": "unknown",
+    "transport": "injected",
+    "appUrl": "http://localhost:8080",
+    "providerId": "canton.console",
+    "extensionPath": "/absolute/path/to/unpacked-console-wallet-extension",
+    "headless": false,
+    "timeoutMs": 10000
+}

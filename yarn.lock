@@ -1458,6 +1458,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@canton-network/cip103-conformance@workspace:^, @canton-network/cip103-conformance@workspace:tools/cip103-conformance":
+  version: 0.0.0-use.local
+  resolution: "@canton-network/cip103-conformance@workspace:tools/cip103-conformance"
+  dependencies:
+    "@types/node": "npm:^25.3.3"
+    commander: "npm:^14.0.3"
+    playwright: "npm:^1.58.2"
+    tsup: "npm:^8.5.1"
+    tsx: "npm:^4.21.0"
+    typescript: "npm:^5.9.3"
+    zod: "npm:^4.3.6"
+  bin:
+    conformance-cli: ./dist/cli.js
+  languageName: unknown
+  linkType: soft
+
 "@canton-network/core-acs-reader@workspace:^, @canton-network/core-acs-reader@workspace:core/acs-reader":
   version: 0.0.0-use.local
   resolution: "@canton-network/core-acs-reader@workspace:core/acs-reader"
@@ -2227,6 +2243,31 @@ __metadata:
       optional: true
     "@walletconnect/types":
       optional: true
+  languageName: unknown
+  linkType: soft
+
+"@canton-network/example-conformance-runner@workspace:examples/conformance-runner":
+  version: 0.0.0-use.local
+  resolution: "@canton-network/example-conformance-runner@workspace:examples/conformance-runner"
+  dependencies:
+    "@canton-network/cip103-conformance": "workspace:^"
+    "@canton-network/core-rpc-errors": "workspace:^"
+    "@canton-network/core-types": "workspace:^"
+    "@canton-network/dapp-sdk": "workspace:^"
+    "@eslint/js": "npm:^10.0.1"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:^5.1.4"
+    eslint: "npm:^10.0.2"
+    eslint-plugin-react-hooks: "npm:^7.0.1"
+    eslint-plugin-react-refresh: "npm:^0.5.2"
+    globals: "npm:^17.4.0"
+    nx: "npm:^22.5.3"
+    react: "npm:^19.2.4"
+    react-dom: "npm:^19.2.4"
+    typescript: "npm:~5.9.3"
+    typescript-eslint: "npm:^8.56.1"
+    vite: "npm:^7.3.1"
   languageName: unknown
   linkType: soft
 
@@ -18159,7 +18200,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright@npm:1.58.2":
+"playwright@npm:1.58.2, playwright@npm:^1.58.2":
   version: 1.58.2
   resolution: "playwright@npm:1.58.2"
   dependencies:

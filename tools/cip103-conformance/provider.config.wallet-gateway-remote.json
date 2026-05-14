@@ -1,0 +1,10 @@
+{
+    "name": "Wallet Gateway (Remote)",
+    "version": "unknown",
+    "transport": "http",
+    "endpoint": "http://localhost:3030/api/v0/dapp",
+    "timeoutMs": 15000,
+    "headers": {
+        "authorization": "Bearer <access-token>"
+    }
+}

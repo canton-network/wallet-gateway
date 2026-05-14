@@ -1,0 +1,127 @@
+{
+    "schemaVersion": 1,
+    "suite": "cip-103-conformance",
+    "profile": "sync",
+    "provider": {
+        "name": "Wallet Gateway (Remote)",
+        "version": "unknown",
+        "transport": "http",
+        "endpoint": "http://localhost:3030/api/v0/dapp"
+    },
+    "generatedAt": "2026-03-31T11:22:50.856Z",
+    "summary": {
+        "total": 15,
+        "passed": 14,
+        "failed": 1,
+        "skipped": 0,
+        "status": "fail"
+    },
+    "results": [
+        {
+            "id": "CIP103-RPC-001",
+            "title": "Unknown method returns method-not-found",
+            "category": "protocol",
+            "status": "fail",
+            "elapsedMs": 43,
+            "details": "Expected -32601, got -32001"
+        },
+        {
+            "id": "CIP103-RPC-002",
+            "title": "Invalid JSON-RPC request returns error",
+            "category": "protocol",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-accountsChanged",
+            "title": "Method 'accountsChanged' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 4
+        },
+        {
+            "id": "CIP103-SCHEMA-connect",
+            "title": "Method 'connect' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 3
+        },
+        {
+            "id": "CIP103-SCHEMA-disconnect",
+            "title": "Method 'disconnect' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-getActiveNetwork",
+            "title": "Method 'getActiveNetwork' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-getPrimaryAccount",
+            "title": "Method 'getPrimaryAccount' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 3
+        },
+        {
+            "id": "CIP103-SCHEMA-ledgerApi",
+            "title": "Method 'ledgerApi' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 3
+        },
+        {
+            "id": "CIP103-SCHEMA-listAccounts",
+            "title": "Method 'listAccounts' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-prepareExecute",
+            "title": "Method 'prepareExecute' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-prepareExecuteAndWait",
+            "title": "Method 'prepareExecuteAndWait' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 3
+        },
+        {
+            "id": "CIP103-SCHEMA-signMessage",
+            "title": "Method 'signMessage' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-status",
+            "title": "Method 'status' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 2
+        },
+        {
+            "id": "CIP103-SCHEMA-txChanged",
+            "title": "Method 'txChanged' is implemented",
+            "category": "schema",
+            "status": "pass",
+            "elapsedMs": 5
+        },
+        {
+            "id": "CIP103-BEH-001",
+            "title": "Provider exposes 'connect' lifecycle method",
+            "category": "behavior",
+            "status": "pass",
+            "elapsedMs": 24
+        }
+    ]
+}
