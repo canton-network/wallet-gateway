@@ -38,6 +38,7 @@
     "dependencies": {
         "@canton-network/core-ledger-client-types": "workspace:^",
         "@canton-network/core-provider-ledger": "workspace:^",
+        "@canton-network/core-token-standard": "workspace:^",
         "@canton-network/core-types": "workspace:^",
         "bignumber.js": "^9.3.1",
         "dayjs": "^1.11.19",

@@ -1,31 +1,24 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { LRUCache, LRUCacheOptions } from 'typescript-lru-cache'
-import { LedgerTypes, SDKContext } from '../../../sdk.js'
-import { ACSCacheNamespace } from './cache.js'
-import { ACSReader } from './reader.js'
-import { ACSKey } from './types.js'
-import { AcsRequestOptions } from '../index.js'
-import { AcsOptions } from '@canton-network/core-acs-reader'
+import { LRUCache } from 'typescript-lru-cache'
+import { ACSCache, ACSCacheOptions } from './cache'
+import { ACSKey } from '../types'
+import { ResolvedAcsOptions } from '../service'
+import { LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
+import { AbstractLedgerProvider } from '@canton-network/core-provider-ledger'
 
-export type ACSNamespaceOptions = Pick<
-    LRUCacheOptions<string, ACSCacheNamespace>,
-    'maxSize' | 'entryExpirationTimeInMS'
->
-
-export class ACSNamespace extends ACSReader {
-    private readonly caches: LRUCache<string, ACSCacheNamespace>
+export class ACSCacheCollection {
+    private readonly collection: LRUCache<string, ACSCache>
 
     constructor(
-        protected readonly sdkContext: SDKContext,
-        private readonly options: ACSNamespaceOptions = {
+        private readonly ledger: AbstractLedgerProvider,
+        private readonly options: ACSCacheOptions = {
             maxSize: 100,
             entryExpirationTimeInMS: 10 * 60 * 1000,
         }
     ) {
-        super(sdkContext)
-        this.caches = new LRUCache(options)
+        this.collection = new LRUCache(options)
     }
 
     /**
@@ -36,11 +29,10 @@ export class ACSNamespace extends ACSReader {
      * @override
      * @see {@link ACSReader.readRaw}
      */
-    public override async readRaw(
-        options: AcsRequestOptions
-    ): Promise<Array<LedgerTypes['JsGetActiveContractsResponse']>> {
-        const resolvedOptions = await this.resolveAcsOptions(options)
-        const { parties, interfaceIds, templateIds } = resolvedOptions
+    public async readFromCache(
+        options: ResolvedAcsOptions
+    ): Promise<Array<LedgerCommonSchemas['JsGetActiveContractsResponse']>> {
+        const { parties, interfaceIds, templateIds } = options
         const keys: ACSKey[] =
             parties?.flatMap((party) => {
                 const withTemplateIds =
@@ -54,16 +46,16 @@ export class ACSNamespace extends ACSReader {
                 return [...withInterfaceIds, ...withTemplateIds]
             }) ?? []
 
-        return await this.query({ options: resolvedOptions, keys })
+        return await this.query({ options, keys })
     }
 
     private getCache(key: ACSKey) {
         const serializedKey = this.serializeKey(key)
-        const existingCache = this.caches.get(serializedKey)
+        const existingCache = this.collection.get(serializedKey)
         if (existingCache) return existingCache
 
-        const newCache = new ACSCacheNamespace(this.sdkContext)
-        this.caches.set(serializedKey, newCache)
+        const newCache = new ACSCache(this.ledger)
+        this.collection.set(serializedKey, newCache)
 
         return newCache
     }
@@ -72,7 +64,10 @@ export class ACSNamespace extends ACSReader {
      * Updates the cached active contract set for a specific key and returns contracts at the requested offset.
      * If the cache is outdated, fetches updates from the ledger and applies them incrementally.
      */
-    private async updateCache(args: { options: AcsOptions; key: ACSKey }) {
+    private async updateCache(args: {
+        options: ResolvedAcsOptions
+        key: ACSKey
+    }) {
         const cache = this.getCache(args.key)
         await cache.update(args.options)
         return await cache.calculateAt(args.options.offset)
@@ -83,9 +78,9 @@ export class ACSNamespace extends ACSReader {
      * Each key represents a unique party-template-interface combination to be queried independently.
      */
     private async query(args: {
-        options: AcsOptions
+        options: ResolvedAcsOptions
         keys: ACSKey[]
-    }): Promise<Array<LedgerTypes['JsGetActiveContractsResponse']>> {
+    }): Promise<Array<LedgerCommonSchemas['JsGetActiveContractsResponse']>> {
         const { options, keys } = args
         return (
             await Promise.all(

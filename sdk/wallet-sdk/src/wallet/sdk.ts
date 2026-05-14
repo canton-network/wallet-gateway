@@ -8,7 +8,6 @@ import {
     LedgerProvider,
     Ops,
 } from '@canton-network/core-provider-ledger'
-import { AcsReader } from '@canton-network/core-acs-reader'
 import {
     EXTENDED_SDK_OPTION_KEYS,
     ExtendedSDKOptions,
@@ -41,7 +40,6 @@ export type LedgerTypes = LedgerCommonSchemas
 
 export type SDKContext = {
     ledgerProvider: AbstractLedgerProvider
-    acsReader: AcsReader
     userId: string
     logger: SDKLogger
     error: SDKErrorHandler
@@ -104,11 +102,8 @@ export class SDK {
             logger
         )
 
-        const acsReader = new AcsReader(ledgerProvider)
-
         const ctx: SDKContext = {
             ledgerProvider,
-            acsReader,
             userId,
             logger,
             error,

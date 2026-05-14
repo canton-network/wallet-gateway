@@ -28,7 +28,7 @@ import {
     type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
 import { Logger, PartyId } from '@canton-network/core-types'
-import { AcsReader, AcsOptions } from '@canton-network/core-acs-reader'
+import { ACSReader, AcsOptions } from '@canton-network/core-acs-reader'
 import {
     TokenStandardTransactionInterfaces,
     ensureInterfaceViewIsPresent,
@@ -246,10 +246,10 @@ export class CoreService {
                 `continue to completion: ${Boolean(continueUntilCompletion)}`
             )
 
-            const reader = new AcsReader(this.ledgerProvider)
+            const reader = new ACSReader(this.ledgerProvider)
 
             const acsResponses: JsGetActiveContractsResponse[] =
-                (await reader.getActiveContracts(
+                (await reader.raw.read(
                     options
                 ))! as JsGetActiveContractsResponse[]
 

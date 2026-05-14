@@ -6,7 +6,6 @@ import { Ops } from '@canton-network/core-provider-ledger'
 type AllowedOperation =
     | Ops.PostV2CommandsSubmitAndWait
     | Ops.PostV2InteractiveSubmissionPrepare
-    | Ops.PostV2Updates
 
 type OperationBodyRequest<Operation extends AllowedOperation> =
     Operation['ledgerApi']['params']['body']
@@ -17,9 +16,7 @@ type RequiredParamsFor<Operation extends AllowedOperation> = Extract<
         | Ops.PostV2CommandsSubmitAndWait
         | Ops.PostV2InteractiveSubmissionPrepare
         ? 'commands' | 'actAs'
-        : Operation extends Ops.PostV2Updates
-          ? 'beginExclusive' | 'endInclusive' | 'updateFormat'
-          : never
+        : never
 >
 type UnusedParams<Operation extends AllowedOperation> = Extract<
     keyof OperationBodyRequest<Operation>,
@@ -27,9 +24,7 @@ type UnusedParams<Operation extends AllowedOperation> = Extract<
         | Ops.PostV2CommandsSubmitAndWait
         | Ops.PostV2InteractiveSubmissionPrepare
         ? 'userId'
-        : Operation extends Ops.PostV2Updates
-          ? 'verbose'
-          : never
+        : never
 >
 
 export type InternalOperationParams<Operation extends AllowedOperation> =

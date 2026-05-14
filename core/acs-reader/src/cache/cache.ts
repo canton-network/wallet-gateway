@@ -2,17 +2,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ContractId } from '@canton-network/core-token-standard'
-import { LedgerTypes, SDKContext } from '../../../sdk.js'
-import { LedgerNamespace } from '../namespace.js'
-import { ACSReader } from './reader.js'
-import { ACEvent, ACS_UPDATE_CONFIG, ACSState } from './types.js'
-import { Ops } from '@canton-network/core-provider-ledger'
+import { ACEvent, ACS_UPDATE_CONFIG, ACSState } from '../types'
 import {
-    AcsOptions,
+    AbstractLedgerProvider,
+    Ops,
+} from '@canton-network/core-provider-ledger'
+import { LRUCacheOptions } from 'typescript-lru-cache'
+import { LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
+import pino from 'pino'
+import {
+    ResolvedAcsOptions,
+    AcsService,
     buildActiveContractFilter,
-} from '@canton-network/core-acs-reader'
+} from '../service'
 
-export class ACSCacheNamespace {
+export type ACSCacheOptions = Pick<
+    LRUCacheOptions<string, ACSCache>,
+    'maxSize' | 'entryExpirationTimeInMS'
+>
+
+const logger = pino({ name: 'acs-reader/cache' })
+
+export class ACSCache {
     private readonly state: ACSState = {
         initial: {
             offset: 0,
@@ -24,12 +35,10 @@ export class ACSCacheNamespace {
         },
         archivedACs: new Set(),
     }
-    private readonly acsReader: ACSReader
-    private readonly ledger: LedgerNamespace
+    private readonly service: AcsService
 
-    constructor(private readonly sdkContext: SDKContext) {
-        this.acsReader = new ACSReader(sdkContext)
-        this.ledger = new LedgerNamespace(sdkContext)
+    constructor(private readonly ledger: AbstractLedgerProvider) {
+        this.service = new AcsService(ledger)
     }
 
     /**
@@ -53,7 +62,7 @@ export class ACSCacheNamespace {
      * Fetches and applies incremental updates from the ledger, initializing the cache if needed.
      * Automatically prunes old events when the update buffer exceeds configured thresholds.
      */
-    public async update(options: AcsOptions) {
+    public async update(options: ResolvedAcsOptions) {
         if (!this.initial.acs.length || this.initial.offset > options.offset) {
             await this.initState(options)
         }
@@ -95,17 +104,12 @@ export class ACSCacheNamespace {
      */
     public calculateAt(offset: number) {
         if (!this.initial.acs)
-            this.sdkContext.error.throw({
-                message: 'No ACS initialized. Call `.update()` first',
-                type: 'Unexpected',
-            })
+            throw Error('No ACS initialized. Call `.update()` first')
         if (this.initial.offset > offset)
-            this.sdkContext.error.throw({
-                message: 'Provided offset cannot be smaller than ACS offset',
-                type: 'Unexpected',
-            })
+            throw Error('Provided offset cannot be smaller than ACS offset')
 
-        const newContracts: LedgerTypes['JsGetActiveContractsResponse'][] = []
+        const newContracts: LedgerCommonSchemas['JsGetActiveContractsResponse'][] =
+            []
         const newArchivedContracts: Set<ContractId<string>> = new Set()
 
         this.updates.acs
@@ -149,8 +153,8 @@ export class ACSCacheNamespace {
      * Initializes the cache state by fetching the active contract set at the specified offset.
      * Clears any existing updates and archived contract tracking.
      */
-    private async initState(options: AcsOptions) {
-        const initialAcs = await this.acsReader.readRaw(options)
+    private async initState(options: ResolvedAcsOptions) {
+        const initialAcs = await this.service.getActiveContracts(options)
         this.state.initial = {
             offset: options.offset,
             acs: initialAcs,
@@ -194,9 +198,10 @@ export class ACSCacheNamespace {
     private async fetchUpdates(args: {
         beginExclusive: number
         endInclusive: number
-        eventFormat: LedgerTypes['EventFormat']
+        eventFormat: LedgerCommonSchemas['EventFormat']
+        filter?: LedgerCommonSchemas['TransactionFilter']
     }) {
-        const { beginExclusive, endInclusive, eventFormat } = args
+        const { beginExclusive, endInclusive, eventFormat, filter } = args
         const updateFormat: Ops.PostV2UpdatesFlats['ledgerApi']['params']['body']['updateFormat'] =
             {
                 includeTransactions: {
@@ -204,10 +209,24 @@ export class ACSCacheNamespace {
                     transactionShape: 'TRANSACTION_SHAPE_ACS_DELTA',
                 },
             }
-        return await this.ledger.internal.updates({
-            beginExclusive,
-            endInclusive,
-            updateFormat,
+
+        return await this.ledger.request<Ops.PostV2Updates>({
+            method: 'ledgerApi',
+            params: {
+                resource: '/v2/updates',
+                requestMethod: 'post',
+                body: {
+                    beginExclusive,
+                    endInclusive,
+                    updateFormat,
+                    verbose: false,
+                    ...(filter ? { filter } : {}),
+                },
+                query: {
+                    limit: ACS_UPDATE_CONFIG.maxUpdatesToFetch,
+                    stream_idle_timeout_ms: 1000,
+                },
+            },
         })
     }
 
@@ -217,7 +236,7 @@ export class ACSCacheNamespace {
      * Tracks the highest offset seen across all updates.
      */
     private extractEvents(args: {
-        updates: Awaited<ReturnType<ACSCacheNamespace['fetchUpdates']>>
+        updates: Awaited<ReturnType<ACSCache['fetchUpdates']>>
         offset: number
     }) {
         const { updates, offset } = args
@@ -231,7 +250,7 @@ export class ACSCacheNamespace {
                 const transaction = update.update.Transaction
                 const trOffset = transaction?.value?.offset
                 if (trOffset && trOffset > newOffset) {
-                    const events: Array<LedgerTypes['Event']> =
+                    const events: Array<LedgerCommonSchemas['Event']> =
                         transaction?.value?.events ?? []
                     events.forEach((event) => {
                         if (!event) {
@@ -269,7 +288,7 @@ export class ACSCacheNamespace {
                     newOffset = offset
                 }
             } else {
-                this.sdkContext.logger.warn(
+                logger.warn(
                     {
                         value: JSON.stringify(update.update),
                     },
@@ -285,8 +304,9 @@ export class ACSCacheNamespace {
  * Checks if an event represents a contract creation.
  * Used to distinguish between created and archived events when processing cache updates.
  */
-function isCreatedEvent(
-    event: ACEvent
-): event is ACEvent & { archived: true; event: LedgerTypes['CreatedEvent'] } {
+function isCreatedEvent(event: ACEvent): event is ACEvent & {
+    archived: true
+    event: LedgerCommonSchemas['CreatedEvent']
+} {
     return !event.archived
 }

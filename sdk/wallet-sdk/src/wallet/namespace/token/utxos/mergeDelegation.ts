@@ -45,7 +45,7 @@ export class MergeDelegationNamespace {
     async approve(args: { owner: PartyId; synchronizerId?: string }) {
         const { owner, synchronizerId = '' } = args
 
-        const mergeDelegationProposals = await this.ledger.acs.read({
+        const mergeDelegationProposals = await this.ledger.acs.readJsContracts({
             parties: [owner],
             templateIds: [
                 '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegationProposal',
@@ -107,26 +107,28 @@ export class MergeDelegationNamespace {
         const allMergeDelegationChoices: WrappedCommand<'ExerciseCommand'>[] =
             []
 
-        const mergeDelegationContractsForUser = await this.ledger.acs.read({
-            parties: [party],
-            templateIds: [
-                '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegation',
-            ],
-            filterByParty: true,
-        })
+        const mergeDelegationContractsForUser =
+            await this.ledger.acs.readJsContracts({
+                parties: [party],
+                templateIds: [
+                    '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegation',
+                ],
+                filterByParty: true,
+            })
 
         const mergeDelegationDisclosedContract =
             this.activeContractToDisclosedContract(
                 mergeDelegationContractsForUser[0]
             )
 
-        const batchMergeUtilityContracts = await this.ledger.acs.read({
-            parties: [this.ctx.validatorParty],
-            templateIds: [
-                '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:BatchMergeUtility',
-            ],
-            filterByParty: true,
-        })
+        const batchMergeUtilityContracts =
+            await this.ledger.acs.readJsContracts({
+                parties: [this.ctx.validatorParty],
+                templateIds: [
+                    '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:BatchMergeUtility',
+                ],
+                filterByParty: true,
+            })
 
         const batchMergeUtilityDisclosedContract =
             this.activeContractToDisclosedContract(
@@ -226,7 +228,9 @@ export class MergeDelegationNamespace {
     }
 
     private activeContractToDisclosedContract(
-        data: Awaited<ReturnType<LedgerNamespace['acs']['read']>>[number]
+        data: Awaited<
+            ReturnType<LedgerNamespace['acs']['readJsContracts']>
+        >[number]
     ) {
         return {
             templateId: data.templateId,

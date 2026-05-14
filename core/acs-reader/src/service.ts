@@ -19,7 +19,7 @@ const COMPLETIONS_LIMIT = '100'
 const COMPLETIONS_STREAM_IDLE_TIMEOUT_MS = '1000'
 
 export type AcsOptions = {
-    offset: number
+    offset?: number
     templateIds?: string[]
     parties?: string[] //TODO: Figure out if this should use this.partyId by default and not allow cross party filtering
     filterByParty?: boolean
@@ -28,15 +28,13 @@ export type AcsOptions = {
     continueUntilCompletion?: boolean
 }
 
-export class AcsReader {
-    private readonly ledgerProvider: AbstractLedgerProvider
+export type ResolvedAcsOptions = Omit<AcsOptions, 'offset'> & { offset: number }
 
-    constructor(ledgerProvider: AbstractLedgerProvider) {
-        this.ledgerProvider = ledgerProvider
-    }
+export class AcsService {
+    constructor(private readonly ledgerProvider: AbstractLedgerProvider) {}
 
     public async getActiveContracts(
-        options: AcsOptions
+        options: ResolvedAcsOptions
     ): Promise<Array<Types['JsGetActiveContractsResponse']>> {
         const { limit, continueUntilCompletion } = options
 
@@ -49,8 +47,6 @@ export class AcsReader {
                 limit ?? 200
             )
         }
-
-        //TODO: add back caching later
 
         return await this.ledgerProvider.request<Ops.PostV2StateActiveContracts>(
             {

@@ -104,5 +104,7 @@
                 "staticStorybookTargetName": "static-storybook"
             }
         }
-    ]
+    ],
+    "analytics": false,
+    "nxCloudId": "6a05b93522efcb8f608e1a3d"
 }

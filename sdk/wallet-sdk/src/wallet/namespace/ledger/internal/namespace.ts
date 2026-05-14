@@ -5,7 +5,6 @@ import { SDKContext } from '../../../sdk.js'
 import { v4 } from 'uuid'
 import { Ops } from '@canton-network/core-provider-ledger'
 import { InternalOperationParams } from './types.js'
-import { ACS_UPDATE_CONFIG } from '../acs/index.js'
 
 export class InternalLedgerNamespace {
     constructor(private readonly ctx: SDKContext) {}
@@ -80,30 +79,5 @@ export class InternalLedgerNamespace {
                 },
             }
         )
-    }
-
-    public async updates(args: InternalOperationParams<Ops.PostV2Updates>) {
-        const { beginExclusive, endInclusive, filter, updateFormat } = args
-
-        const request = {
-            beginExclusive,
-            endInclusive,
-            updateFormat,
-            verbose: false,
-            ...(filter ? { filter } : {}),
-        }
-
-        return await this.ctx.ledgerProvider.request<Ops.PostV2Updates>({
-            method: 'ledgerApi',
-            params: {
-                resource: '/v2/updates',
-                requestMethod: 'post',
-                body: request,
-                query: {
-                    limit: ACS_UPDATE_CONFIG.maxUpdatesToFetch,
-                    stream_idle_timeout_ms: 1000,
-                },
-            },
-        })
     }
 }

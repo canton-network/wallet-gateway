@@ -1457,6 +1457,7 @@ __metadata:
   dependencies:
     "@canton-network/core-ledger-client-types": "workspace:^"
     "@canton-network/core-provider-ledger": "workspace:^"
+    "@canton-network/core-token-standard": "workspace:^"
     "@canton-network/core-types": "workspace:^"
     "@types/node": "npm:^25.0.10"
     "@vitest/browser-playwright": "npm:^4.1.2"

@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { LedgerTypes } from '../../../sdk.js'
+import { LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
 import { ContractId } from '@canton-network/core-token-standard'
 import { PartyId } from '@canton-network/core-types'
 
@@ -13,7 +13,9 @@ export type ACSKey = Partial<{
 
 export type ACEvent = {
     offset: number
-    event: LedgerTypes['CreatedEvent'] | LedgerTypes['ArchivedEvent']
+    event:
+        | LedgerCommonSchemas['CreatedEvent']
+        | LedgerCommonSchemas['ArchivedEvent']
     workflowId: string | null
     synchronizerId: string | null
     archived?: boolean
@@ -25,7 +27,9 @@ export type ACSComponentState<T> = {
 }
 
 export type ACSState = {
-    initial: ACSComponentState<LedgerTypes['JsGetActiveContractsResponse']>
+    initial: ACSComponentState<
+        LedgerCommonSchemas['JsGetActiveContractsResponse']
+    >
     updates: ACSComponentState<ACEvent>
     archivedACs: Set<ContractId<string>>
 }
