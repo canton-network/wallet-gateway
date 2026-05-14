@@ -11,20 +11,20 @@
     "dependencies": {
         "@canton-network/core-wallet-auth": "workspace:^",
         "@emotion/react": "^11.14.0",
-        "@emotion/styled": "^11.14.0",
-        "@mui/icons-material": "^7.1.2",
-        "@mui/material": "^7.1.2",
-        "@reown/walletkit": "^1.5.4",
-        "@walletconnect/core": "^2.23.8",
-        "@walletconnect/types": "^2.23.8",
-        "react": "^19.2.4",
-        "react-dom": "^19.2.4"
+        "@emotion/styled": "^11.14.1",
+        "@mui/icons-material": "^7.3.11",
+        "@mui/material": "^7.3.11",
+        "@reown/walletkit": "^1.5.5",
+        "@walletconnect/core": "^2.23.9",
+        "@walletconnect/types": "^2.23.9",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6"
     },
     "devDependencies": {
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "@vitejs/plugin-react": "^5.1.4",
+        "@vitejs/plugin-react": "^5.2.0",
         "typescript": "~5.9.3",
-        "vite": "^7.3.1"
+        "vite": "^7.3.3"
     }
 }

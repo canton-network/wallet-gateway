@@ -26,12 +26,12 @@
         "test:coverage": "vitest run --project node --project browser --coverage --passWithNoTests"
     },
     "devDependencies": {
-        "@types/node": "^25.0.10",
-        "@vitest/browser-playwright": "^4.1.2",
-        "@vitest/coverage-v8": "^4.1.2",
+        "@types/node": "^25.7.0",
+        "@vitest/browser-playwright": "^4.1.6",
+        "@vitest/coverage-v8": "^4.1.6",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
-        "vitest": "^4.1.2"
+        "vitest": "^4.1.6"
     },
     "files": [
         "dist/**"

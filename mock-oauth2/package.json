@@ -21,7 +21,7 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
-        "@types/node": "^25.3.3",
+        "@types/node": "^25.7.0",
         "basic-auth": "^2.0.1",
         "oauth2-mock-server": "^8.2.2",
         "pino": "^10.3.1"

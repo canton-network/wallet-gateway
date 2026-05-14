@@ -26,19 +26,19 @@
         "test:coverage": "vitest run --project node --project browser --coverage --passWithNoTests"
     },
     "devDependencies": {
-        "@types/node": "^25.3.3",
-        "@vitest/browser-playwright": "^4.1.2",
-        "@vitest/coverage-v8": "^4.1.2",
+        "@types/node": "^25.7.0",
+        "@vitest/browser-playwright": "^4.1.6",
+        "@vitest/coverage-v8": "^4.1.6",
         "openapi-typescript": "^7.13.0",
-        "playwright": "^1.58.2",
+        "playwright": "^1.60.0",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
-        "vitest": "^4.1.2"
+        "vitest": "^4.1.6"
     },
     "dependencies": {
         "@canton-network/core-types": "workspace:^",
         "bignumber.js": "^10.0.2",
-        "dayjs": "^1.11.19",
+        "dayjs": "^1.11.20",
         "openapi-fetch": "^0.17.0",
         "pino": "^10.3.1"
     },

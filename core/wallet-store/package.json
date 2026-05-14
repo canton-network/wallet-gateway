@@ -18,15 +18,15 @@
     },
     "dependencies": {
         "@canton-network/core-wallet-auth": "workspace:^",
-        "zod": "^4.3.6"
+        "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@vitest/browser-playwright": "^4.1.2",
-        "@vitest/coverage-v8": "^4.1.2",
-        "playwright": "^1.58.2",
+        "@vitest/browser-playwright": "^4.1.6",
+        "@vitest/coverage-v8": "^4.1.6",
+        "playwright": "^1.60.0",
         "tsup": "^8.5.1",
         "typescript": "^5.9.3",
-        "vitest": "^4.1.2"
+        "vitest": "^4.1.6"
     },
     "files": [
         "dist/**"
