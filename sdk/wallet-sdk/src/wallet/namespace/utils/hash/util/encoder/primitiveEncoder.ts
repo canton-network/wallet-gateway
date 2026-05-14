@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { OfflineSdkContext } from '../../../../../sdk.js'
+import { OfflineSDKContext } from '../../../../../sdk.js'
 import { Encoder } from './encoder.js'
 
 export type HexString = string & { readonly __brand: unique symbol }
@@ -11,7 +11,7 @@ function isHexString(value: string): value is HexString {
 }
 
 export class PrimitiveEncoder extends Encoder {
-    constructor(protected ctx: OfflineSdkContext) {
+    constructor(protected ctx: OfflineSDKContext) {
         super(ctx)
     }
 

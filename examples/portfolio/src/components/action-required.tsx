@@ -163,8 +163,7 @@ export const ActionRequired: React.FC<ActionRequiredProps> = ({ items }) => {
             <Box sx={{ display: 'flex', mb: 2 }}>
                 <Typography
                     variant="h6"
-                    sx={{ textTransform: 'uppercase' }}
-                    fontWeight="bold"
+                    sx={{ fontWeight: 'bold', textTransform: 'uppercase' }}
                 >
                     Action Required
                 </Typography>

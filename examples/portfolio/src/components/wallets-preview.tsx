@@ -11,8 +11,7 @@ export const WalletsPreview = () => {
         <Box sx={{ mt: 1 }}>
             <Typography
                 variant="h6"
-                sx={{ textTransform: 'uppercase', mb: 2 }}
-                fontWeight="bold"
+                sx={{ fontWeight: 'bold', textTransform: 'uppercase', mb: 2 }}
             >
                 Wallets
             </Typography>
