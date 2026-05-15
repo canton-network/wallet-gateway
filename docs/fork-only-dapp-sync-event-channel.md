@@ -103,7 +103,22 @@ If/when this is taken upstream, three things are worth nailing down on canton-ne
 
 Independent of those questions, the fork-only patch here is intentionally minimal so it can survive any of the three resolutions: replace the envelope, replace the wiring, or replace the type names without touching the bug-fix shape.
 
-## Known gap: `DappSyncProvider.teardown()` is dead code under the current SDK lifecycle
+## Scope: WONTFIX (upstream-owned) — `DappSyncProvider.teardown()` is not wired by the SDK
+
+**Status:** known, intentional, **not addressed by this PR**.
+
+**Why this section exists:** the fork-introduced `DappSyncProvider.teardown()` method is structurally correct but is not called by anything in the current SDK control flow. The lifecycle code that _would_ call it lives in two upstream-owned files this PR does not modify:
+
+- `sdk/dapp-sdk/src/adapter/extension-adapter.ts` (upstream-owned)
+- `core/wallet-discovery/src/client.ts` (upstream-owned)
+
+Neither file is in this fork's `git diff wallet-gateway/main..HEAD`. They are upstream's surface and their lifecycle wiring is upstream's call. This fork ships `DappSyncProvider.teardown()` as a callable contract; upstream picks the caller.
+
+**Acceptance criteria for this PR explicitly exclude modifying upstream-owned files** (see PR #3 description, "fork-only" framing). This is consistent with how the JsCommands schema-stub fix in PR `canton-network/wallet-gateway#1726` (sister-branch `bb/jscommands-schema-stub-fix` on this fork) was scoped: a minimal upstream-eligible change, not a refactor of adjacent upstream surfaces.
+
+`rl review` cycles 1, 2, and 3 against `wallet-gateway/main..HEAD` flagged this lifecycle gap as a major finding. After cycle 1 the scope decision was made; cycles 2 and 3 re-flagged and the decision stood. The reviewer is adversarial-by-design and correctly identifies the risk regardless of declared scope. The risk is real; the scope to fix it is upstream's.
+
+---
 
 The patch adds `DappSyncProvider.teardown()` that calls the `transport.onEvent` unsubscribe and clears the field. **Nothing in the current SDK calls it.** Tracing the disconnect path on `wallet-gateway/main` (pre-patch and unchanged by this fork):
 
