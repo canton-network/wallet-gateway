@@ -5,7 +5,6 @@ import type {
     Provider,
     EventListener,
 } from '@canton-network/core-splice-provider'
-import { injectProvider } from '@canton-network/core-provider-dapp'
 import { WalletEvent, type SpliceMessage } from '@canton-network/core-types'
 import type {
     AccountsChangedEvent,
@@ -24,8 +23,6 @@ import { popup } from '@canton-network/core-wallet-ui-components'
 import { clearAllLocalState } from './util'
 
 export interface DappClientOptions {
-    /** Inject provider into `window.canton`. Defaults to true. */
-    injectGlobal?: boolean | undefined
     /** Provider type hint — affects `open()` routing. Defaults to `'remote'`. */
     providerType?: ProviderType | undefined
     /** Optional routing key for extension open messages. */
@@ -37,7 +34,7 @@ export interface DappClientOptions {
  * `Provider<DappRpcTypes>`.
  *
  * It exposes typed RPC helpers, event subscription shortcuts,
- * `window.canton` injection, and session-persistence listeners.
+ * and session-persistence listeners.
  *
  * How to obtain a provider is **not** this class's concern.
  * Use `DiscoveryClient` + the wallet picker, or construct any
@@ -53,10 +50,6 @@ export class DappClient {
     ) {
         this.provider = provider
         this.options = options
-
-        if (options.injectGlobal !== false) {
-            injectProvider(provider)
-        }
     }
 
     // ── Provider access ───────────────────────────────────
