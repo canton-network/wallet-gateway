@@ -1,6 +1,8 @@
 import pino from 'pino'
 import { logAllContracts } from '../utils/index.js'
 import { setupMultiSyncTrade } from './_setup.js'
+import { startRegistry } from './_registry/index.js'
+import { LOCALNET_TRADING_APP_LEDGER_URL } from './_config.js'
 import {
     TRADE_AMULET_AMOUNT,
     TRADE_TOKEN_AMOUNT,
@@ -26,8 +28,28 @@ const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 // Step 2: Vet DARs on all synchronizers (global + app) and all participants (P1, P2, P3)
 // Step 3: Allocate parties for Alice (P1), Bob (P2), TradingApp (P3), and TokenAdmin (P3)
 const setup = await setupMultiSyncTrade(logger)
-const { tokenNamespaceP2, alice, bob, tokenAdmin, synchronizers, amuletAdmin } =
-    setup
+const {
+    tokenNamespaceP2,
+    alice,
+    bob,
+    tokenAdmin,
+    synchronizers,
+    amuletAdmin,
+    globalSynchronizerId,
+    appSynchronizerId,
+} = setup
+
+// Start the Token Standard registry server now that tokenAdmin party ID is known.
+// The server must be up before wallet-SDK calls for allocation and transfer factory.
+const REGISTRY_PORT = parseInt(process.env['REGISTRY_PORT'] ?? '5975', 10)
+const registry = await startRegistry({
+    tokenAdminPartyId: tokenAdmin.partyId,
+    port: REGISTRY_PORT,
+    ledgerUrl: LOCALNET_TRADING_APP_LEDGER_URL,
+    globalSynchronizerId,
+    appSynchronizerId,
+    logger,
+})
 
 const allPartySpecs = buildContractReadSpec(setup)
 
@@ -101,3 +123,6 @@ await Promise.all([
 ])
 logger.info('Final contract state:')
 await logAllContracts(logger, synchronizers, allPartySpecs)
+
+await registry.stop()
+logger.info('Token Standard registry server stopped')

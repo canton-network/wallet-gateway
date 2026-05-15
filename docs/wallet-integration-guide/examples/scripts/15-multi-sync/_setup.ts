@@ -25,6 +25,7 @@ import type { SynchronizerMap } from '../utils/index.js'
 import {
     LOCALNET_BOB_LEDGER_URL,
     LOCALNET_TRADING_APP_LEDGER_URL,
+    LOCALNET_TEST_TOKEN_REGISTRY_URL,
     PARTY_HINT_ALICE,
     PARTY_HINT_BOB,
     PARTY_HINT_TRADING_APP,
@@ -74,22 +75,30 @@ export interface MultiSyncSetup {
 export async function setupMultiSyncTrade(
     logger: Logger
 ): Promise<MultiSyncSetup> {
-    // Create three SDK instances — one per participant node
+    // Create three SDK instances — one per participant node.
+    // Include the TestToken registry URL so sdk.token.transfer.create() can discover the TestToken asset.
+    const testTokenTokenConfig = {
+        ...TOKEN_NAMESPACE_CONFIG,
+        registries: [
+            ...(TOKEN_NAMESPACE_CONFIG.registries as URL[]),
+            LOCALNET_TEST_TOKEN_REGISTRY_URL,
+        ],
+    }
     const [p1Sdk, p2Sdk, p3Sdk] = await Promise.all([
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: LOCALNET_BOB_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: LOCALNET_TRADING_APP_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
     ])
 
