@@ -25,11 +25,16 @@ import { buildLedgerClient, readTokenRules } from './ledger.js'
 import type { LedgerClient } from '@canton-network/core-ledger-client'
 import type { TokenRulesContract } from './ledger.js'
 import { createRouter, respond, readBody } from './http/router.js'
-import type { GetFactoryRequest, GetChoiceContextRequest } from './types.js'
+import type {
+    GetFactoryRequest,
+    GetChoiceContextRequest,
+    SubmitAsTokenAdmin,
+} from './types.js'
 import { createMetadataHandlers } from './features/metadata/handlers.js'
 import { createTransferHandlers } from './features/transfer/handlers.js'
 import { createAllocationInstructionHandlers } from './features/allocation-instruction/handlers.js'
 import { createAllocationHandlers } from './features/allocation/handlers.js'
+import { createAdminHandlers } from './features/admin/handlers.js'
 
 // ── static instrument metadata ─────────────────────────────────────────────
 const TEST_TOKEN_INSTRUMENT_ID = 'TestToken'
@@ -99,6 +104,17 @@ const ROUTES: RouteEntry[] = [
         operationId: 'getAllocationFactory',
         nullable: true,
     },
+    // admin
+    {
+        method: 'POST',
+        pattern: '/admin/v1/setup',
+        operationId: 'adminSetupTokenRules',
+    },
+    {
+        method: 'POST',
+        pattern: '/admin/v1/mint',
+        operationId: 'adminMintToken',
+    },
     // allocation-v1
     {
         method: 'POST',
@@ -130,6 +146,11 @@ export interface RegistryConfig {
     globalSynchronizerId: string
     /** ID of the app synchronizer — used to select the factory for self-transfers. */
     appSynchronizerId: string
+    /**
+     * Callback to submit signed commands on behalf of tokenAdmin.
+     * Provided by the example so the registry never holds the private key.
+     */
+    submitAsTokenAdmin: SubmitAsTokenAdmin
 }
 
 export interface RegistryHandle {
@@ -153,6 +174,7 @@ export async function startRegistry(
         logger,
         globalSynchronizerId,
         appSynchronizerId,
+        submitAsTokenAdmin,
     } = config
 
     const ledgerClient: LedgerClient = buildLedgerClient(ledgerUrl, logger)
@@ -185,6 +207,12 @@ export async function startRegistry(
         globalSynchronizerId,
     })
     const alloc = createAllocationHandlers()
+    const admin = createAdminHandlers({
+        tokenAdminPartyId,
+        globalSynchronizerId,
+        appSynchronizerId,
+        submitAsTokenAdmin,
+    })
 
     // Dispatch map: operationId → (params, body) → Promise<result | null>
     type DispatchFn = (
@@ -228,6 +256,21 @@ export async function startRegistry(
                     { transferInstructionId: p['transferInstructionId']! },
                     b as GetChoiceContextRequest
                 ),
+        ],
+        // Admin
+        [
+            'adminSetupTokenRules',
+            async () => {
+                await admin.setupTokenRules()
+                return {}
+            },
+        ],
+        [
+            'adminMintToken',
+            async (_, b) => {
+                await admin.mintToken(b as { amount: string })
+                return {}
+            },
         ],
         // Allocation Instruction
         [

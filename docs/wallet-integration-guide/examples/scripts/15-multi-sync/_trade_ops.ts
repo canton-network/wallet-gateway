@@ -144,68 +144,26 @@ export async function createTokenRulesAndMintForBob(
         tokenNamespaceP2,
         bob,
         tokenAdmin,
-        globalSynchronizerId,
         appSynchronizerId,
     } = setup
 
-    await Promise.all([
-        p3Sdk.ledger
-            .prepare({
-                partyId: tokenAdmin.partyId,
-                commands: {
-                    CreateCommand: {
-                        templateId: `${TEST_TOKEN_PREFIX}:TokenRules`,
-                        createArguments: { admin: tokenAdmin.partyId },
-                    },
-                },
-                disclosedContracts: [],
-                synchronizerId: globalSynchronizerId,
-            })
-            .sign(tokenAdmin.keyPair.privateKey)
-            .execute({ partyId: tokenAdmin.partyId }),
-        p3Sdk.ledger
-            .prepare({
-                partyId: tokenAdmin.partyId,
-                commands: {
-                    CreateCommand: {
-                        templateId: `${TEST_TOKEN_PREFIX}:TokenRules`,
-                        createArguments: { admin: tokenAdmin.partyId },
-                    },
-                },
-                disclosedContracts: [],
-                synchronizerId: appSynchronizerId,
-            })
-            .sign(tokenAdmin.keyPair.privateKey)
-            .execute({ partyId: tokenAdmin.partyId }),
-    ])
+    // Create TokenRules on global + app synchronizers via registry admin API.
+    const registryBase = LOCALNET_TEST_TOKEN_REGISTRY_URL.href.replace(
+        /\/$/,
+        ''
+    )
+    await fetch(`${registryBase}/admin/v1/setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+    })
 
-    await p3Sdk.ledger
-        .prepare({
-            partyId: tokenAdmin.partyId,
-            commands: [
-                {
-                    CreateCommand: {
-                        templateId: `${TEST_TOKEN_PREFIX}:Token`,
-                        createArguments: {
-                            holding: {
-                                owner: tokenAdmin.partyId,
-                                instrumentId: {
-                                    admin: tokenAdmin.partyId,
-                                    id: 'TestToken',
-                                },
-                                amount: BOB_TOKEN_MINT_AMOUNT,
-                                lock: null,
-                                meta: { values: {} },
-                            },
-                        },
-                    },
-                },
-            ],
-            disclosedContracts: [],
-            synchronizerId: appSynchronizerId,
-        })
-        .sign(tokenAdmin.keyPair.privateKey)
-        .execute({ partyId: tokenAdmin.partyId })
+    // Mint a Token holding for tokenAdmin via registry admin API.
+    await fetch(`${registryBase}/admin/v1/mint`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: BOB_TOKEN_MINT_AMOUNT }),
+    })
 
     const adminTokenHoldings = await p3Sdk.ledger.acs.read({
         templateIds: [`${TEST_TOKEN_PREFIX}:Token`],

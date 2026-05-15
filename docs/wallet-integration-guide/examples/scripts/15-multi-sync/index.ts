@@ -49,6 +49,16 @@ const registry = await startRegistry({
     globalSynchronizerId,
     appSynchronizerId,
     logger,
+    submitAsTokenAdmin: ({ commands, synchronizerId }) =>
+        setup.p3Sdk.ledger
+            .prepare({
+                partyId: tokenAdmin.partyId,
+                commands,
+                disclosedContracts: [],
+                synchronizerId,
+            })
+            .sign(tokenAdmin.keyPair.privateKey)
+            .execute({ partyId: tokenAdmin.partyId }),
 })
 
 const allPartySpecs = buildContractReadSpec(setup)
