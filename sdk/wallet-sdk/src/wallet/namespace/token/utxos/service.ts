@@ -10,6 +10,7 @@ import { findAsset, LedgerTypes, TokenNamespaceConfig } from '../../../sdk.js'
 import { Decimal } from 'decimal.js'
 import { TransferNamespace } from '../transfer/index.js'
 import { MergeDelegationNamespace } from './mergeDelegation.js'
+import { parseAssets } from '../../../common.js'
 
 export class UtxoNamespace {
     public readonly delegatedMerge: MergeDelegationNamespace
@@ -61,10 +62,12 @@ export class UtxoNamespace {
             const { id: instrumentId } =
                 group[0].interfaceViewValue.instrumentId
 
-            const assets =
+            const assets = parseAssets(
                 await this.sdkContext.tokenStandardService.registriesToAssets(
                     this.sdkContext.registryUrls.map((url) => url.href)
-                )
+                ),
+                this.sdkContext.commonCtx.error
+            )
 
             const registryUrl = new URL(
                 findAsset(assets, instrumentId, this.sdkContext.commonCtx.error)

@@ -11,6 +11,7 @@ import { TransferAllocationChoiceParams, TransferParams } from './types.js'
 import { PreparedCommand } from '../../transactions/types.js'
 import { ProxyDelegationNamespace } from './proxyDelegation.js'
 import { findAsset } from '../../asset/index.js'
+import { parseAssets } from '../../../common.js'
 
 export class TransferNamespace {
     public readonly delegatedProxy: ProxyDelegationNamespace
@@ -61,10 +62,12 @@ export class TransferNamespace {
     async create(
         params: TransferParams
     ): Promise<PreparedCommand<'ExerciseCommand'>> {
-        const assets =
+        const assets = parseAssets(
             await this.sdkContext.tokenStandardService.registriesToAssets(
                 this.sdkContext.registryUrls.map((url) => url.href)
-            )
+            ),
+            this.sdkContext.commonCtx.error
+        )
         const asset = findAsset(
             assets,
             params.instrumentId,
@@ -85,7 +88,7 @@ export class TransferNamespace {
                 params.amount,
                 asset.admin,
                 asset.id,
-                asset.registryUrl,
+                asset.registryUrl.href,
                 params.inputUtxos,
                 params.memo,
                 params.expirationDate,

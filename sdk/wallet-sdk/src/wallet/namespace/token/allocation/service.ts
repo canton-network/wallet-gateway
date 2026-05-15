@@ -44,7 +44,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createExecuteTransferAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -55,7 +55,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createWithdrawAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -66,7 +66,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createCancelAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -122,7 +122,7 @@ export class AllocationNamespace {
                     await this.sdkContext.tokenStandardService.allocation.createAllocationInstruction(
                         params.allocationSpecification,
                         params.asset.admin,
-                        params.asset.registryUrl,
+                        params.asset.registryUrl.href,
                         params.inputUtxos,
                         params.requestedAt,
                         params.prefetchedRegistryChoiceContext

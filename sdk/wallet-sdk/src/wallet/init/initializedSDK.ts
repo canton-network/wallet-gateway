@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
-import { toURL } from '../common.js'
+import { parseAssets, toURL } from '../common.js'
 import { KeysNamespace } from '../namespace/keys/index.js'
 import { LedgerNamespace } from '../namespace/ledger/index.js'
 import { PartyNamespace } from '../namespace/party/index.js'
@@ -118,8 +118,11 @@ const createNamespace: {
             tokenStandardService,
             registries: config.registries,
             error: ctx.error,
-            list: await tokenStandardService.registriesToAssets(
-                config.registries.map((url) => url.href)
+            list: parseAssets(
+                await tokenStandardService.registriesToAssets(
+                    config.registries.map((registry) => registry.href)
+                ),
+                ctx.error
             ),
         })
     },
@@ -128,7 +131,7 @@ const createNamespace: {
         return new EventsNamespace({
             commonCtx: ctx,
             auth,
-            websocketURL: config.websocketURL,
+            websocketURL: config.websocketURL.href,
         })
     },
 }

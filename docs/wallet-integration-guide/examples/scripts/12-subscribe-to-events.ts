@@ -10,7 +10,9 @@ const sdk = await SDK.create({
     auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
     ledgerClientUrl: localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL,
     events: {
-        websocketURL: `ws://${localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL.host}`,
+        websocketURL: new URL(
+            `ws://${localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL.host}`
+        ),
         auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
     },
 })

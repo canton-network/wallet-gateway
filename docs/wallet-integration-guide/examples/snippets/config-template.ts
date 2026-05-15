@@ -12,10 +12,12 @@ export default async function () {
                 scope: '',
             },
         },
-        ledgerClientUrl: 'http://localhost:2975',
+        ledgerClientUrl: new URL('http://localhost:2975'),
         token: {
-            validatorUrl: 'http://localhost:2000/api/validator',
-            registries: ['http://localhost:2000/api/validator/v0/scan-proxy'],
+            validatorUrl: new URL('http://localhost:2000/api/validator'),
+            registries: [
+                new URL('http://localhost:2000/api/validator/v0/scan-proxy'),
+            ],
             auth: global.TOKEN_PROVIDER_CONFIG_DEFAULT,
         },
         amulet: {
@@ -49,14 +51,16 @@ export default async function () {
                 scope: '',
             },
         },
-        ledgerClientUrl: 'http://localhost:2975',
+        ledgerClientUrl: new URL('http://localhost:2975'),
     })
 
     // Extend with token namespace
     const tokenExtendedSDK = await basicSDK.extend({
         token: {
-            validatorUrl: 'http://localhost:2000/api/validator',
-            registries: ['http://localhost:2000/api/validator/v0/scan-proxy'],
+            validatorUrl: new URL('http://localhost:2000/api/validator'),
+            registries: [
+                new URL('http://localhost:2000/api/validator/v0/scan-proxy'),
+            ],
             auth: global.TOKEN_PROVIDER_CONFIG_DEFAULT,
         },
     })

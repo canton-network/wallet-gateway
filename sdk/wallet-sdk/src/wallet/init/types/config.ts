@@ -4,16 +4,16 @@
 import { TokenProviderConfig } from '@canton-network/core-wallet-auth'
 
 export type AmuletConfig = {
-    validatorUrl: string | URL
-    scanApiUrl: string | URL
+    validatorUrl: URL
+    scanApiUrl: URL
     auth: TokenProviderConfig
     registryUrl: URL
 }
 
 export type TokenConfig = {
-    validatorUrl: string | URL
+    validatorUrl: URL
     auth: TokenProviderConfig
-    registries: URL[] | string[]
+    registries: URL[]
 }
 
 export type AssetConfig = {
@@ -22,6 +22,6 @@ export type AssetConfig = {
 }
 
 export type EventsConfig = {
-    websocketURL: string
+    websocketURL: URL
     auth: TokenProviderConfig
 }

@@ -32,10 +32,10 @@ import { LedgerTypes } from '@canton-network/core-ledger-client-types'
  */
 export type BasicSDKOptions<L extends LedgerTypes> = Readonly<
     {
-        websocketUrl?: string | URL // default to same host as ledgerClientUrl with ws protocol
+        websocketUrl?: URL // default to same host as ledgerClientUrl with ws protocol
         logAdapter?: AllowedLogAdapters
     } & (
-        | { auth: TokenProviderConfig; ledgerClientUrl: string | URL }
+        | { auth: TokenProviderConfig; ledgerClientUrl: URL }
         | { ledgerProvider: Provider<L> }
     )
 >

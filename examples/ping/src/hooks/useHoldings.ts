@@ -8,8 +8,8 @@ import * as walletSDK from '@canton-network/wallet-sdk'
 
 export function useHoldings(
     connectResult?: sdk.dappAPI.ConnectResult,
-    validatorUrl?: string,
-    registryUrl?: string
+    validatorUrl?: URL,
+    registryUrl?: URL
 ) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [holdings, setHoldings] = useState<any[]>()
