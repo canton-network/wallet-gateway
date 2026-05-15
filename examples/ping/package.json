@@ -13,7 +13,6 @@
     "dependencies": {
         "@canton-network/core-types": "workspace:^",
         "@canton-network/dapp-sdk": "workspace:^",
-        "@canton-network/sdk-support-provider-adapter-loop": "workspace:^",
         "@canton-network/wallet-sdk": "workspace:^",
         "react": "^19.2.4",
         "react-dom": "^19.2.4"
