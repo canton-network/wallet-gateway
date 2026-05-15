@@ -53,5 +53,3 @@ runs:
               path: |
                   ~/.dpm
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
-              save_cache: ${{ inputs.save_cache }}
-              initial_cache_hit: ${{ steps.dpm_cache.outputs.cache-hit }}

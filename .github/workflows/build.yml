@@ -87,23 +87,17 @@ jobs:
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton/artifacts
+            - uses: ./.github/actions/setup_canton/initial
               if: matrix.instance == 'canton'
               with:
                   network: ${{ matrix.network }}
-                  start_services: 'false'
                   canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
-                  save_cache: 'true'
-                  lookup_only: 'true'
 
-            - uses: ./.github/actions/setup_localnet/artifacts
+            - uses: ./.github/actions/setup_localnet/initial
               if: matrix.instance == 'localnet'
               with:
                   network: ${{ matrix.network }}
-                  start_services: 'false'
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
-                  save_cache: 'true'
-                  lookup_only: 'true'
 
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
@@ -165,7 +159,6 @@ jobs:
               with:
                   path: docs/wallet-integration-guide/.venv
                   key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
-                  initial_cache_hit: ${{ steps.cached-poetry-dependencies.outputs.cache-hit }}
 
             - name: Build docs
               working-directory: docs/wallet-integration-guide
