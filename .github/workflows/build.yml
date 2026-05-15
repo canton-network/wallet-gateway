@@ -42,7 +42,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_initial
+            - uses: ./.github/actions/setup_yarn/initial
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
                   save_cache: 'true'
@@ -83,11 +83,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_canton/artifacts
               if: matrix.instance == 'canton'
               with:
                   network: ${{ matrix.network }}
@@ -96,7 +96,7 @@ jobs:
                   save_cache: 'true'
                   lookup_only: 'true'
 
-            - uses: ./.github/actions/setup_localnet
+            - uses: ./.github/actions/setup_localnet/artifacts
               if: matrix.instance == 'localnet'
               with:
                   network: ${{ matrix.network }}
@@ -178,7 +178,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
@@ -214,7 +214,7 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
@@ -239,11 +239,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_canton/artifacts
               with:
                   network: ${{ matrix.network }}
                   canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
@@ -304,11 +304,11 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_localnet
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
@@ -365,11 +365,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_localnet
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
@@ -415,11 +415,11 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_localnet
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
                   splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
@@ -482,7 +482,7 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
-            - uses: ./.github/actions/setup_yarn_artifacts
+            - uses: ./.github/actions/setup_yarn/artifacts
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
