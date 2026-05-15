@@ -149,15 +149,7 @@ export class WindowTransport implements RpcTransport {
                 return
             }
             for (const handler of this.eventListeners) {
-                try {
-                    handler(data.event, data.payload)
-                } catch (err) {
-                    // Isolate a misbehaving subscriber so the others still see
-                    // the event. Logged at the lowest level — the SDK consumer
-                    // catches and reports for the user-facing channel.
-                     
-                    console.error('[WindowTransport] event handler threw:', err)
-                }
+                handler(data.event, data.payload)
             }
         }
 

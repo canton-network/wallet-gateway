@@ -103,6 +103,28 @@ If/when this is taken upstream, three things are worth nailing down on canton-ne
 
 Independent of those questions, the fork-only patch here is intentionally minimal so it can survive any of the three resolutions: replace the envelope, replace the wiring, or replace the type names without touching the bug-fix shape.
 
+## Known gap: `DappSyncProvider.teardown()` is dead code under the current SDK lifecycle
+
+The patch adds `DappSyncProvider.teardown()` that calls the `transport.onEvent` unsubscribe and clears the field. **Nothing in the current SDK calls it.** Tracing the disconnect path on `wallet-gateway/main` (pre-patch and unchanged by this fork):
+
+- `sdk/dapp-sdk/src/adapter/extension-adapter.ts:105-107` — `ExtensionAdapter.teardown()` is a `// No cleanup needed for extensions` no-op. The adapter constructs `new DappSyncProvider(...)` on every `provider()` call (`:96-103`) and stores no reference.
+- `core/wallet-discovery/src/client.ts:201-213` — `DiscoveryClient.disconnect()` calls `adapter.teardown()` only. There is no per-provider cleanup hook on the discovery side, and the session struct holds a `provider` ref but never invokes anything on it during teardown.
+
+Pre-patch this gap was benign: `DappSyncProvider` had no `teardown()` method, so there was nothing for the lifecycle to call. The fork introduces a method that needs a caller; the upstream lifecycle has none.
+
+Consequence in practice:
+
+- On `DiscoveryClient.disconnect()`, the `WindowTransport.eventListeners` Set retains the closure capturing the old provider's `this.emit`. The provider object is otherwise eligible for GC, but the closure keeps it alive.
+- If the dApp reconnects in the same page session, a new `DappSyncProvider` constructs a new subscription. Both subscriptions are now live. The wallet's next `SPLICE_WALLET_EVENT` fires both — including any stale `onTxChanged` listeners the user registered on the previous provider.
+- A page reload clears the DOM listener and the Set, so the bug only manifests on intra-page disconnect/reconnect cycles. The default `examples/ping` flow does not exercise this, which is why testnet repro succeeded.
+
+The fix is upstream's, not the fork's. Two minimal options:
+
+1. `ExtensionAdapter` stores the most recently returned provider on a private field and calls `provider.teardown?.()` from its own `teardown()`.
+2. `DiscoveryClient.disconnect()` calls `session.provider.teardown?.()` before `adapter.teardown()`. Cleaner because it generalizes to any provider, not just extension-backed ones.
+
+This fork ships `DappSyncProvider.teardown()` ready to be called by whichever option upstream picks. If upstream rejects both, the method can be deleted with no behavioral consequence — the lifecycle was already a no-op before this patch and remains one until upstream wires it.
+
 ## File map
 
 | Path                                         | What changed                                                                                                            |
