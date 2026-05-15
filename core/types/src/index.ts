@@ -71,6 +71,14 @@ export enum WalletEvent {
     // JSON-RPC related events
     SPLICE_WALLET_REQUEST = 'SPLICE_WALLET_REQUEST',
     SPLICE_WALLET_RESPONSE = 'SPLICE_WALLET_RESPONSE',
+    // Wallet push-event channel (fork-only: see docs/fork-only-dapp-sync-event-channel.md).
+    // CIP-103 OpenRPC defines `accountsChanged`, `statusChanged`, `connected`, and
+    // `txChanged` as methods (pull). The Sync API docs describe them as `Events` but
+    // do not specify a postMessage envelope for pushing them. The Send webext (and
+    // any CIP-103-compliant extension that wants parity with the SSE-based HTTP
+    // `DappAsyncProvider` push path) needs a wire shape here; until upstream agrees
+    // on the envelope this is a fork-only addition.
+    SPLICE_WALLET_EVENT = 'SPLICE_WALLET_EVENT',
     // Browser extension related events
     SPLICE_WALLET_EXT_READY = 'SPLICE_WALLET_EXT_READY', // A request from the dApp to the browser extension to see if its loaded
     SPLICE_WALLET_EXT_ACK = 'SPLICE_WALLET_EXT_ACK', // A response from the extension back to the dapp to acknowledge readiness
@@ -98,6 +106,21 @@ export const SpliceMessage = z.discriminatedUnion('type', [
     z.object({
         type: z.literal(WalletEvent.SPLICE_WALLET_RESPONSE),
         response: JsonRpcResponse,
+    }),
+    // fork-only: see docs/fork-only-dapp-sync-event-channel.md
+    z.object({
+        type: z.literal(WalletEvent.SPLICE_WALLET_EVENT),
+        event: z
+            .string()
+            .describe(
+                "Name of the dApp-API event being pushed (e.g. 'txChanged', 'accountsChanged', 'statusChanged', 'connected'). Mirrors the CIP-103 OpenRPC `methods[].name` for the event in question."
+            ),
+        payload: z
+            .unknown()
+            .describe(
+                'Event payload. Shape is the CIP-103 result schema for the corresponding method (e.g. TxChangedEvent for `txChanged`).'
+            ),
+        target: SpliceTarget.optional(),
     }),
     z.object({
         type: z.literal(WalletEvent.SPLICE_WALLET_EXT_READY),

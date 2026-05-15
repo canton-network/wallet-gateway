@@ -36,8 +36,26 @@ export const jsonRpcResponse = (
     }
 }
 
+/**
+ * Handler invoked when the transport receives a wallet push event.
+ * `event` is the CIP-103 event name (e.g. 'txChanged'); `payload` is the
+ * event payload as described in the OpenRPC schema for that event.
+ *
+ * Fork-only: see docs/fork-only-dapp-sync-event-channel.md.
+ */
+export type TransportEventHandler = (event: string, payload: unknown) => void
+
 export interface RpcTransport {
     submit: (payload: RequestPayload) => Promise<ResponsePayload>
+    /**
+     * Optional push-event subscription. Transports that surface wallet events
+     * out-of-band (e.g. WindowTransport's SPLICE_WALLET_EVENT frames; HTTP/SSE
+     * transports' EventSource stream) implement this; callers should treat the
+     * absence of `onEvent` as "no push channel — poll the event methods".
+     *
+     * Returns an unsubscribe function. Fork-only.
+     */
+    onEvent?: (handler: TransportEventHandler) => () => void
 }
 
 export type WindowTransportOptions = {
@@ -49,6 +67,12 @@ export type WindowTransportOptions = {
 }
 
 export class WindowTransport implements RpcTransport {
+    // Lazily-installed listener that fans SPLICE_WALLET_EVENT frames out to
+    // every onEvent subscriber. We attach at most one window listener per
+    // transport instance to avoid leaking N listeners across N subscribers.
+    private eventListeners: Set<TransportEventHandler> = new Set()
+    private eventDispatcherInstalled = false
+
     constructor(
         private win: Window,
         private options: WindowTransportOptions = {}
@@ -91,6 +115,53 @@ export class WindowTransport implements RpcTransport {
             type: WalletEvent.SPLICE_WALLET_RESPONSE,
         }
         this.win.postMessage(message, '*')
+    }
+
+    /**
+     * Subscribe to wallet push events delivered as `SPLICE_WALLET_EVENT`
+     * postMessage frames. Returns an unsubscribe function.
+     *
+     * Fork-only: see docs/fork-only-dapp-sync-event-channel.md.
+     */
+    onEvent = (handler: TransportEventHandler): (() => void) => {
+        this.eventListeners.add(handler)
+        this.installEventDispatcher()
+        return () => {
+            this.eventListeners.delete(handler)
+        }
+    }
+
+    private installEventDispatcher() {
+        if (this.eventDispatcherInstalled) return
+        this.eventDispatcherInstalled = true
+
+        // Single shared listener. Each onEvent subscription just adds to the
+        // Set; we never add/remove the underlying DOM listener after this.
+        const dispatch = (event: MessageEvent) => {
+            if (!isSpliceMessageEvent(event)) return
+            const data = event.data
+            if (data.type !== WalletEvent.SPLICE_WALLET_EVENT) return
+            if (
+                this.options.target &&
+                data.target !== undefined &&
+                data.target !== this.options.target
+            ) {
+                return
+            }
+            for (const handler of this.eventListeners) {
+                try {
+                    handler(data.event, data.payload)
+                } catch (err) {
+                    // Isolate a misbehaving subscriber so the others still see
+                    // the event. Logged at the lowest level — the SDK consumer
+                    // catches and reports for the user-facing channel.
+                     
+                    console.error('[WindowTransport] event handler threw:', err)
+                }
+            }
+        }
+
+        window.addEventListener('message', dispatch)
     }
 }
 
