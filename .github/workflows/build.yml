@@ -60,11 +60,11 @@ jobs:
                       .yarn/install-state.gz
                       .pnp.cjs
                       .pnp.loader.mjs
-                      core/*/dist/
-                      sdk/*/dist/
-                      sdk-support/*/dist/
-                      wallet-gateway/*/dist/
-                      damljs/*/dist/
+                      core/**/dist/
+                      sdk/**/dist/
+                      sdk-support/**/dist/
+                      wallet-gateway/**/dist/
+                      damljs
                       .nx/cache
                       .nx/workspace-data
                   if-no-files-found: error
@@ -136,6 +136,7 @@ jobs:
               uses: actions/checkout@v6
 
             - name: Setup Python
+              id: setup-python
               uses: actions/setup-python@v6
               with:
                   python-version-file: .python-version
