@@ -18,7 +18,7 @@ runs:
               cache: 'yarn'
 
         - name: Download build artifacts
-          uses: actions/download-artifact@v5
+          uses: actions/download-artifact@v7
           with:
               name: build-dist-${{ github.run_id }}
 
