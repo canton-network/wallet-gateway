@@ -60,11 +60,11 @@ jobs:
                       .yarn/install-state.gz
                       .pnp.cjs
                       .pnp.loader.mjs
-                      core/*/dist/
-                      sdk/*/dist/
-                      sdk-support/*/dist/
-                      wallet-gateway/*/dist/
-                      damljs/*/dist/
+                      core/**/dist/
+                      sdk/**/dist/
+                      sdk-support/**/dist/
+                      wallet-gateway/**/dist/
+                      damljs/**/dist/
                       .nx/cache
                       .nx/workspace-data
                   if-no-files-found: error
