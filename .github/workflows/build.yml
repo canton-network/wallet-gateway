@@ -64,7 +64,7 @@ jobs:
                       sdk/**/dist/
                       sdk-support/**/dist/
                       wallet-gateway/**/dist/
-                      damljs/**/dist/
+                      damljs
                       .nx/cache
                       .nx/workspace-data
                   if-no-files-found: error
