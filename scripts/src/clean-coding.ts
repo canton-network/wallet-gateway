@@ -147,9 +147,9 @@ function main(): void {
     let errorCount = 0
     traverseDirectory(rootDir, (filePath) => {
         if (
-            filePath.includes('.canton') ||
-            filePath.includes('.yarn') ||
-            filePath.includes('.splice')
+            ['.canton', '.yarn', '.splice', '.nx'].some((dirName) =>
+                filePath.includes(dirName)
+            )
         ) {
             return // Skip directories
         }
