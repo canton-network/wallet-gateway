@@ -131,6 +131,48 @@ function createBlockdaemonDriver(options: {
     } as unknown as SigningDriverInterface
 }
 
+function createDfnsDriver(options: {
+    createKeyResult?: { id: string; publicKey: string }
+    signTransactionResult?: { status: string; txId: string }
+    getTransactionResult?: {
+        txId: string
+        status: string
+        signature?: string
+        metadata?: unknown
+    }
+}): SigningDriverInterface {
+    const createKeyResult = options.createKeyResult ?? {
+        id: 'key-1',
+        publicKey: 'dfns-pk',
+    }
+    const signTransactionResult = options.signTransactionResult ?? {
+        status: 'pending',
+        txId: 'tx-1',
+    }
+    const getTransactionResult =
+        options.getTransactionResult ?? signTransactionResult
+    return {
+        controller: vi.fn().mockReturnValue({
+            createKey: vi
+                .fn<() => Promise<{ id: string; publicKey: string }>>()
+                .mockResolvedValue(createKeyResult),
+            signTransaction: vi
+                .fn<() => Promise<{ status: string; txId: string }>>()
+                .mockResolvedValue(signTransactionResult),
+            getTransaction: vi
+                .fn<
+                    () => Promise<{
+                        txId: string
+                        status: string
+                        signature?: string
+                        metadata?: unknown
+                    }>
+                >()
+                .mockResolvedValue(getTransactionResult),
+        }),
+    } as unknown as SigningDriverInterface
+}
+
 describe('WalletAllocationService', () => {
     let mockLogger: Logger
     let mockStore: {
@@ -572,5 +614,212 @@ describe('WalletAllocationService', () => {
             ).toHaveBeenCalled()
             expect(mockStore.addWallet).toHaveBeenCalled()
         })
+    })
+
+    describe('Dfns', () => {
+        it('throws when Dfns signing driver not available', async () => {
+            const serviceWithoutDfns = createService({})
+
+            await expect(
+                serviceWithoutDfns.createWallet(
+                    'user-1',
+                    undefined,
+                    'alice',
+                    false,
+                    SigningProvider.DFNS
+                )
+            ).rejects.toThrow('Dfns signing driver not available')
+        })
+
+        it('createWallet returns initialized when signTransaction returns pending', async () => {
+            const serviceWithDfns = createService({
+                [SigningProvider.DFNS]: createDfnsDriver({
+                    signTransactionResult: { status: 'pending', txId: 'tx-1' },
+                    getTransactionResult: { status: 'pending', txId: 'tx-1' },
+                }),
+            })
+
+            const result = await serviceWithDfns.createWallet(
+                'user-1',
+                undefined,
+                'alice',
+                false,
+                SigningProvider.DFNS
+            )
+
+            expect(result.status).toBe('initialized')
+            expect(result.reason).toBe(
+                WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_PENDING
+            )
+            expect(result.externalTxId).toBe('tx-1')
+            expect(result.partyId).toBe('alice::fingerprint')
+            expect(mockStore.addWallet).toHaveBeenCalled()
+        })
+
+        it('createWallet returns allocated when signTransaction returns signed', async () => {
+            const serviceWithDfns = createService({
+                [SigningProvider.DFNS]: createDfnsDriver({
+                    createKeyResult: { id: 'key-1', publicKey: 'dfns-pk' },
+                    signTransactionResult: { status: 'signed', txId: 'tx-1' },
+                    getTransactionResult: {
+                        txId: 'tx-1',
+                        status: 'signed',
+                        signature: 'sig-base64',
+                    },
+                }),
+            })
+            mockPartyAllocator.allocatePartyWithExistingWallet.mockResolvedValue(
+                'alice::namespace'
+            )
+
+            const result = await serviceWithDfns.createWallet(
+                'user-1',
+                undefined,
+                'alice',
+                false,
+                SigningProvider.DFNS
+            )
+
+            expect(result.status).toBe('allocated')
+            expect(result.partyId).toBe('alice::namespace')
+            expect(
+                mockPartyAllocator.allocatePartyWithExistingWallet
+            ).toHaveBeenCalled()
+            expect(mockStore.addWallet).toHaveBeenCalled()
+        })
+
+        it.each([
+            ['failed', WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_FAILED],
+            ['rejected', WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_REJECTED],
+        ] as const)(
+            'createWallet returns status removed with reason when signTransaction returns %s',
+            async (status, expectedReason) => {
+                const serviceWithDfns = createService({
+                    [SigningProvider.DFNS]: createDfnsDriver({
+                        signTransactionResult: { status, txId: 'tx-1' },
+                        getTransactionResult: { status, txId: 'tx-1' },
+                    }),
+                })
+
+                const result = await serviceWithDfns.createWallet(
+                    'user-1',
+                    undefined,
+                    'alice',
+                    false,
+                    SigningProvider.DFNS
+                )
+
+                expect(result.status).toBe('removed')
+                expect(result.reason).toBe(expectedReason)
+                expect(result.disabled).toBe(true)
+                expect(mockStore.addWallet).toHaveBeenCalled()
+            }
+        )
+
+        it('allocateParty updates wallet to allocated when transaction is signed', async () => {
+            const driver = createDfnsDriver({
+                getTransactionResult: {
+                    txId: 'tx-1',
+                    status: 'signed',
+                    signature: 'sig-base64',
+                },
+            })
+            const serviceWithDfns = createService({
+                [SigningProvider.DFNS]: driver,
+            })
+            mockPartyAllocator.allocatePartyWithExistingWallet.mockResolvedValue(
+                'alice::namespace'
+            )
+
+            await serviceWithDfns.allocateParty(
+                'user-1',
+                undefined,
+                createWallet('alice::fingerprint', {
+                    signingProviderId: SigningProvider.DFNS,
+                    namespace: 'fingerprint',
+                    topologyTransactions: 'tx1',
+                    externalTxId: 'tx-1',
+                }),
+                SigningProvider.DFNS
+            )
+
+            expect(
+                mockPartyAllocator.allocatePartyWithExistingWallet
+            ).toHaveBeenCalledWith(
+                'fingerprint',
+                ['tx1'],
+                'sig-base64',
+                'user-1'
+            )
+            expect(mockStore.updateWallet).toHaveBeenCalledWith({
+                networkId: 'network1',
+                partyId: 'alice::namespace',
+                status: 'allocated',
+                reason: '',
+            })
+        })
+
+        it('allocateParty updates wallet to initialized when transaction is pending', async () => {
+            const serviceWithDfns = createService({
+                [SigningProvider.DFNS]: createDfnsDriver({
+                    getTransactionResult: { txId: 'tx-1', status: 'pending' },
+                }),
+            })
+
+            await serviceWithDfns.allocateParty(
+                'user-1',
+                undefined,
+                createWallet('alice::fingerprint', {
+                    signingProviderId: SigningProvider.DFNS,
+                    topologyTransactions: 'tx1',
+                    externalTxId: 'tx-1',
+                }),
+                SigningProvider.DFNS
+            )
+
+            expect(mockStore.updateWallet).toHaveBeenCalledWith({
+                partyId: 'alice::fingerprint',
+                networkId: 'network1',
+                status: 'initialized',
+                reason: WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_PENDING,
+            })
+        })
+
+        it.each([
+            ['failed', WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_FAILED],
+            ['rejected', WALLET_DISABLED_REASON.TOPOLOGY_TRANSACTION_REJECTED],
+        ] as const)(
+            'allocateParty disables wallet when transaction is %s',
+            async (status, expectedReason) => {
+                const serviceWithDfns = createService({
+                    [SigningProvider.DFNS]: createDfnsDriver({
+                        getTransactionResult: {
+                            txId: 'tx-1',
+                            status,
+                            metadata: { cause: 'test' },
+                        },
+                    }),
+                })
+
+                await serviceWithDfns.allocateParty(
+                    'user-1',
+                    undefined,
+                    createWallet('alice::fingerprint', {
+                        signingProviderId: SigningProvider.DFNS,
+                        topologyTransactions: 'tx1',
+                        externalTxId: 'tx-1',
+                    }),
+                    SigningProvider.DFNS
+                )
+
+                expect(mockStore.updateWallet).toHaveBeenCalledWith({
+                    partyId: 'alice::fingerprint',
+                    networkId: 'network1',
+                    status: 'removed',
+                    disabled: true,
+                    reason: expectedReason,
+                })
+            }
+        )
     })
 })
