@@ -66,7 +66,7 @@ jobs:
               with:
                   ref: ${{ github.event.inputs.ref || github.ref }}
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn_initial
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 

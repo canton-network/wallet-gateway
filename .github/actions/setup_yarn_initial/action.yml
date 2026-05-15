@@ -1,5 +1,5 @@
-name: Setup Yarn
-description: 'Setup Yarn for the project'
+name: Setup Yarn (Initial Build)
+description: 'Setup Yarn for initial build jobs without relying on build artifacts'
 inputs:
     daml_release_version:
         description: 'Resolved DAML release version from workflow metadata job'
@@ -20,13 +20,6 @@ runs:
           with:
               node-version: 'v24.9.0'
               cache: 'yarn'
-
-        - name: Download build artifacts
-          id: download_build_artifacts
-          continue-on-error: true
-          uses: actions/download-artifact@v5
-          with:
-              name: build-dist-${{ github.run_id }}
 
         - name: Restore DPM cache
           id: dpm_cache
@@ -51,7 +44,6 @@ runs:
           run: yarn install --immutable
 
         - name: generate all
-          if: ${{ steps.download_build_artifacts.outcome == 'failure' || steps.download_build_artifacts.outputs.download-path == '' }}
           shell: bash
           run: yarn generate:all
 
