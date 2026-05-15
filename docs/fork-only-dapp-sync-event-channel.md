@@ -125,6 +125,8 @@ The fix is upstream's, not the fork's. Two minimal options:
 
 This fork ships `DappSyncProvider.teardown()` ready to be called by whichever option upstream picks. If upstream rejects both, the method can be deleted with no behavioral consequence — the lifecycle was already a no-op before this patch and remains one until upstream wires it.
 
+The cycle-2 `rl review` re-flagged this gap as a blocker on `bb/dapp-sync-event-channel@d08c7e61`. The scope decision stands: this PR does not modify `sdk/dapp-sdk/src/adapter/extension-adapter.ts` or `core/wallet-discovery/src/client.ts`, because both are upstream-owned files unchanged by this fork and the lifecycle wiring belongs in the upstream review of that surface, not in a `fork-only:` push-channel patch. The new `teardown()` is the contract; upstream can pick the caller.
+
 ## File map
 
 | Path                                         | What changed                                                                                                            |

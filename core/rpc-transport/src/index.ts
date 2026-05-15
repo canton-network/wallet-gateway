@@ -141,11 +141,7 @@ export class WindowTransport implements RpcTransport {
             if (!isSpliceMessageEvent(event)) return
             const data = event.data
             if (data.type !== WalletEvent.SPLICE_WALLET_EVENT) return
-            if (
-                this.options.target &&
-                data.target !== undefined &&
-                data.target !== this.options.target
-            ) {
+            if (this.options.target && data.target !== this.options.target) {
                 return
             }
             for (const handler of this.eventListeners) {
