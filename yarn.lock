@@ -2279,6 +2279,7 @@ __metadata:
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.1"
     "@eslint/js": "npm:^10.0.1"
+    "@fontsource/inter": "npm:^5.2.8"
     "@inquirer/prompts": "npm:^8.4.2"
     "@mui/icons-material": "npm:^9.0.1"
     "@mui/material": "npm:^9.0.1"
@@ -3472,6 +3473,13 @@ __metadata:
   version: 0.19.0
   resolution: "@fluent/syntax@npm:0.19.0"
   checksum: 10c0/a8691402b140e726ea5e47988a7e27ad836a33bb85382eb5a013799a384ffc8852eaf3ec1acaca481306f49ff3514fccaff7acf5bb2225c94752794ff6dbc38e
+  languageName: node
+  linkType: hard
+
+"@fontsource/inter@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource/inter@npm:5.2.8"
+  checksum: 10c0/f737dd50005e4809887ba55ae0c9b7174216d6d14875d17a4fbb9a0ad75dec4265928b805a43fe16a23f14a878f1974a398bbfc84ad65c79fc4d4b9c3ea154e1
   languageName: node
   linkType: hard
 
@@ -20243,7 +20251,6 @@ __metadata:
   resolution: "systeminformation@npm:5.31.6"
   bin:
     systeminformation: lib/cli.js
-  checksum: 10c0/fb0c9dae20e47277d26f3dd374f14c846567adba15a2bf9715e0a871f912424d31b75f6c27e0c8b819abc3fcd285ae8c1f6468acd8a161f18a1a39b632a01923
   conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
