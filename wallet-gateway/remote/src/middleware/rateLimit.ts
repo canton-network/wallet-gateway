@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import rateLimit from 'express-rate-limit'
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 import type { Request } from 'express'
 
 function hasBearerToken(req: Request): boolean {
@@ -14,7 +14,7 @@ function hasBearerToken(req: Request): boolean {
 }
 
 export function ipRateLimitKeyGenerator(req: Request): string {
-    return `ip:${req.ip || req.socket.remoteAddress || 'unknown'}`
+    return `ip:${ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown')}`
 }
 
 export function rateLimitKeyGenerator(req: Request): string {
