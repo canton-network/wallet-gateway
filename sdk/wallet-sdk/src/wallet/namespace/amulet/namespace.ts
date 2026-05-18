@@ -15,14 +15,14 @@ import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
 import { Decimal } from 'decimal.js'
-import { parseAssets } from '../../common.js'
+import { parseAssets, URLParser } from '../utils/url.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
 
 export type AmuletNamespaceConfig = {
     commonCtx: SDKContext
-    registry: URL | AssetBody
+    registry: URLParser | AssetBody
     amuletService: AmuletService
     tokenStandardService: TokenStandardService
     validatorParty: PartyId
@@ -39,12 +39,12 @@ export class AmuletNamespace {
     }
 
     private async amulet(): Promise<AssetBody> {
-        if (this.sdkContext.registry instanceof URL) {
+        if (this.sdkContext.registry instanceof URLParser) {
             return parseAssets(
+                this.sdkContext.commonCtx,
                 await this.sdkContext.tokenStandardService.registriesToAssets([
-                    this.sdkContext.registry.href,
-                ]),
-                this.sdkContext.commonCtx.error
+                    this.sdkContext.registry.toString(),
+                ])
             )[0]
         } else {
             return this.sdkContext.registry
@@ -66,7 +66,7 @@ export class AmuletNamespace {
                 new Decimal(amount).toFixed(10),
                 amulet.admin,
                 amulet.id,
-                amulet.registryUrl.href
+                amulet.registryUrl.toString()
             )
         return [{ ExerciseCommand: tapCommand }, disclosedContracts]
     }
@@ -202,12 +202,12 @@ interface FeaturedAppNamespace {
 export async function fetchAmulet(
     amuletCtx: AmuletNamespaceConfig
 ): Promise<AssetBody> {
-    if (amuletCtx.registry instanceof URL) {
+    if (amuletCtx.registry instanceof URLParser) {
         return parseAssets(
+            amuletCtx.commonCtx,
             await amuletCtx.tokenStandardService.registriesToAssets([
-                amuletCtx.registry.href,
-            ]),
-            amuletCtx.commonCtx.error
+                amuletCtx.registry.toString(),
+            ])
         )[0]
     } else {
         return amuletCtx.registry

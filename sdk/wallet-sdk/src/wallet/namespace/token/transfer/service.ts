@@ -11,7 +11,7 @@ import { TransferAllocationChoiceParams, TransferParams } from './types.js'
 import { PreparedCommand } from '../../transactions/types.js'
 import { ProxyDelegationNamespace } from './proxyDelegation.js'
 import { findAsset } from '../../asset/index.js'
-import { parseAssets } from '../../../common.js'
+import { parseAssets } from '../../utils/url.js'
 
 export class TransferNamespace {
     public readonly delegatedProxy: ProxyDelegationNamespace

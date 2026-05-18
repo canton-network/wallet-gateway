@@ -5,6 +5,7 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import { PartyId } from '@canton-network/core-types'
 import { type LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
 import { SDKContext } from '../../sdk.js'
+import { URLParser } from '../utils/url.js'
 
 export type UpdatesOptions = {
     beginOffset?: number
@@ -30,7 +31,7 @@ export class InvalidSubscriptionOptionsError extends Error {
 export type EventsContext = {
     commonCtx: SDKContext
     auth: AuthTokenProvider
-    websocketURL: string
+    websocketURL: URLParser
 }
 
 export type Event = LedgerCommonSchemas['JsGetUpdatesResponse']

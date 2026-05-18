@@ -10,7 +10,7 @@ import { findAsset, LedgerTypes, TokenNamespaceConfig } from '../../../sdk.js'
 import { Decimal } from 'decimal.js'
 import { TransferNamespace } from '../transfer/index.js'
 import { MergeDelegationNamespace } from './mergeDelegation.js'
-import { parseAssets } from '../../../common.js'
+import { parseAssets } from '../../utils/url.js'
 
 export class UtxoNamespace {
     public readonly delegatedMerge: MergeDelegationNamespace

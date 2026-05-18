@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
-import { parseAssets, toURL } from '../common.js'
+import { parseAssets } from '../namespace/utils/url.js'
 import { KeysNamespace } from '../namespace/keys/index.js'
 import { LedgerNamespace } from '../namespace/ledger/index.js'
 import { PartyNamespace } from '../namespace/party/index.js'
@@ -40,18 +40,19 @@ const createNamespace: {
     ) => Promise<ExtendedFullSDKInterface[K]>
 } = {
     amulet: async (ctx: SDKContext, config: AmuletConfig) => {
-        const validatorUrl = toURL(config.validatorUrl, ctx.error)
-
         const auth = new AuthTokenProvider(config.auth, ctx.logger)
-        const scanApiUrl = toURL(config.scanApiUrl, ctx.error)
         const scanProxyClient = new ScanProxyClient(
-            validatorUrl,
+            config.validatorUrl.toURL(),
             ctx.logger,
             auth
         )
-        const scanClient = new ScanClient(scanApiUrl, ctx.logger, auth)
+        const scanClient = new ScanClient(
+            config.scanApiUrl.toURL(),
+            ctx.logger,
+            auth
+        )
         const validatorParty = await getValidatorParty(
-            validatorUrl,
+            config.validatorUrl.toURL(),
             ctx.logger,
             auth
         )
@@ -68,11 +69,10 @@ const createNamespace: {
             scanProxyClient,
             scanClient
         )
-        const registry = config.registryUrl
 
         return new AmuletNamespace({
             commonCtx: ctx,
-            registry,
+            registry: config.registryUrl,
             amuletService,
             tokenStandardService,
             validatorParty,
@@ -86,21 +86,15 @@ const createNamespace: {
             auth,
             false
         )
-        const validatorUrl = toURL(config.validatorUrl, ctx.error)
-
         const validatorParty = await getValidatorParty(
-            validatorUrl,
+            config.validatorUrl.toURL(),
             ctx.logger,
             auth
         )
 
-        const registries = config.registries.map((registry) =>
-            toURL(registry, ctx.error)
-        )
-
         return new TokenNamespace({
             tokenStandardService,
-            registryUrls: registries,
+            registryUrls: config.registries,
             validatorParty,
             commonCtx: ctx,
         })
@@ -119,10 +113,10 @@ const createNamespace: {
             registries: config.registries,
             error: ctx.error,
             list: parseAssets(
+                ctx,
                 await tokenStandardService.registriesToAssets(
-                    config.registries.map((registry) => registry.href)
-                ),
-                ctx.error
+                    config.registries.map((registry) => registry.toString())
+                )
             ),
         })
     },
@@ -131,7 +125,7 @@ const createNamespace: {
         return new EventsNamespace({
             commonCtx: ctx,
             auth,
-            websocketURL: config.websocketURL.href,
+            websocketURL: config.websocketURL,
         })
     },
 }
