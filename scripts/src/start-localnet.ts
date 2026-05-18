@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { execFileSync, execSync } from 'child_process'
+import { execFileSync, execSync, spawnSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -25,6 +25,11 @@ const GENERATED_COMPOSE_OVERRIDE = path.join(
 const CANTON_MAX_COMMANDS_IN_FLIGHT = 256
 const LOCALNET_DARS_DIR = path.join(rootDir, '.localnet/dars')
 // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
+const MULTI_SYNC_APP_SYNCHRONIZER_SC = path.join(
+    rootDir,
+    'canton/multi-sync/app-synchronizer.sc'
+)
+
 function ensureComposeOverride() {
     fs.mkdirSync(path.dirname(GENERATED_COMPOSE_OVERRIDE), { recursive: true })
     const lines = [
@@ -40,7 +45,12 @@ function ensureComposeOverride() {
         lines.push(
             '  multi-sync-startup:',
             '    volumes:',
-            `      - ${LOCALNET_DARS_DIR}:/app/dars:ro`
+            `      - ${LOCALNET_DARS_DIR}:/app/dars:ro`,
+            // Mount our custom bootstrap script over the downloaded .localnet version.
+            // Ours adds package vetting topology for all participants on app-synchronizer
+            // and waits for propagation — ensuring the package service is ready before
+            // the container exits and before start:localnet returns.
+            `      - ${MULTI_SYNC_APP_SYNCHRONIZER_SC}:/app/app-synchronizer.sc:ro`
         )
     }
     lines.push('')
@@ -90,41 +100,16 @@ if (command === 'pull') {
     })
     // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
     if (multiSync) {
-        // Block until the multi-sync bootstrap script (app-synchronizer.sc) finishes.
-        // `docker compose up -d` returns immediately; on CI the container may not yet
-        // be created when we try to wait. Poll via `docker inspect` until the container
-        // exists and is running/exited, then use `docker wait` to block until it exits.
-        console.log('Waiting for multi-sync-startup container to appear...')
-        const MAX_POLL_ATTEMPTS = 60
-        const POLL_INTERVAL_MS = 5000
-        let containerReady = false
-        for (let i = 0; i < MAX_POLL_ATTEMPTS; i++) {
-            try {
-                const status = execSync(
-                    'docker inspect --format={{.State.Status}} multi-sync-startup',
-                    { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
-                ).trim()
-                if (status === 'running' || status === 'exited') {
-                    containerReady = true
-                    break
-                }
-            } catch {
-                // Container doesn't exist yet — keep polling
-            }
-            Atomics.wait(
-                new Int32Array(new SharedArrayBuffer(4)),
-                0,
-                0,
-                POLL_INTERVAL_MS
-            )
-        }
-        if (!containerReady) {
-            throw new Error(
-                'Timed out waiting for multi-sync-startup container to start'
-            )
-        }
-        console.log('Waiting for multi-sync bootstrap to complete...')
-        execFileSync('docker', ['wait', 'multi-sync-startup'], {
+        // Block until the multi-sync bootstrap finishes by following the container logs.
+        // `docker logs --follow` streams output and returns only when the container exits,
+        // making it both a progress stream (visible in CI) and a reliable wait mechanism.
+        // The custom app-synchronizer.sc (mounted via compose override) connects all
+        // participants to app-synchronizer, proposes package vetting topology, and waits
+        // for propagation — so when this returns the package service is fully initialised.
+        console.log(
+            'Waiting for multi-sync bootstrap (package vetting) to complete...'
+        )
+        spawnSync('docker', ['logs', '--follow', 'multi-sync-startup'], {
             stdio: 'inherit',
         })
         const exitCode = execSync(
