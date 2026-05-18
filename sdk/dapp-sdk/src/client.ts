@@ -13,9 +13,12 @@ import type {
     LedgerApiParams,
     LedgerApiResult,
     ListAccountsResult,
+    MessageSignatureEvent,
     PrepareExecuteAndWaitResult,
     PrepareExecuteParams,
     ProviderType,
+    SignMessageParams,
+    SignMessageResult,
     StatusEvent,
     TxChangedEvent,
 } from '@canton-network/core-wallet-dapp-rpc-client'
@@ -85,6 +88,10 @@ export class DappClient {
         })
     }
 
+    async signMessage(params: SignMessageParams): Promise<SignMessageResult> {
+        return this.provider.request({ method: 'signMessage', params })
+    }
+
     async ledgerApi(params: LedgerApiParams): Promise<LedgerApiResult> {
         return this.provider.request({ method: 'ledgerApi', params })
     }
@@ -107,6 +114,10 @@ export class DappClient {
         this.provider.on<TxChangedEvent>('txChanged', listener)
     }
 
+    onMessageSignature(listener: EventListener<MessageSignatureEvent>): void {
+        this.provider.on<MessageSignatureEvent>('messageSignature', listener)
+    }
+
     removeOnStatusChanged(listener: EventListener<StatusEvent>): void {
         this.provider.removeListener<StatusEvent>('statusChanged', listener)
     }
@@ -126,6 +137,15 @@ export class DappClient {
 
     removeOnTxChanged(listener: EventListener<TxChangedEvent>): void {
         this.provider.removeListener<TxChangedEvent>('txChanged', listener)
+    }
+
+    removeOnMessageSignature(
+        listener: EventListener<MessageSignatureEvent>
+    ): void {
+        this.provider.removeListener<MessageSignatureEvent>(
+            'messageSignature',
+            listener
+        )
     }
 
     // ── Open wallet UI ─────────────────────────────────────

@@ -22,6 +22,8 @@ import type {
     StatusEvent,
 } from '@canton-network/core-wallet-dapp-rpc-client'
 import { WALLETCONNECT_ICON } from '../assets'
+import { composeSIWXMessage } from '../util'
+import { v4 as uuidv4 } from 'uuid'
 
 const CANTON_WC_METHODS = [
     'canton_prepareSignExecute',
@@ -40,6 +42,58 @@ const PROVIDER_INFO: ProviderInfo = {
     providerType: 'mobile',
 }
 
+/**
+ * The timestamp is a UTC string representing the time in ISO 8601 format.
+ */
+export type Timestamp = string
+
+/**
+ * This interface represents the SIWX message metadata.
+ * Here must contain the main data related to the app.
+ */
+export interface Metadata {
+    requestId?: string
+    domain: string
+    uri: string
+    version: string
+    nonce?: string
+    notBefore?: Timestamp
+    statement?: string
+    resources?: string[]
+}
+
+/**
+ * This interface represents the SIWX message identifier.
+ * Here must contain the request id and the timestamps.
+ */
+export interface Identifier {
+    requestId?: string
+    issuedAt?: Timestamp
+    expirationTime?: Timestamp
+}
+
+export interface SIWXMessageParams extends Metadata, Identifier {}
+
+export interface RequestSIWXParams extends SIWXMessageParams {
+    account: string
+}
+
+export interface SignInWithCantonResult {
+    requestId: string | undefined
+    nonce: string
+    account: string
+    chainId: string
+    message: string
+    publicKey: string
+    signature: string
+    error?: SignInWithCantonError
+}
+
+export interface SignInWithCantonError {
+    message: string
+    code: number
+}
+
 export interface WalletConnectAdapterConfig {
     projectId: string
     chainId?: string
@@ -49,8 +103,11 @@ export interface WalletConnectAdapterConfig {
         url: string
         icons: string[]
     }
+    /** Whether to trigger a canton_signMessage request after the session is established. */
+    signInWithCanton?: SIWXMessageParams
     /** Called with the pairing URI so the dApp can display or forward it. */
     onUri?: (uri: string) => void
+    onSignInWithCanton?: (result: SignInWithCantonResult) => void
 }
 
 /**
@@ -74,6 +131,10 @@ export class WalletConnectAdapter
         | WalletConnectAdapterConfig['metadata']
         | undefined
     private readonly onUri: ((uri: string) => void) | undefined
+    private readonly onSignInWithCanton:
+        | ((result: SignInWithCantonResult) => void)
+        | undefined
+    private readonly signInWithCanton: WalletConnectAdapterConfig['signInWithCanton']
 
     private signClient: SignClient | null = null
     private session: SessionTypes.Struct | null = null
@@ -89,9 +150,11 @@ export class WalletConnectAdapter
 
     constructor(config: WalletConnectAdapterConfig) {
         this.projectId = config.projectId
+        this.signInWithCanton = config.signInWithCanton
         this.chainId = config.chainId ?? 'canton:devnet'
         this.metadata = config.metadata
         this.onUri = config.onUri
+        this.onSignInWithCanton = config.onSignInWithCanton
     }
 
     // ── ProviderAdapter ─────────────────────────────────────────────
@@ -246,22 +309,22 @@ export class WalletConnectAdapter
     // ── Private: WC request ─────────────────────────────────────────
 
     /** Send a request through signClient, prefixing the method with `canton_`. */
-    private async walletConnectRequest(
+    private async walletConnectRequest<T>(
         method: string,
         params?: unknown
-    ): Promise<unknown> {
+    ): Promise<T> {
         if (!this.signClient || !this.session) {
             throw new Error('WalletConnect session not established')
         }
         try {
-            return await this.signClient.request({
+            return (await this.signClient.request({
                 topic: this.session.topic,
                 chainId: this.chainId,
                 request: {
                     method: `canton_${method}`,
                     params: params ?? {},
                 },
-            })
+            })) as T
         } catch (err: unknown) {
             const errObj = typeof err === 'object' && err !== null ? err : {}
             const message =
@@ -363,6 +426,51 @@ export class WalletConnectAdapter
 
         this.session = await approval()
         this.setupSessionEvents()
+        if (this.signInWithCanton) {
+            const nonce = this.signInWithCanton.nonce || uuidv4()
+
+            try {
+                const account = this.session?.namespaces?.canton?.accounts?.[0]
+                const address = decodeURIComponent(account?.split(':')[2])
+                const chainId = account?.split(':')[1] ?? this.chainId
+                const message = composeSIWXMessage({
+                    ...this.signInWithCanton,
+                    accountAddress: address,
+                    chainId: chainId,
+                })
+
+                const result = await this.walletConnectRequest<{
+                    signature: string
+                    publicKey: string
+                }>('signMessage', {
+                    message: message,
+                })
+                this.onSignInWithCanton?.({
+                    requestId: this.signInWithCanton.requestId,
+                    nonce,
+                    account: account,
+                    chainId: chainId,
+                    message: message,
+                    signature: result.signature,
+                    publicKey: result.publicKey,
+                })
+            } catch (error) {
+                const err = error as Error
+                this.onSignInWithCanton?.({
+                    requestId: this.signInWithCanton.requestId,
+                    nonce,
+                    account: '',
+                    chainId: '',
+                    message: '',
+                    publicKey: '',
+                    signature: '',
+                    error: {
+                        message: err.message,
+                        code: -32603,
+                    },
+                })
+            }
+        }
     }
 
     private async showUriInPopup(uri: string): Promise<void> {
