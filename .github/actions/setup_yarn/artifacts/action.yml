@@ -24,5 +24,6 @@ runs:
 
         - name: Install dependencies
           shell: bash
-          run: YARN_ENABLE_HARDENED_MODE=0 \ 
-               yarn install --immutable
+          env:
+              YARN_ENABLE_HARDENED_MODE: '0'
+          run: yarn install --immutable
