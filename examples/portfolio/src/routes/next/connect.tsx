@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material'
 import { createFileRoute, Navigate } from '@tanstack/react-router'
-import { PillButton } from '../../components/ui/PillButton'
-import { useConnection } from '../../contexts/ConnectionContext'
+import { PillButton } from '@components/ui/PillButton'
+import { useConnection } from '@contexts/ConnectionContext'
 
 export const Route = createFileRoute('/next/connect')({
     component: RouteComponent,
