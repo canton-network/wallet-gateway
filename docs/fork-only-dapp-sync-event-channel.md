@@ -79,6 +79,60 @@ The fork patch therefore has to extend both:
 
 After the patch, frames #1–#3 land on `AbstractProvider.listeners['txChanged']`, the dApp's `useTransactions` hook receives them, and `Total transactions: N` renders. Verified locally against the same testnet flow.
 
+## Why we couldn't have reused `SPLICE_WALLET_RESPONSE` for push events
+
+A natural reviewer reaction is: "the wire already has `SPLICE_WALLET_RESPONSE` — why not have the wallet emit lifecycle events using that envelope instead of inventing `SPLICE_WALLET_EVENT`?" Three independent reasons make this impossible against the upstream `WindowTransport` as-is. Each is directly verifiable against `git show wallet-gateway/main:core/rpc-transport/src/index.ts`.
+
+### 1. The upstream listener is per-request, gated by JSON-RPC `id`
+
+The only `window.addEventListener('message', ...)` in upstream's Sync transport lives inside `WindowTransport.submit()` (`core/rpc-transport/src/index.ts:65-83` on `wallet-gateway/main`):
+
+```ts
+const listener = (event: MessageEvent) => {
+    if (
+        !isSpliceMessageEvent(event) ||
+        event.data.type !== WalletEvent.SPLICE_WALLET_RESPONSE ||
+        event.data.response.id !== message.request.id // ← id-correlation gate
+    ) {
+        return
+    }
+    window.removeEventListener('message', listener)
+    // resolves pending promise
+}
+window.addEventListener('message', listener)
+```
+
+A push event has no `id` to correlate to. Three paths and all fail:
+
+| Webext picks for the event's `id`   | Outcome on upstream                                                                                                                                                                                                                                                                                               |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Omit `id` (or set null)             | Filter fails on `response.id !== message.request.id` → drop                                                                                                                                                                                                                                                       |
+| Random UUID                         | No pending request has that UUID → drop                                                                                                                                                                                                                                                                           |
+| Reuse a real pending request's `id` | **Worst case:** resolves the pending `prepareExecute()` promise with the `TxChangedEvent` payload instead of the actual `prepareExecute` result. Caller code receives an event payload where it expected a `void`/`string`/etc. Listener removes itself; only one event delivered before the listener tears down. |
+
+### 2. The listener doesn't exist between requests
+
+Once a response matches, the listener calls `removeEventListener` (line 80) and detaches. **From that moment until the next `submit()` call, there is zero `window.message` listener attached for `SPLICE_WALLET_*` traffic anywhere in the upstream Sync transport.**
+
+A `txChanged: executed` push frame arriving in that gap (e.g. after `prepareExecute`'s response has landed and the listener has torn down) hits a dApp window with no handler subscribed. This is the structurally fatal problem: the upstream transport's listener **lifetime is wrong** for push events even if the `id` correlation were waived.
+
+A correct push-event transport needs an **always-on, single shared listener** — which is exactly what `WindowTransport.installEventDispatcher` introduces in this PR.
+
+### 3. The Zod `SuccessResponse` schema would force payload misuse
+
+For a `txChanged` event to ride `SPLICE_WALLET_RESPONSE`, the webext would have to fit the `TxChangedEvent` into a `SuccessResponse` shape: `{ jsonrpc: '2.0', id: ..., result: <TxChangedEvent> }`. The Zod schema accepts this structurally — `result` is typed `unknown` at the envelope level. But:
+
+- The only consumer of a successful `SuccessResponse` is the pending-request promise in `submit()`, which calls `resolve(event.data.response)`.
+- That promise was awaiting a `prepareExecute` / `connect` / `signMessage` / etc. result. Resolving it with a `TxChangedEvent` is a type lie at runtime that the caller will mis-handle.
+
+So `SPLICE_WALLET_RESPONSE` reuse is not merely "drops events" — it's **actively dangerous**: it would hijack pending promises with wrong payloads and silently corrupt the JSON-RPC client's view of method results.
+
+### Implication for the "Option B" alternative
+
+The JSON-RPC notification design ("Option B" in [Recommended upstream conversation](#recommended-upstream-conversation)) — reusing `SPLICE_WALLET_REQUEST` with no `id` — sidesteps reasons 1 and 3 (the upstream listener correlates RESPONSE only, and a request without `id` is unambiguously not a response). But it does **not** sidestep reason 2: the upstream transport still has no permanently-installed inbound listener at all, and adding one is the bulk of the work in this PR. Whichever wire envelope is chosen, the four pieces of plumbing this patch introduces (envelope type, `RpcTransport.onEvent`, `WindowTransport.onEvent` impl with single shared listener, `DappSyncProvider` constructor wiring) are not optional.
+
+The choice of `SPLICE_WALLET_EVENT` is therefore the smallest-cost option that closes the gap. Option B is a viable spec-level alternative that requires the same plumbing plus a guard in `WindowTransport.submit` to treat `SPLICE_WALLET_REQUEST`-with-no-`id` as notifications rather than requests addressed to the dApp.
+
 ## Is this a CIP-103 spec problem?
 
 Partially. The relevant parts of CIP-103 today are:
