@@ -75,31 +75,6 @@ export const BOB_TOKEN_MINT_AMOUNT = '500'
 export const TRADE_AMULET_AMOUNT = '100'
 export const TRADE_TOKEN_AMOUNT = '20'
 
-/**
- * Polls the ACS until at least one matching contract appears, then returns its contractId.
- * Retries every 2 s for up to 2 minutes. Throws if no contract is found within the timeout.
- *
- * This is necessary because the Ledger API confirms command submission before the resulting
- * contracts become visible in the ACS — on mainnet the propagation delay can be several seconds.
- */
-async function pollForContractId(
-    read: () => Promise<AcsContractEntry[]>,
-    label: string,
-    maxAttempts = 60,
-    intervalMs = 2_000
-): Promise<string> {
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const entries = await read()
-        const cid = entries[0]?.contractId
-        if (cid) return cid
-        if (attempt < maxAttempts)
-            await new Promise((resolve) => setTimeout(resolve, intervalMs))
-    }
-    throw new Error(
-        `${label} not found in ACS after ${(maxAttempts * intervalMs) / 1000}s`
-    )
-}
-
 const MS_30_MIN = 30 * 60 * 1000
 const MS_1_HOUR = 60 * 60 * 1000
 const MS_24_HOURS = 24 * 60 * 60 * 1000
@@ -190,15 +165,14 @@ export async function createTokenRulesAndMintForBob(
         body: JSON.stringify({ amount: BOB_TOKEN_MINT_AMOUNT }),
     })
 
-    const adminTokenCid = await pollForContractId(
-        () =>
-            p3Sdk.ledger.acs.read({
-                templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-                parties: [tokenAdmin.partyId],
-                filterByParty: true,
-            }),
-        'TokenAdmin Token holding'
-    )
+    const adminTokenHoldings = await p3Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [tokenAdmin.partyId],
+        filterByParty: true,
+    })
+    const adminTokenCid = adminTokenHoldings[0]?.contractId
+    if (!adminTokenCid)
+        throw new Error('TokenAdmin Token holding not found after mint')
 
     const [transferCommand, transferDisclosed] =
         await p3Sdk.token.transfer.create({
@@ -220,15 +194,14 @@ export async function createTokenRulesAndMintForBob(
         .sign(tokenAdmin.keyPair.privateKey)
         .execute({ partyId: tokenAdmin.partyId })
 
-    const transferOfferCid = await pollForContractId(
-        () =>
-            p2Sdk.ledger.acs.read({
-                templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
-                parties: [bob.partyId],
-                filterByParty: true,
-            }),
-        'TokenTransferOffer for Bob'
-    )
+    const transferOffers = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
+    const transferOfferCid = transferOffers[0]?.contractId
+    if (!transferOfferCid)
+        throw new Error('TokenTransferOffer not found for Bob')
 
     const [acceptCommand, acceptDisclosed] =
         await tokenNamespaceP2.transfer.accept({

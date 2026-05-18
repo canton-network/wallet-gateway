@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { execFileSync, execSync, spawnSync } from 'child_process'
+import { execFileSync, spawnSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -100,22 +100,23 @@ if (command === 'pull') {
     })
     // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
     if (multiSync) {
-        // Block until the multi-sync bootstrap finishes by following the container logs.
-        // `docker logs --follow` streams output and returns only when the container exits,
-        // making it both a progress stream (visible in CI) and a reliable wait mechanism.
-        // The custom app-synchronizer.sc (mounted via compose override) connects all
-        // participants to app-synchronizer, proposes package vetting topology, and waits
-        // for propagation — so when this returns the package service is fully initialised.
+        // Block until the multi-sync bootstrap finishes.
+        // We first follow logs (for CI visibility), then use `docker wait` as the
+        // authoritative gate: unlike `docker logs --follow`, `docker wait` is guaranteed
+        // to block until the container exits on all Docker versions / CI environments.
+        // (`docker logs --follow` can return prematurely on some CI runners before the
+        // container actually exits, which would cause start:localnet to return while the
+        // app-synchronizer.sc package-vetting script is still running.)
         console.log(
             'Waiting for multi-sync bootstrap (package vetting) to complete...'
         )
-        spawnSync('docker', ['logs', '--follow', 'multi-sync-startup'], {
-            stdio: 'inherit',
+        // `docker wait` blocks until the container exits and returns its exit code.
+        // This is the authoritative gate: unlike `docker logs --follow`, it is
+        // guaranteed to block until exit on all Docker versions / CI environments.
+        const waitResult = spawnSync('docker', ['wait', 'multi-sync-startup'], {
+            encoding: 'utf8',
         })
-        const exitCode = execSync(
-            'docker inspect --format={{.State.ExitCode}} multi-sync-startup',
-            { encoding: 'utf8' }
-        ).trim()
+        const exitCode = waitResult.stdout?.trim() ?? '1'
         if (exitCode !== '0') {
             throw new Error(
                 `multi-sync bootstrap script failed with exit code ${exitCode}`
