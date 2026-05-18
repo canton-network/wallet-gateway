@@ -29,7 +29,7 @@ interface JsonRpcHttpOptions<T> {
  * @param method The name of the JSON-RPC method being called.
  * @returns A tuple containing the HTTP status code and the JSON-RPC response.
  */
-const handleRpcError = (
+export const handleRpcError = (
     error: unknown,
     id: string | number | null,
     logger: Logger,
