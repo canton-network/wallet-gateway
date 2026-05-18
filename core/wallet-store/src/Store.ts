@@ -97,6 +97,24 @@ export interface TransactionStatusUpdate {
     externalTxId?: string
 }
 
+export interface MessageRaw {
+    id: string
+    status: 'pending' | 'signed' | 'failed'
+    userId: string
+    partyId: PartyId
+    publicKey: string
+    message: string
+    origin: string | null
+    createdAt: Date
+    signedAt?: Date
+    signature?: string
+}
+
+export interface MessageRawStatusUpdate {
+    signedAt?: Date
+    signature?: string
+}
+
 // Store interface for managing wallets, sessions, networks, and transactions
 
 export interface Store {
@@ -152,4 +170,15 @@ export interface Store {
     ): Promise<Transaction | undefined>
     listTransactions(): Promise<Array<Transaction>>
     removeTransaction(transactionId: string): Promise<void>
+
+    // Message signing request methods
+    setMessageRaw(message: MessageRaw): Promise<void>
+    setMessageRawStatus(
+        messageId: string,
+        status: MessageRaw['status'],
+        updates?: MessageRawStatusUpdate
+    ): Promise<void>
+    getMessageRaw(messageId: string): Promise<MessageRaw | undefined>
+    listMessageRaws(): Promise<Array<MessageRaw>>
+    removeMessageRaw(messageId: string): Promise<void>
 }

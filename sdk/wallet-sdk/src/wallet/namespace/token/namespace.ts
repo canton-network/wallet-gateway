@@ -41,4 +41,16 @@ export class TokenNamespace {
             params.beforeOffset
         )
     }
+
+    /** Gets transaction info parsed in a way relevant to token standard transfer flows
+     * @param updateId id of queried transaction
+     * @param partyId for transaction
+     * @returns A promise that resolves to a transaction
+     */
+    async transactionsById(params: { updateId: string; partyId: PartyId }) {
+        return await this.tokenContext.tokenStandardService.getTransactionById(
+            params.updateId,
+            params.partyId
+        )
+    }
 }

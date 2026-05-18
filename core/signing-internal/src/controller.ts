@@ -9,6 +9,7 @@ import {
     SigningDriverInterface,
     SigningProvider,
     signTransactionHash,
+    signMessage,
     createKeyPair,
     SigningDriverStore,
     SigningTransaction,
@@ -31,6 +32,8 @@ import {
     SubscribeTransactionsResult,
     SetConfigurationResult,
     Transaction,
+    SignMessageParams,
+    SignMessageResult,
 } from '@canton-network/core-signing-lib'
 import { randomUUID } from 'node:crypto'
 import { AuthContext } from '@canton-network/core-wallet-auth'
@@ -130,6 +133,32 @@ export class InternalSigningDriver implements SigningDriverInterface {
                             'The provided public key does not exist in the signing.',
                     })
                 }
+            },
+
+            signMessage: async (
+                params: SignMessageParams
+            ): Promise<SignMessageResult> => {
+                if (!params.keyIdentifier?.publicKey) {
+                    return Promise.resolve({
+                        error: 'key_not_found',
+                        error_description:
+                            'The provided key identifier must include a publicKey.',
+                    })
+                }
+
+                const key = await this.store.getSigningKeyByPublicKey(
+                    params.keyIdentifier.publicKey
+                )
+                if (!key?.privateKey) {
+                    return Promise.resolve({
+                        error: 'key_not_found',
+                        error_description:
+                            'The provided key identifier must include a privateKey.',
+                    })
+                }
+                return Promise.resolve({
+                    signature: signMessage(params.message, key.privateKey),
+                })
             },
 
             getTransaction: async (

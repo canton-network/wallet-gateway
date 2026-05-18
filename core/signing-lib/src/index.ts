@@ -64,6 +64,12 @@ export const signTransactionHash = (
     )
 }
 
+export const signMessage = (message: string, privateKey: string): string => {
+    const msgBytes = new TextEncoder().encode(message)
+    const decodedKey = naclUtil.decodeBase64(privateKey)
+    return naclUtil.encodeBase64(nacl.sign.detached(msgBytes, decodedKey))
+}
+
 export const getPublicKeyFromPrivate = (privateKeyBase64: string): string => {
     const secretKey = naclUtil.decodeBase64(privateKeyBase64)
     const keyPair = nacl.sign.keyPair.fromSecretKey(secretKey)

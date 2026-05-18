@@ -8,7 +8,18 @@ import { handleErrorToast } from '@canton-network/core-wallet-ui-components'
 
 const wcProjectId = import.meta.env.VITE_WC_PROJECT_ID as string
 const wcAdapter = wcProjectId
-    ? WalletConnectAdapter.create({ projectId: wcProjectId })
+    ? WalletConnectAdapter.create({
+          projectId: wcProjectId,
+          signInWithCanton: {
+              domain: 'http://localhost:3000',
+              uri: 'http://localhost:3000/login',
+              version: '1.0.0',
+              nonce: '1234567890', // optional, defaults to a unique UUID
+          },
+          onSignInWithCanton: (result) => {
+              console.log('onSignInWithCanton:', result)
+          },
+      })
     : undefined
 const additionalAdapters = wcAdapter ? [wcAdapter] : []
 

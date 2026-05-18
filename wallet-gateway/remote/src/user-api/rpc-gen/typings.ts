@@ -132,6 +132,11 @@ export type PartyHint = string
  *
  */
 export type SigningProviderId = string
+/**
+ *
+ * The party id of the wallet to be removed.
+ *
+ */
 export type PartyId = string
 /**
  *
@@ -160,6 +165,17 @@ export interface WalletFilter {
  *
  */
 export type TransactionId = string
+/**
+ *
+ * The internal identifier of the pending message-signing request.
+ *
+ */
+export type MessageId = string
+/**
+ *
+ * The signature of the message.
+ *
+ */
 export type Signature = string
 export type SignedBy = string
 export type Networks = Network[]
@@ -292,16 +308,52 @@ export interface SignResultFailed {
 }
 /**
  *
- * The access token for the session.
- *
- */
-export type AccessToken = string
-/**
- *
  * The status of the transaction.
  *
  */
 export type Status = string
+/**
+ *
+ * The message to sign.
+ *
+ */
+export type Message = string
+/**
+ *
+ * The origin (dApp URL) that initiated this transaction request.
+ *
+ */
+export type Origin = string
+/**
+ *
+ * The timestamp when the transaction was created.
+ *
+ */
+export type CreatedAt = string
+/**
+ *
+ * The timestamp when the transaction was signed.
+ *
+ */
+export type SignedAt = string
+export interface MessageRaw {
+    id: MessageId
+    status: Status
+    partyId: PartyId
+    publicKey: PublicKey
+    message: Message
+    origin?: Origin
+    createdAt: CreatedAt
+    signedAt?: SignedAt
+    signature?: Signature
+}
+export type Messages = MessageRaw[]
+/**
+ *
+ * The access token for the session.
+ *
+ */
+export type AccessToken = string
 export type UserLevelRight = any
 /**
  *
@@ -326,18 +378,6 @@ export type Sessions = Session[]
 export type CommandId = string
 /**
  *
- * The timestamp when the transaction was created.
- *
- */
-export type CreatedAt = string
-/**
- *
- * The timestamp when the transaction was signed.
- *
- */
-export type SignedAt = string
-/**
- *
  * The transaction data corresponding to the command ID.
  *
  */
@@ -354,12 +394,6 @@ export type PreparedTransactionHash = string
  *
  */
 export type Payload = string
-/**
- *
- * The origin (dApp URL) that initiated this transaction request.
- *
- */
-export type Origin = string
 export interface Transaction {
     id: TransactionId
     commandId: CommandId
@@ -417,6 +451,16 @@ export interface ListWalletsParams {
 export interface SignParams {
     transactionId: TransactionId
     partyId: PartyId
+}
+export interface SignMessageParams {
+    messageId: MessageId
+    partyId?: PartyId
+}
+export interface GetMessageToSignParams {
+    messageId: MessageId
+}
+export interface DeleteMessageToSignParams {
+    messageId: MessageId
 }
 export interface ExecuteParams {
     signature: Signature
@@ -478,6 +522,16 @@ export type SignResult =
     | SignResultPending
     | SignResultRejected
     | SignResultFailed
+export interface SignMessageResult {
+    signature: Signature
+    publicKey: PublicKey
+}
+export interface GetMessageToSignResult {
+    message: MessageRaw
+}
+export interface ListMessagesToSignResult {
+    messages: Messages
+}
 export interface ExecuteResult {
     [key: string]: any
 }
@@ -545,6 +599,16 @@ export type ListWallets = (
 export type SyncWallets = () => Promise<SyncWalletsResult>
 export type IsWalletSyncNeeded = () => Promise<IsWalletSyncNeededResult>
 export type Sign = (params: SignParams) => Promise<SignResult>
+export type SignMessage = (
+    params: SignMessageParams
+) => Promise<SignMessageResult>
+export type GetMessageToSign = (
+    params: GetMessageToSignParams
+) => Promise<GetMessageToSignResult>
+export type ListMessagesToSign = () => Promise<ListMessagesToSignResult>
+export type DeleteMessageToSign = (
+    params: DeleteMessageToSignParams
+) => Promise<Null>
 export type Execute = (params: ExecuteParams) => Promise<ExecuteResult>
 export type AddSession = (params: AddSessionParams) => Promise<AddSessionResult>
 export type RemoveSession = () => Promise<Null>
