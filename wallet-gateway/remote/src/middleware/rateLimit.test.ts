@@ -14,6 +14,22 @@ describe('ipRateLimitKeyGenerator', () => {
 
         expect(ipRateLimitKeyGenerator(req)).toBe('ip:198.51.100.42')
     })
+
+    test('falls back to socket.remoteAddress when ip is unset', () => {
+        const req = {
+            socket: { remoteAddress: '10.0.0.2' },
+        } as Request
+
+        expect(ipRateLimitKeyGenerator(req)).toBe('ip:10.0.0.2')
+    })
+
+    test('uses unknown when neither ip nor remoteAddress is set', () => {
+        const req = {
+            socket: {},
+        } as Request
+
+        expect(ipRateLimitKeyGenerator(req)).toBe('ip:unknown')
+    })
 })
 
 describe('rateLimitKeyGenerator', () => {
