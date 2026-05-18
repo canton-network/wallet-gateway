@@ -173,7 +173,7 @@ export class PreapprovalNamespace {
      * @param receiverParty Receiver party id.
      * @param options Optional settings.
      * @param options.oldCid Resolve only when CID differs from this value (post-renew).
-     * @param options.expectGone Set true to resolve when no preapproval is returned (post-cancel).
+     * @param options.cancelled Set true to resolve when no preapproval is returned (post-cancel).
      * @param options.intervalMs Poll interval in milliseconds. Default is 15000.
      * @param options.timeoutMs Maximum wait time in milliseconds. Default is 300000.
      * @returns Resolves with the preapproval (for create/renew) or null (for cancelled).
