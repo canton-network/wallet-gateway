@@ -77,15 +77,16 @@ utils.retry_until_true {
 
 logger.info("app-synchronizer bootstrap with package vetting completed successfully for app-provider, app-user, and sv")
 
-// Final gate: confirm all participants are active on global-domain.
-// On slower CI environments (e.g. devnet) sv's global-domain ledger API connection
+// Final gate: confirm all participants are active on the global synchronizer
+// (Canton alias "global", as configured in conf/splice/app.conf domains.global.alias).
+// On slower CI environments (e.g. devnet) sv's global synchronizer ledger API connection
 // can still be initialising when the app-synchronizer steps above finish.
 // docker wait multi-sync-startup will not return until this check passes,
 // preventing the "Unknown or not connected synchronizer global-domain::..." error
 // that occurs when party allocation is attempted before sv is ready.
 utils.retry_until_true {
-  `app-provider`.synchronizers.active("global-domain") &&
-    `app-user`.synchronizers.active("global-domain") &&
-    `sv`.synchronizers.active("global-domain")
+  `app-provider`.synchronizers.active("global") &&
+    `app-user`.synchronizers.active("global") &&
+    `sv`.synchronizers.active("global")
 }
-logger.info("All participants confirmed active on global-domain — localnet ready")
+logger.info("All participants confirmed active on global synchronizer — localnet ready")
