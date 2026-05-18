@@ -4,17 +4,17 @@
 import { Link, getRouteApi } from '@tanstack/react-router'
 import { Box, Typography, Paper, Skeleton, Button } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useAccounts } from '../hooks/useAccounts'
-import { useWalletHoldings } from '../hooks/useWalletHoldings'
+import { useAccounts } from '../../hooks/useAccounts'
+import { useWalletHoldings } from '../../hooks/useWalletHoldings'
 import {
     useTransactionHistoryForParty,
     useDeduplicatedTransactionHistoryForParty,
-} from '../hooks/useTransactionHistory'
-import { CopyableIdentifier } from '../components/copyable-identifier'
-import { InstrumentAccordion } from '../components/instrument-accordion'
-import { TransactionTable } from '../components/TransactionTable'
+} from '../../hooks/useTransactionHistory'
+import { CopyableIdentifier } from '../../components/copyable-identifier'
+import { InstrumentAccordion } from '../../components/instrument-accordion'
+import { TransactionTable } from '../../components/TransactionTable'
 
-const walletRouteApi = getRouteApi('/wallet/$walletId')
+const walletRouteApi = getRouteApi('/_legacy/wallet/$walletId')
 
 export function WalletDetailPage() {
     const { walletId } = walletRouteApi.useParams()

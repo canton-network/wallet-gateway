@@ -6,20 +6,20 @@ import type {
     AllocationView,
     SettlementInfo,
 } from '@canton-network/core-token-standard'
-import { ActionRequired } from '../components/action-required'
-import { usePrimaryAccount } from '../hooks/useAccounts'
+import { ActionRequired } from '../../components/action-required'
+import { usePrimaryAccount } from '../../hooks/useAccounts'
 import {
     usePendingTransfersQueryOptions,
     useAllocationRequestsQueryOptions,
     useAllocationsQueryOptions,
-} from '../hooks/query-options'
+} from '../../hooks/query-options'
 import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
-import { WalletsPreview } from '../components/wallets-preview'
+import { WalletsPreview } from '../../components/wallets-preview'
 import type {
     ActionItem,
     TransferActionItem,
     AllocationActionItem,
-} from '../components/types'
+} from '../../components/types'
 
 export function Index() {
     const primaryParty = usePrimaryAccount()?.partyId

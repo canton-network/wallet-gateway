@@ -9,122 +9,195 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as OldRouteImport } from './routes/old'
-import { Route as ConnectRouteImport } from './routes/connect'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as WalletWalletIdRouteImport } from './routes/wallet.$walletId'
+import { Route as NextRouteRouteImport } from './routes/next/route'
+import { Route as LegacyRouteRouteImport } from './routes/_legacy/route'
+import { Route as LegacyIndexRouteImport } from './routes/_legacy/index'
+import { Route as NextConnectRouteImport } from './routes/next/connect'
+import { Route as LegacySettingsRouteImport } from './routes/_legacy/settings'
+import { Route as LegacyOldRouteImport } from './routes/_legacy/old'
+import { Route as LegacyWalletWalletIdRouteImport } from './routes/_legacy/wallet.$walletId'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const NextRouteRoute = NextRouteRouteImport.update({
+  id: '/next',
+  path: '/next',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OldRoute = OldRouteImport.update({
-  id: '/old',
-  path: '/old',
+const LegacyRouteRoute = LegacyRouteRouteImport.update({
+  id: '/_legacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ConnectRoute = ConnectRouteImport.update({
-  id: '/connect',
-  path: '/connect',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const LegacyIndexRoute = LegacyIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LegacyRouteRoute,
 } as any)
-const WalletWalletIdRoute = WalletWalletIdRouteImport.update({
+const NextConnectRoute = NextConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
+  getParentRoute: () => NextRouteRoute,
+} as any)
+const LegacySettingsRoute = LegacySettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => LegacyRouteRoute,
+} as any)
+const LegacyOldRoute = LegacyOldRouteImport.update({
+  id: '/old',
+  path: '/old',
+  getParentRoute: () => LegacyRouteRoute,
+} as any)
+const LegacyWalletWalletIdRoute = LegacyWalletWalletIdRouteImport.update({
   id: '/wallet/$walletId',
   path: '/wallet/$walletId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => LegacyRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/connect': typeof ConnectRoute
-  '/old': typeof OldRoute
-  '/settings': typeof SettingsRoute
-  '/wallet/$walletId': typeof WalletWalletIdRoute
+  '/': typeof LegacyIndexRoute
+  '/next': typeof NextRouteRouteWithChildren
+  '/old': typeof LegacyOldRoute
+  '/settings': typeof LegacySettingsRoute
+  '/next/connect': typeof NextConnectRoute
+  '/wallet/$walletId': typeof LegacyWalletWalletIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/connect': typeof ConnectRoute
-  '/old': typeof OldRoute
-  '/settings': typeof SettingsRoute
-  '/wallet/$walletId': typeof WalletWalletIdRoute
+  '/next': typeof NextRouteRouteWithChildren
+  '/old': typeof LegacyOldRoute
+  '/settings': typeof LegacySettingsRoute
+  '/next/connect': typeof NextConnectRoute
+  '/': typeof LegacyIndexRoute
+  '/wallet/$walletId': typeof LegacyWalletWalletIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/connect': typeof ConnectRoute
-  '/old': typeof OldRoute
-  '/settings': typeof SettingsRoute
-  '/wallet/$walletId': typeof WalletWalletIdRoute
+  '/_legacy': typeof LegacyRouteRouteWithChildren
+  '/next': typeof NextRouteRouteWithChildren
+  '/_legacy/old': typeof LegacyOldRoute
+  '/_legacy/settings': typeof LegacySettingsRoute
+  '/next/connect': typeof NextConnectRoute
+  '/_legacy/': typeof LegacyIndexRoute
+  '/_legacy/wallet/$walletId': typeof LegacyWalletWalletIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/connect' | '/old' | '/settings' | '/wallet/$walletId'
+  fullPaths:
+    | '/'
+    | '/next'
+    | '/old'
+    | '/settings'
+    | '/next/connect'
+    | '/wallet/$walletId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/connect' | '/old' | '/settings' | '/wallet/$walletId'
-  id: '__root__' | '/' | '/connect' | '/old' | '/settings' | '/wallet/$walletId'
+  to:
+    | '/next'
+    | '/old'
+    | '/settings'
+    | '/next/connect'
+    | '/'
+    | '/wallet/$walletId'
+  id:
+    | '__root__'
+    | '/_legacy'
+    | '/next'
+    | '/_legacy/old'
+    | '/_legacy/settings'
+    | '/next/connect'
+    | '/_legacy/'
+    | '/_legacy/wallet/$walletId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ConnectRoute: typeof ConnectRoute
-  OldRoute: typeof OldRoute
-  SettingsRoute: typeof SettingsRoute
-  WalletWalletIdRoute: typeof WalletWalletIdRoute
+  LegacyRouteRoute: typeof LegacyRouteRouteWithChildren
+  NextRouteRoute: typeof NextRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
+    '/next': {
+      id: '/next'
+      path: '/next'
+      fullPath: '/next'
+      preLoaderRoute: typeof NextRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/old': {
-      id: '/old'
-      path: '/old'
-      fullPath: '/old'
-      preLoaderRoute: typeof OldRouteImport
+    '/_legacy': {
+      id: '/_legacy'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof LegacyRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/connect': {
-      id: '/connect'
-      path: '/connect'
-      fullPath: '/connect'
-      preLoaderRoute: typeof ConnectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_legacy/': {
+      id: '/_legacy/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof LegacyIndexRouteImport
+      parentRoute: typeof LegacyRouteRoute
     }
-    '/wallet/$walletId': {
-      id: '/wallet/$walletId'
+    '/next/connect': {
+      id: '/next/connect'
+      path: '/connect'
+      fullPath: '/next/connect'
+      preLoaderRoute: typeof NextConnectRouteImport
+      parentRoute: typeof NextRouteRoute
+    }
+    '/_legacy/settings': {
+      id: '/_legacy/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof LegacySettingsRouteImport
+      parentRoute: typeof LegacyRouteRoute
+    }
+    '/_legacy/old': {
+      id: '/_legacy/old'
+      path: '/old'
+      fullPath: '/old'
+      preLoaderRoute: typeof LegacyOldRouteImport
+      parentRoute: typeof LegacyRouteRoute
+    }
+    '/_legacy/wallet/$walletId': {
+      id: '/_legacy/wallet/$walletId'
       path: '/wallet/$walletId'
       fullPath: '/wallet/$walletId'
-      preLoaderRoute: typeof WalletWalletIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof LegacyWalletWalletIdRouteImport
+      parentRoute: typeof LegacyRouteRoute
     }
   }
 }
 
+interface LegacyRouteRouteChildren {
+  LegacyOldRoute: typeof LegacyOldRoute
+  LegacySettingsRoute: typeof LegacySettingsRoute
+  LegacyIndexRoute: typeof LegacyIndexRoute
+  LegacyWalletWalletIdRoute: typeof LegacyWalletWalletIdRoute
+}
+
+const LegacyRouteRouteChildren: LegacyRouteRouteChildren = {
+  LegacyOldRoute: LegacyOldRoute,
+  LegacySettingsRoute: LegacySettingsRoute,
+  LegacyIndexRoute: LegacyIndexRoute,
+  LegacyWalletWalletIdRoute: LegacyWalletWalletIdRoute,
+}
+
+const LegacyRouteRouteWithChildren = LegacyRouteRoute._addFileChildren(
+  LegacyRouteRouteChildren,
+)
+
+interface NextRouteRouteChildren {
+  NextConnectRoute: typeof NextConnectRoute
+}
+
+const NextRouteRouteChildren: NextRouteRouteChildren = {
+  NextConnectRoute: NextConnectRoute,
+}
+
+const NextRouteRouteWithChildren = NextRouteRoute._addFileChildren(
+  NextRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ConnectRoute: ConnectRoute,
-  OldRoute: OldRoute,
-  SettingsRoute: SettingsRoute,
-  WalletWalletIdRoute: WalletWalletIdRoute,
+  LegacyRouteRoute: LegacyRouteRouteWithChildren,
+  NextRouteRoute: NextRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
