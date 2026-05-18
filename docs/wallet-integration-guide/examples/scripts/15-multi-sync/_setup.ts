@@ -163,21 +163,19 @@ export async function setupMultiSyncTrade(
         fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
     ])
 
-    // P1 and P2 vet DARs on both synchronizers; P3 (sv) is only connected to
-    // the global synchronizer (see canton/multi-sync/app-synchronizer.sc).
-    await Promise.all([
-        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
+    // P1, P2 and P3 vet DARs on both synchronizers.
+    // sv (P3) is connected to both synchronizers so that TokenAdmin can submit
+    // TokenRules and Token contracts on the app-synchronizer.
+    await Promise.all(
+        [p1SdkCtx, p2SdkCtx, p3SdkCtx].flatMap((ctx) =>
             [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
                 [tradingAppDar, testTokenV1Dar].map((dar) =>
                     vetDar(ctx.ledgerProvider, dar, sid)
                 )
             )
-        ),
-        ...[tradingAppDar, testTokenV1Dar].map((dar) =>
-            vetDar(p3SdkCtx.ledgerProvider, dar, globalSynchronizerId)
-        ),
-    ])
-    logger.info('DARs vetted: P1+P2 on both synchronizers, P3 on global only')
+        )
+    )
+    logger.info('DARs vetted: P1+P2+P3 on both synchronizers')
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
     const aliceKey = p1Sdk.keys.generate()
