@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { execFileSync } from 'child_process'
+import { execFileSync, execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -90,15 +90,52 @@ if (command === 'pull') {
     })
     // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
     if (multiSync) {
-        console.log('Waiting for multi-sync bootstrap to complete...')
-        execFileSync(
-            composeBase[0],
-            [...composeBase.slice(1), 'wait', 'multi-sync-startup'],
-            {
-                stdio: 'inherit',
-                env,
+        // Block until the multi-sync bootstrap script (app-synchronizer.sc) finishes.
+        // `docker compose up -d` returns immediately; on CI the container may not yet
+        // be created when we try to wait. Poll via `docker inspect` until the container
+        // exists and is running/exited, then use `docker wait` to block until it exits.
+        console.log('Waiting for multi-sync-startup container to appear...')
+        const MAX_POLL_ATTEMPTS = 60
+        const POLL_INTERVAL_MS = 5000
+        let containerReady = false
+        for (let i = 0; i < MAX_POLL_ATTEMPTS; i++) {
+            try {
+                const status = execSync(
+                    'docker inspect --format={{.State.Status}} multi-sync-startup',
+                    { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+                ).trim()
+                if (status === 'running' || status === 'exited') {
+                    containerReady = true
+                    break
+                }
+            } catch {
+                // Container doesn't exist yet — keep polling
             }
-        )
+            Atomics.wait(
+                new Int32Array(new SharedArrayBuffer(4)),
+                0,
+                0,
+                POLL_INTERVAL_MS
+            )
+        }
+        if (!containerReady) {
+            throw new Error(
+                'Timed out waiting for multi-sync-startup container to start'
+            )
+        }
+        console.log('Waiting for multi-sync bootstrap to complete...')
+        execFileSync('docker', ['wait', 'multi-sync-startup'], {
+            stdio: 'inherit',
+        })
+        const exitCode = execSync(
+            'docker inspect --format={{.State.ExitCode}} multi-sync-startup',
+            { encoding: 'utf8' }
+        ).trim()
+        if (exitCode !== '0') {
+            throw new Error(
+                `multi-sync bootstrap script failed with exit code ${exitCode}`
+            )
+        }
         console.log('Multi-sync bootstrap completed successfully.')
     }
 } else if (command === 'stop') {
