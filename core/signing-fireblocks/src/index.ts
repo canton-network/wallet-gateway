@@ -8,6 +8,7 @@ import {
     PartyMode,
     SigningDriverInterface,
     SigningProvider,
+    SignMessageResult,
 } from '@canton-network/core-signing-lib'
 
 import {
@@ -99,6 +100,14 @@ export default class FireblocksSigningDriver implements SigningDriverInterface {
                         error: 'signing_error',
                         error_description: (error as Error).message,
                     }
+                }
+            },
+
+            signMessage: async (): Promise<SignMessageResult> => {
+                return {
+                    error: 'not_allowed',
+                    error_description:
+                        'Signing messages is not yet supported with Fireblocks.',
                 }
             },
 

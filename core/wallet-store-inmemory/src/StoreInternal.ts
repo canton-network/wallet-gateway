@@ -22,6 +22,8 @@ import {
     PartyLevelRight,
     TransactionStatusUpdate,
     UserLevelRight,
+    MessageRaw,
+    MessageRawStatusUpdate,
 } from '@canton-network/core-wallet-store'
 import {
     LedgerClient,
@@ -32,6 +34,7 @@ import { CurrentNetworkWalletFilter } from '@canton-network/core-wallet-store'
 interface UserStorage {
     wallets: Array<Wallet>
     transactions: Map<string, Transaction>
+    messageRaws: Map<string, MessageRaw>
     session: Session | undefined
     userRightsByNetwork: Map<string, Set<UserLevelRight>>
 }
@@ -78,6 +81,7 @@ export class StoreInternal implements Store, AuthAware<StoreInternal> {
         return {
             wallets: [],
             transactions: new Map<string, Transaction>(),
+            messageRaws: new Map<string, MessageRaw>(),
             session: undefined,
             userRightsByNetwork: new Map<string, Set<UserLevelRight>>(),
         }
@@ -567,6 +571,74 @@ export class StoreInternal implements Store, AuthAware<StoreInternal> {
         const storage = this.getStorage()
 
         storage.transactions.delete(transactionId)
+        this.updateStorage(storage)
+    }
+
+    private mergeMessageRawStatusUpdate(
+        existing: MessageRaw,
+        status: MessageRaw['status'],
+        updates: MessageRawStatusUpdate = {}
+    ): MessageRaw {
+        const signedAt = updates.signedAt ?? existing.signedAt
+        const signature = updates.signature ?? existing.signature
+
+        return {
+            ...existing,
+            status,
+            ...(signedAt !== undefined && { signedAt }),
+            ...(signature !== undefined && { signature }),
+        }
+    }
+
+    // Message signing request methods
+    async setMessageRaw(message: MessageRaw): Promise<void> {
+        const userId = this.assertConnected()
+        if (message.userId !== userId) {
+            throw new Error(
+                `MessageRaw userId mismatch: expected ${userId}, got ${message.userId}`
+            )
+        }
+        const storage = this.getStorage()
+        storage.messageRaws.set(message.id, message)
+        this.updateStorage(storage)
+    }
+
+    async setMessageRawStatus(
+        messageId: string,
+        status: MessageRaw['status'],
+        updates: MessageRawStatusUpdate = {}
+    ): Promise<void> {
+        this.assertConnected()
+        const storage = this.getStorage()
+        const existing = storage.messageRaws.get(messageId)
+        if (!existing) {
+            throw new Error(`MessageRaw not found with id: ${messageId}`)
+        }
+        const updated = this.mergeMessageRawStatusUpdate(
+            existing,
+            status,
+            updates
+        )
+        storage.messageRaws.set(messageId, updated)
+        this.updateStorage(storage)
+    }
+
+    async getMessageRaw(messageId: string): Promise<MessageRaw | undefined> {
+        this.assertConnected()
+        const storage = this.getStorage()
+        return storage.messageRaws.get(messageId)
+    }
+
+    async listMessageRaws(): Promise<Array<MessageRaw>> {
+        this.assertConnected()
+        const storage = this.getStorage()
+        return Array.from(storage.messageRaws.values())
+    }
+
+    async removeMessageRaw(messageId: string): Promise<void> {
+        this.assertConnected()
+        const storage = this.getStorage()
+        storage.messageRaws.delete(messageId)
         this.updateStorage(storage)
     }
 }

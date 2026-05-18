@@ -231,10 +231,10 @@ export interface Session {
 }
 /**
  *
- * The signature of the transaction.
+ * The unique identifier of the message associated with the message to be signed.
  *
  */
-export type Signature = string
+export type MessageId = string
 /**
  *
  * Set as primary wallet for dApp usage.
@@ -324,7 +324,7 @@ export type PartyLevelRight = any
 export type Rights = PartyLevelRight[]
 /**
  *
- * The status of the transaction.
+ * The status of the message signature.
  *
  */
 export type StatusPending = 'pending'
@@ -339,10 +339,16 @@ export interface TxChangedPendingEvent {
 }
 /**
  *
- * The status of the transaction.
+ * The status of the message signature.
  *
  */
 export type StatusSigned = 'signed'
+/**
+ *
+ * The signature of the message.
+ *
+ */
+export type Signature = string
 /**
  *
  * The identifier of the provider that signed the transaction.
@@ -403,7 +409,7 @@ export interface TxChangedExecutedEvent {
 }
 /**
  *
- * The status of the transaction.
+ * The status of the message signature.
  *
  */
 export type StatusFailed = 'failed'
@@ -415,6 +421,34 @@ export type StatusFailed = 'failed'
 export interface TxChangedFailedEvent {
     status: StatusFailed
     commandId: CommandId
+}
+/**
+ *
+ * Event emitted when a message signature is requested.
+ *
+ */
+export interface MessageSignaturePendingEvent {
+    status: StatusPending
+    messageId: MessageId
+}
+/**
+ *
+ * Event emitted when a message signature is completed.
+ *
+ */
+export interface MessageSignatureSignedEvent {
+    status: StatusSigned
+    messageId: MessageId
+    signature: Signature
+}
+/**
+ *
+ * Event emitted when a message signature has failed.
+ *
+ */
+export interface MessageSignatureFailedEvent {
+    status: StatusFailed
+    messageId: MessageId
 }
 /**
  *
@@ -465,13 +499,9 @@ export type Null = null
 export interface PrepareExecuteResult {
     userUrl: UserUrl
 }
-/**
- *
- * Result of signing a message.
- *
- */
 export interface SignMessageResult {
-    signature: Signature
+    messageId: MessageId
+    userUrl: UserUrl
 }
 /**
  *
@@ -505,6 +535,15 @@ export type TxChangedEvent =
     | TxChangedFailedEvent
 /**
  *
+ * Event emitted when a message signature is requested or completed.
+ *
+ */
+export type MessageSignatureEvent =
+    | MessageSignaturePendingEvent
+    | MessageSignatureSignedEvent
+    | MessageSignatureFailedEvent
+/**
+ *
  * Generated! Represents an alias to any of the provided schemas
  *
  */
@@ -527,6 +566,7 @@ export type AccountsChanged = () => Promise<AccountsChangedEvent>
 export type GetPrimaryAccount = () => Promise<Wallet>
 export type ListAccounts = () => Promise<ListAccountsResult>
 export type TxChanged = () => Promise<TxChangedEvent>
+export type MessageSignature = () => Promise<MessageSignatureEvent>
 /* eslint-enable @typescript-eslint/no-unused-vars */
 
 type Params<T> = T extends (...args: infer A) => any
@@ -605,6 +645,11 @@ export type RpcTypes = {
     txChanged: {
         params: Params<TxChanged>
         result: Result<TxChanged>
+    }
+
+    messageSignature: {
+        params: Params<MessageSignature>
+        result: Result<MessageSignature>
     }
 }
 

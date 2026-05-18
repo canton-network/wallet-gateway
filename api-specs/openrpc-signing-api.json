@@ -58,6 +58,54 @@
             "description": "Uses the Wallet Provider to sign a transaction. This will likely be an asynchronous operation."
         },
         {
+            "name": "signMessage",
+            "params": [
+                {
+                    "name": "params",
+                    "schema": {
+                        "title": "SignMessageParams",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "message": {
+                                "title": "message",
+                                "type": "string",
+                                "description": "Arbitrary UTF-8 message to sign."
+                            },
+                            "keyIdentifier": {
+                                "$ref": "#/components/schemas/KeyIdentifier",
+                                "description": "Identifier for the key to use for signing. At least one of publicKey or id must be provided."
+                            }
+                        },
+                        "required": ["message"]
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "title": "SignMessageResult",
+                    "oneOf": [
+                        {
+                            "$ref": "#/components/schemas/Error"
+                        },
+                        {
+                            "type": "object",
+                            "title": "SignatureResult",
+                            "additionalProperties": false,
+                            "properties": {
+                                "signature": {
+                                    "$ref": "#/components/schemas/Signature"
+                                }
+                            },
+                            "required": ["signature"]
+                        }
+                    ]
+                }
+            },
+            "description": "Signs an arbitrary UTF-8 message with the wallet's private key (Ed25519). The message bytes are signed as-is; callers are expected to embed any application-level domain separation (e.g. EIP-4361 / SIWX text) in the message itself."
+        },
+        {
             "name": "getTransaction",
             "description": "Get the status of a single transaction by its ID.",
             "params": [
@@ -413,8 +461,7 @@
                         "description": "Status of the transaction signing process."
                     },
                     "signature": {
-                        "title": "signature",
-                        "type": "string",
+                        "$ref": "#/components/schemas/Signature",
                         "description": "Signature of the transaction if it was signed."
                     },
                     "publicKey": {
@@ -430,6 +477,11 @@
                     }
                 },
                 "required": ["txId", "status"]
+            },
+            "Signature": {
+                "title": "signature",
+                "type": "string",
+                "description": "Base64-encoded Ed25519 signature."
             }
         }
     }

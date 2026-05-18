@@ -22,6 +22,7 @@ import {
     connectResultConnected,
     MOCK_DAPP_API_PATH,
     MOCK_SSE_PUSH_PATH,
+    SIGN_MESSAGE_ID,
     statusConnected,
     USER_URL,
 } from './mock-remote/json-rpc-handlers'
@@ -563,37 +564,49 @@ describe('dApp SDK - async', () => {
             message: 'integration-sign-payload',
         }
 
-        // TODO make it sdk.signMessage once it's added to SDK
-        it.skip('delegates to provider.request with params', async () => {
-            const { sdk } = await createIntegrationSdk()
-            await sdk.connect()
-            const provider = sdk.getConnectedProvider()!
-            const requestSpy = vi.spyOn(provider, 'request')
+        async function waitForMessageSignatureListener(
+            provider: Provider<DappRpcTypes>,
+            baseline: number
+        ): Promise<void> {
+            const deadline = Date.now() + 10_000
+            while (Date.now() < deadline) {
+                if (listenerCount(provider, 'messageSignature') > baseline) {
+                    return
+                }
+                await new Promise((r) => setTimeout(r, 5))
+            }
+            throw new Error(
+                'timeout waiting for signMessage messageSignature listener'
+            )
+        }
 
-            await provider.request({ method: 'signMessage', params })
-
-            expect(requestSpy).toHaveBeenCalledWith({
-                method: 'signMessage',
-                params,
-            })
-
-            await sdk.disconnect()
-        })
-
-        it('sends http request with params', async () => {
+        it('sends http request with params and waits for messageSignature event', async () => {
             const { sdk } = await createIntegrationSdk()
             await sdk.connect()
             const provider = sdk.getConnectedProvider()!
             const fetchSpy = spyOnFetch()
 
-            await provider.request({ method: 'signMessage', params })
+            const baseline = listenerCount(provider, 'messageSignature')
 
-            const call = findRpcCallFor(rpcCalls(fetchSpy), 'signMessage')
+            const waitPromise = sdk.signMessage(params)
+            await waitForMessageSignatureListener(provider, baseline)
+
+            const calls = rpcCalls(fetchSpy)
+            const call = findRpcCallFor(calls, 'signMessage')
             assertRpcCallShape(call, 'signMessage', {
                 params,
                 authenticated: true,
             })
 
+            await pushMockSseEvent('messageSignature', {
+                messageId: SIGN_MESSAGE_ID,
+                signature: 'signature123',
+            })
+            await waitPromise
+
+            await expect(waitPromise).resolves.toEqual({
+                signature: 'signature123',
+            })
             await sdk.disconnect()
         })
     })
