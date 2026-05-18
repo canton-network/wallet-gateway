@@ -88,6 +88,19 @@ if (command === 'pull') {
         stdio: 'inherit',
         env,
     })
+    // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
+    if (multiSync) {
+        console.log('Waiting for multi-sync bootstrap to complete...')
+        execFileSync(
+            composeBase[0],
+            [...composeBase.slice(1), 'wait', 'multi-sync-startup'],
+            {
+                stdio: 'inherit',
+                env,
+            }
+        )
+        console.log('Multi-sync bootstrap completed successfully.')
+    }
 } else if (command === 'stop') {
     execFileSync(composeBase[0], [...composeBase.slice(1), 'down', '-v'], {
         stdio: 'inherit',
