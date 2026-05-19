@@ -77,7 +77,22 @@ logger.info('Successfully registered the preapproval.')
 
 // --- TEST FETCH
 
-logger.info('Fetching for preapproval status')
+const start = performance.now()
+const fetchOnceStatus = await sdk.amulet.preapproval.fetchOnce(bob.partyId)
+const end = performance.now()
+
+const duration = end - start
+if (duration < 1000) {
+    logger.info(
+        `Success! The operation was fast (${duration.toFixed(2)} ms) and fetchOnce status is ${fetchOnceStatus}.`
+    )
+} else {
+    logger.warn(
+        `Warning: Operation took longer than 1 second (${(duration / 1000).toFixed(2)} s).`
+    )
+}
+
+logger.info('Fetching for preapproval status with retry')
 
 const fetchedPreapprovalStatus = await sdk.amulet.preapproval.fetchStatus(
     bob.partyId
