@@ -20,6 +20,7 @@ import {
 } from '@tanstack/react-router'
 import type { RegisteredRouter } from '@tanstack/router-core'
 import { PillButton } from '@components/ui/PillButton'
+import { useConnection } from '@contexts/ConnectionContext'
 import { useAccounts } from '@hooks/useAccounts'
 
 const SIDEBAR_WIDTH = (theme: Theme) =>
@@ -31,6 +32,7 @@ export const Route = createFileRoute('/next/dashboard')({
 
 function RouteComponent() {
     const accounts = useAccounts()
+    const { open, disconnect } = useConnection()
     const pathname = useLocation({ select: (location) => location.pathname })
     const matchRoute = useMatchRoute()
     const wallets = useMemo(
@@ -146,10 +148,15 @@ function RouteComponent() {
                     </Box>
 
                     <Box sx={{ display: 'grid', gap: 1.5, pb: 4 }}>
-                        <PillButton type="button" fullWidth>
+                        <PillButton type="button" fullWidth onClick={open}>
                             Wallet Gateway
                         </PillButton>
-                        <PillButton type="button" tone="danger" fullWidth>
+                        <PillButton
+                            type="button"
+                            tone="danger"
+                            fullWidth
+                            onClick={disconnect}
+                        >
                             Disconnect
                         </PillButton>
                     </Box>
