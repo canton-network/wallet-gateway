@@ -13,8 +13,6 @@ export { vetDar } from './dar.js'
 export { syncAlias, logAllContracts } from './acs-logger.js'
 export type { ContractReadSpec as ContractSpec } from './acs-logger.js'
 
-import { resolveGlobalSynchronizerId } from '@canton-network/wallet-sdk'
-
 /**
  * Fetches connected synchronizers from the ledger API and returns the ID of
  * the synchronizer aliased 'global' (falls back to the first entry).
@@ -22,17 +20,11 @@ import { resolveGlobalSynchronizerId } from '@canton-network/wallet-sdk'
 export async function getGlobalSynchronizerId(sdk: {
     ledger: {
         state: {
-            connectedSynchronizers(opts?: object): Promise<{
-                connectedSynchronizers?: Array<{
-                    synchronizerAlias: string
-                    synchronizerId: string
-                }>
-            }>
+            globalSynchronizerId(): Promise<string>
         }
     }
 }): Promise<string> {
-    const result = await sdk.ledger.state.connectedSynchronizers({})
-    return resolveGlobalSynchronizerId(result.connectedSynchronizers ?? [])
+    return sdk.ledger.state.globalSynchronizerId()
 }
 export function getActiveContractCid(entry: JSContractEntry) {
     if ('JsActiveContract' in entry) {

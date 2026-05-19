@@ -73,7 +73,6 @@ const charlieKeys = sdk.keys.generate()
 const charlie = await sdk.party.external
     .create(charlieKeys.publicKey, {
         partyHint: 'v1-03-charlie',
-        synchronizerId: globalSynchronizerId,
         confirmingParticipantEndpoints: participantEndpoints,
     })
     .sign(charlieKeys.privateKey)
@@ -87,7 +86,6 @@ const charliePingCommand = sdk.utils.ping.create([
 
 const pingResult = await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: charlie.partyId,
         commands: charliePingCommand,
     })
@@ -107,7 +105,6 @@ const observingCharlieKeys = sdk.keys.generate()
 const observingCharlie = await sdk.party.external
     .create(observingCharlieKeys.publicKey, {
         partyHint: 'v1-03-observingCharlie',
-        synchronizerId: globalSynchronizerId,
         observingParticipantEndpoints: participantEndpoints,
     })
     .sign(observingCharlieKeys.privateKey)
@@ -127,7 +124,6 @@ const observingConradPingCommand = sdk.utils.ping.create([
 
 const observingPingResult = await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: observingCharlie.partyId,
         commands: observingConradPingCommand,
     })
