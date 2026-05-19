@@ -5,7 +5,6 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const logger = pino({ name: 'v1-05-preapproval', level: 'info' })
@@ -19,14 +18,11 @@ const sdk = await SDK.create({
 
 await sdk.amulet.tapInternal('1000')
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 const aliceKeys = sdk.keys.generate()
 
 const alice = await sdk.party.external
     .create(aliceKeys.publicKey, {
         partyHint: 'v1-05-alice',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeys.privateKey)
     .execute()
@@ -38,7 +34,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -51,7 +46,6 @@ const bobKeys = sdk.keys.generate()
 const bob = await sdk.party.external
     .create(bobKeys.publicKey, {
         partyHint: 'v1-05-bob',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(bobKeys.privateKey)
     .execute()
@@ -71,7 +65,6 @@ logger.info(
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: bob.partyId,
         commands: createPreapprovalCommand,
     })
@@ -105,7 +98,6 @@ const [transferCommand, transferDisclosedContracts] =
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: transferCommand,
         disclosedContracts: transferDisclosedContracts,
@@ -145,7 +137,6 @@ await sdk.amulet.preapproval.renew({
         receiver: bob.partyId,
     },
     expiresAt: newExpiresAt,
-    synchronizerId: globalSynchronizerId,
 })
 
 const fetchedStatusAfterRenew = await sdk.amulet.preapproval.fetchStatus(
@@ -196,7 +187,6 @@ if (!cancelPreapprovalCommand) {
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: bob.partyId,
         commands: cancelPreapprovalCommand,
         disclosedContracts: cancelDisclosedContracts,

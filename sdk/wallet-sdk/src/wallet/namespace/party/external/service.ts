@@ -10,6 +10,7 @@ import { CreatePartyOptions } from './types.js'
 import { SDKLogger } from '../../../logger/index.js'
 import { LedgerProvider, Ops } from '@canton-network/core-provider-ledger'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
+import { resolveGlobalSynchronizerId } from '../../state/client.js'
 
 export class ExternalPartyNamespace {
     private readonly logger: SDKLogger
@@ -32,7 +33,8 @@ export class ExternalPartyNamespace {
             this.resolveParticipantUids(
                 options?.confirmingParticipantEndpoints ?? []
             ),
-            options?.synchronizerId || this.resolveSynchronizerId(),
+            options?.synchronizerId ||
+                resolveGlobalSynchronizerId(this.ctx.ledgerProvider),
         ]).then(
             ([
                 observingParticipantUids,
@@ -79,33 +81,6 @@ export class ExternalPartyNamespace {
         )
     }
 
-    private async resolveSynchronizerId() {
-        const connectedSynchronizers =
-            await this.ctx.ledgerProvider.request<Ops.GetV2StateConnectedSynchronizers>(
-                {
-                    method: 'ledgerApi',
-                    params: {
-                        resource: '/v2/state/connected-synchronizers',
-                        requestMethod: 'get',
-                        query: {},
-                    },
-                }
-            )
-
-        if (!connectedSynchronizers.connectedSynchronizers?.[0]) {
-            throw new Error('No connected synchronizers found')
-        }
-
-        const synchronizerId =
-            connectedSynchronizers.connectedSynchronizers[0].synchronizerId
-        if (connectedSynchronizers.connectedSynchronizers.length > 1) {
-            this.logger.warn(
-                `Found ${connectedSynchronizers.connectedSynchronizers.length} synchronizers, defaulting to ${synchronizerId}`
-            )
-        }
-
-        return synchronizerId
-    }
 
     /**
      * Retrieves participant IDs from the given endpoints by querying their ledger API.

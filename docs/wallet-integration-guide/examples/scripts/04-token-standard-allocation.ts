@@ -4,7 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
 import { KeyPair } from '@canton-network/core-signing-lib'
-import { ASSET_CONFIG, getGlobalSynchronizerId } from './utils/index.js'
+import { ASSET_CONFIG } from './utils/index.js'
 import { GenerateTransactionResponse } from '@canton-network/core-ledger-client'
 import {
     TOKEN_NAMESPACE_CONFIG,
@@ -47,8 +47,6 @@ const tradingDarPath = path.join(
 const darBytes = await fs.readFile(tradingDarPath)
 await sdk.ledger.dar.upload(darBytes, TRADING_APP_PACKAGE_ID)
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 //allocate parties
 const allocatedParties = await Promise.all(
     ['v1-04-alice', 'v1-04-bob', 'v1-04-venue'].map(async (partyHint) => {
@@ -56,7 +54,6 @@ const allocatedParties = await Promise.all(
         const party = await sdk.party.external
             .create(partyKeys.publicKey, {
                 partyHint,
-                synchronizerId: globalSynchronizerId,
             })
             .sign(partyKeys.privateKey)
             .execute()
@@ -89,7 +86,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -104,7 +100,6 @@ const [amuletTapCommandBob, amuletTapDisclosedContractsBob] =
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: amuletTapCommandBob,
         disclosedContracts: amuletTapDisclosedContractsBob,
@@ -151,7 +146,6 @@ const createProposal = {
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: createProposal,
         disclosedContracts: [],
@@ -192,7 +186,6 @@ const acceptCmd = [
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: acceptCmd,
         disclosedContracts: [],
@@ -232,7 +225,6 @@ const initiateSettlementCmd = [
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: venue.partyId,
         commands: initiateSettlementCmd,
         disclosedContracts: [],
@@ -285,7 +277,6 @@ const [allocateCmdAlice, allocateDisclosedAlice] =
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: allocateCmdAlice,
         disclosedContracts: allocateDisclosedAlice,
@@ -327,7 +318,6 @@ const [allocateCmdBob, allocateDisclosedBlice] =
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: recipient.partyId,
         commands: allocateCmdBob,
         disclosedContracts: allocateDisclosedBlice,
@@ -402,7 +392,6 @@ const settleCmd = [
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: venue.partyId,
         commands: settleCmd,
         disclosedContracts: uniqueDisclosedContracts,

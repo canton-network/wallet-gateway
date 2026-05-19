@@ -3,7 +3,6 @@ import { localNetStaticConfig, SDK } from '@canton-network/wallet-sdk'
 import {
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const logger = pino({ name: 'v1-03-parties', level: 'info' })
@@ -16,16 +15,11 @@ const sdk = await SDK.create({
     amulet: AMULET_NAMESPACE_CONFIG,
 })
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 const allocatedParties = await Promise.all(
     ['v1-03-alice', 'v1-03-bob'].map((partyHint) => {
         const partyKeys = sdk.keys.generate()
         return sdk.party.external
-            .create(partyKeys.publicKey, {
-                partyHint,
-                synchronizerId: globalSynchronizerId,
-            })
+            .create(partyKeys.publicKey, { partyHint })
             .sign(partyKeys.privateKey)
             .execute()
     })

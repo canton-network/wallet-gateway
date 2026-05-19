@@ -8,7 +8,6 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const onlineLogger = pino({ name: '14-online-localnet', level: 'info' })
@@ -22,8 +21,6 @@ const onlineSDK = await SDK.create({
 })
 
 onlineLogger.info(`Online sdk initialized.`)
-
-const globalSynchronizerId = await getGlobalSynchronizerId(onlineSDK)
 
 const offlineSdk = SDK.createOffline()
 
@@ -43,7 +40,6 @@ const senderPartyPrepared = onlineSDK.party.external.create(
     keyPairSender.publicKey,
     {
         partyHint: 'v1-14-alice',
-        synchronizerId: globalSynchronizerId,
     }
 )
 
@@ -98,7 +94,6 @@ const receiverPartyPrepared = onlineSDK.party.external.create(
     keyPairReceiver.publicKey,
     {
         partyHint: 'v1-14-bob',
-        synchronizerId: globalSynchronizerId,
     }
 )
 
@@ -150,7 +145,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] =
 
 const { response: preparedTapCommandResponse } = await onlineSDK.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: senderParty.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -209,7 +203,6 @@ const [transferCommand, transferDisclosedContracts] =
 
 const { response: preparedTransferResponse } = await onlineSDK.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: senderParty.partyId,
         commands: transferCommand,
         disclosedContracts: transferDisclosedContracts,
@@ -286,7 +279,6 @@ const [acceptTransferCommand, transferDisclosedContractsAccept] =
 
 const { response: preparedTransferAcceptResponse } = await onlineSDK.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: receiverParty.partyId,
         commands: acceptTransferCommand,
         disclosedContracts: transferDisclosedContractsAccept,

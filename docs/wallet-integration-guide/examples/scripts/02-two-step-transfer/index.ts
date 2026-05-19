@@ -9,7 +9,6 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from '../utils/index.js'
 
 const logger = pino({ name: 'v1-02-two-step-transfer', level: 'info' })
@@ -23,12 +22,9 @@ const sdk = await SDK.create({
 
 const senderKeys = sdk.keys.generate()
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 const sender = await sdk.party.external
     .create(senderKeys.publicKey, {
         partyHint: 'v1-02-alice',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(senderKeys.privateKey)
     .execute()
@@ -38,7 +34,6 @@ const receiverKeys = sdk.keys.generate()
 const receiver = await sdk.party.external
     .create(receiverKeys.publicKey, {
         partyHint: 'v1-02-bob',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(receiverKeys.privateKey)
     .execute()
@@ -50,7 +45,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: sender.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -78,7 +72,6 @@ const transferTestScriptParameters: TransferTestScriptParameters = {
     receiver,
     receiverKeys,
     logger,
-    synchronizerId: globalSynchronizerId,
 }
 
 await _accept(transferTestScriptParameters)

@@ -3,7 +3,6 @@ import { pino } from 'pino'
 import {
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const logger = pino({ name: 'v1-11-hashing', level: 'info' })
@@ -16,12 +15,9 @@ const sdk = await SDK.create({
 
 const senderKeys = sdk.keys.generate()
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 const sender = await sdk.party.external
     .create(senderKeys.publicKey, {
         partyHint: 'v1-11-alice',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(senderKeys.privateKey)
     .execute()
@@ -34,7 +30,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 )
 
 const preparedTapCommand = sdk.ledger.prepare({
-    synchronizerId: globalSynchronizerId,
     partyId: sender.partyId,
     commands: amuletTapCommand,
     disclosedContracts: amuletTapDisclosedContracts,

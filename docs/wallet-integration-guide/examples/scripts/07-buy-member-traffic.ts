@@ -4,7 +4,6 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
-    getGlobalSynchronizerId,
 } from './utils/index.js'
 
 const logger = pino({ name: 'v1-06-merge-utxos', level: 'info' })
@@ -17,12 +16,9 @@ const sdk = await SDK.create({
 })
 const aliceKeys = sdk.keys.generate()
 
-const globalSynchronizerId = await getGlobalSynchronizerId(sdk)
-
 const alice = await sdk.party.external
     .create(aliceKeys.publicKey, {
         partyHint: 'v1-07-alice',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeys.privateKey)
     .execute()
@@ -32,7 +28,6 @@ const bobKeys = sdk.keys.generate()
 const bob = await sdk.party.external
     .create(bobKeys.publicKey, {
         partyHint: 'v1-07-bob',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(bobKeys.privateKey)
     .execute()
@@ -45,7 +40,6 @@ const createPreapprovalCommand = await sdk.amulet.preapproval.command.create({
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: bob.partyId,
         commands: createPreapprovalCommand,
     })
@@ -63,7 +57,6 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: amuletTapCommand,
         disclosedContracts: amuletTapDisclosedContracts,
@@ -73,9 +66,7 @@ await sdk.ledger
 
 logger.info(`Tapped holdings for alice`)
 
-const trafficStatusBeforePurchase = await sdk.amulet.traffic.status({
-    synchronizerId: globalSynchronizerId,
-})
+const trafficStatusBeforePurchase = await sdk.amulet.traffic.status()
 
 logger.info(
     `Traffic status before purchase: ${JSON.stringify(trafficStatusBeforePurchase)}`
@@ -88,12 +79,10 @@ const [buyTrafficCommand, buyTrafficDisclosedContracts] =
         buyer: alice.partyId,
         ccAmount,
         inputUtxos: [],
-        synchronizerId: globalSynchronizerId,
     })
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: buyTrafficCommand,
         disclosedContracts: buyTrafficDisclosedContracts,
@@ -119,7 +108,6 @@ const [transferCommand, transferDisclosedContracts] =
 
 await sdk.ledger
     .prepare({
-        synchronizerId: globalSynchronizerId,
         partyId: alice.partyId,
         commands: transferCommand,
         disclosedContracts: transferDisclosedContracts,

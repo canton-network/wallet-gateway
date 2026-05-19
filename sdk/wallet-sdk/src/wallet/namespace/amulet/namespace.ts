@@ -15,6 +15,7 @@ import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
 import { Decimal } from 'decimal.js'
+import { resolveGlobalSynchronizerId } from '../state/client.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
@@ -118,13 +119,9 @@ export class AmuletNamespace {
         if (featuredAppRights) {
             return featuredAppRights
         }
-        const synchronizerId = options.synchronizerId
-        if (!synchronizerId)
-            this.sdkContext.commonCtx.error.throw({
-                type: 'BadRequest',
-                message:
-                    'synchronizerId is required for featuredApp.grant — pass the global synchronizer ID explicitly',
-            })
+        const synchronizerId = await resolveGlobalSynchronizerId(
+            this.sdkContext.commonCtx.ledgerProvider
+        )
 
         const [featuredAppCommand, dc] =
             await this.sdkContext.amuletService.selfGrantFeatureAppRight(

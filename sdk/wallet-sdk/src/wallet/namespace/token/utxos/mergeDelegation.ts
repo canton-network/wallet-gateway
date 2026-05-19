@@ -8,6 +8,7 @@ import {
     ExerciseCommand,
 } from '@canton-network/core-token-standard-service'
 import { Holding, PrettyContract } from '@canton-network/core-tx-parser'
+import { resolveGlobalSynchronizerId } from '../../state/client.js'
 import { WrappedCommand } from '../../ledger/types.js'
 import { PartyId } from '@canton-network/core-types'
 import { LedgerNamespace } from '../../ledger/index.js'
@@ -22,7 +23,10 @@ export class MergeDelegationNamespace {
         this.ledger = new LedgerNamespace(ctx.commonCtx)
     }
 
-    async setup(synchronizerId: string = '') {
+    async setup() {
+        const synchronizerId = await resolveGlobalSynchronizerId(
+            this.ctx.commonCtx.ledgerProvider
+        )
         const commands = [
             {
                 CreateCommand: {
@@ -42,8 +46,11 @@ export class MergeDelegationNamespace {
         })
     }
 
-    async approve(args: { owner: PartyId; synchronizerId?: string }) {
-        const { owner, synchronizerId = '' } = args
+    async approve(args: { owner: PartyId }) {
+        const { owner } = args
+        const synchronizerId = await resolveGlobalSynchronizerId(
+            this.ctx.commonCtx.ledgerProvider
+        )
 
         const mergeDelegationProposals = await this.ledger.acs.read({
             parties: [owner],
@@ -84,11 +91,13 @@ export class MergeDelegationNamespace {
 
     async execute(args: {
         party: PartyId
-        synchronizerId?: string
         nodeLimit?: number
         inputUtxos?: PrettyContract<Holding>[]
     }) {
-        const { party, nodeLimit = 200, inputUtxos, synchronizerId = '' } = args
+        const { party, nodeLimit = 200, inputUtxos } = args
+        const synchronizerId = await resolveGlobalSynchronizerId(
+            this.ctx.commonCtx.ledgerProvider
+        )
 
         const utxos =
             inputUtxos ??

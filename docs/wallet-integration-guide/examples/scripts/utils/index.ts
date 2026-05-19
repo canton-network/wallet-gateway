@@ -13,19 +13,6 @@ export { vetDar } from './dar.js'
 export { syncAlias, logAllContracts } from './acs-logger.js'
 export type { ContractReadSpec as ContractSpec } from './acs-logger.js'
 
-/**
- * Fetches connected synchronizers from the ledger API and returns the ID of
- * the synchronizer aliased 'global' (falls back to the first entry).
- */
-export async function getGlobalSynchronizerId(sdk: {
-    ledger: {
-        state: {
-            globalSynchronizerId(): Promise<string>
-        }
-    }
-}): Promise<string> {
-    return sdk.ledger.state.globalSynchronizerId()
-}
 export function getActiveContractCid(entry: JSContractEntry) {
     if ('JsActiveContract' in entry) {
         return entry.JsActiveContract.createdEvent.contractId

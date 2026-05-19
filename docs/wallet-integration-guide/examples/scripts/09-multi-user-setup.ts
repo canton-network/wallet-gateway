@@ -1,9 +1,6 @@
 import { localNetStaticConfig, SDK } from '@canton-network/wallet-sdk'
 import { pino } from 'pino'
-import {
-    TOKEN_PROVIDER_CONFIG_DEFAULT,
-    getGlobalSynchronizerId,
-} from './utils/index.js'
+import { TOKEN_PROVIDER_CONFIG_DEFAULT } from './utils/index.js'
 const logger = pino({ name: 'v1-multi-user-setup', level: 'info' })
 
 logger.info('Operator sets up users and primary parties')
@@ -90,11 +87,9 @@ const aliceSdk = await SDK.create({
 })
 
 const aliceKeyPair = aliceSdk.keys.generate()
-const globalSynchronizerId = await getGlobalSynchronizerId(aliceSdk)
 const aliceExternal = await aliceSdk.party.external
     .create(aliceKeyPair.publicKey, {
         partyHint: 'v1-09-alice',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(aliceKeyPair.privateKey)
     .execute()
@@ -119,7 +114,6 @@ const bobKeyPair = bobSdk.keys.generate()
 const bobExternal = await bobSdk.party.external
     .create(bobKeyPair.publicKey, {
         partyHint: 'v1-09-bob',
-        synchronizerId: globalSynchronizerId,
     })
     .sign(bobKeyPair.privateKey)
     .execute()
