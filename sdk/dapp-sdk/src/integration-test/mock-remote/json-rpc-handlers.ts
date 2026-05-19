@@ -13,6 +13,9 @@ import type {
 export const USER_URL = '/login'
 export const APPROVE_URL = '/approve'
 
+export const SIGN_MESSAGE_ID = '123'
+export const SIGN_MESSAGE_URL = `/sign-message/index.html?messageId=${SIGN_MESSAGE_ID}&closeafteraction`
+
 export const MOCK_DAPP_API_PATH = '/api/v0/dapp'
 
 // Not a path that wallet would have, it's just to trigger emitting SSE from mock wallet, on demand within a test
@@ -122,7 +125,7 @@ export function handleMockJsonRpc(
             return {
                 status: 200,
                 json: jsonRpcResult(id, {
-                    signature: 'integration-test-signature',
+                    userUrl: `${rpcBase}${SIGN_MESSAGE_URL}`,
                 }),
             }
         default:

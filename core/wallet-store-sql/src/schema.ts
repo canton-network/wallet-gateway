@@ -11,6 +11,7 @@ import {
     UpdateWallet,
     PartyLevelRight,
     UserLevelRight,
+    MessageRaw,
 } from '@canton-network/core-wallet-store'
 
 interface MigrationTable {
@@ -95,6 +96,20 @@ interface TransactionTable {
     externalTxId: string | null
 }
 
+interface MessageRawTable {
+    id: string
+    status: string
+    partyId: string
+    publicKey: string
+    message: string
+    origin: string | null
+    userId: UserId
+    networkId: string
+    createdAt: string
+    signedAt: string | null
+    signature: string | null
+}
+
 interface SessionTable extends Session {
     id: string
     userId: UserId
@@ -108,6 +123,7 @@ export interface DB {
     userPartyRights: UserPartyRightTable
     userRights: UserRightTable
     transactions: TransactionTable
+    messagesRaw: MessageRawTable
     sessions: SessionTable
 }
 
@@ -318,6 +334,53 @@ export const toTransaction = (table: TransactionTable): Transaction => {
 
     if (table.externalTxId) {
         result.externalTxId = table.externalTxId
+    }
+
+    return result
+}
+
+export const fromMessageRaw = (
+    message: MessageRaw,
+    userId: UserId,
+    networkId: string
+): MessageRawTable => {
+    if (message.userId !== userId) {
+        throw new Error(
+            `MessageRaw userId mismatch: expected ${userId}, got ${message.userId}`
+        )
+    }
+    return {
+        id: message.id,
+        status: message.status,
+        userId: message.userId,
+        partyId: message.partyId,
+        publicKey: message.publicKey,
+        message: message.message,
+        origin: message.origin || null,
+        networkId,
+        createdAt: message.createdAt.toISOString(),
+        signedAt: message.signedAt?.toISOString() || null,
+        signature: message.signature ?? null,
+    }
+}
+
+export const toMessageRaw = (table: MessageRawTable): MessageRaw => {
+    const result: MessageRaw = {
+        id: table.id,
+        status: table.status as MessageRaw['status'],
+        userId: table.userId,
+        partyId: table.partyId,
+        publicKey: table.publicKey,
+        message: table.message,
+        origin: table.origin || null,
+        createdAt: new Date(table.createdAt),
+    }
+
+    if (table.signedAt) {
+        result.signedAt = new Date(table.signedAt)
+    }
+    if (table.signature) {
+        result.signature = table.signature
     }
 
     return result

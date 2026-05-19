@@ -1,0 +1,17 @@
+{
+    "version": 1,
+    "migrations": {
+        "001-init": "512600aeaffd9f6cf8f5fc94409d4ec3566cbd6fd93c673ff5b0cf31678baed3",
+        "002-add-transaction-timestamps": "379689a1d5054311956042ac634a2fe5d82bceda7a40f736e42c2af5d55fbd99",
+        "003-add-transaction-origin": "db2df4618e81e17f1f208d99e155ee5e5feae84077d9c28807f4c60189d3e270",
+        "004-add-session-id": "48b1c9b136f2eb5a4bc218f84bbf2df48ce358b2cd6a140a462c7ef16d0971e6",
+        "005-add-wallet-disabled-reason": "b236bb61deb7b722230dea97137d540e8b39bc7577b405b661eee6fbfa8cbe03",
+        "006-change-wallet-primary-key-to-composite": "a0018a67e4dd1ecb58de056d79b581233d0b702e71f14974a9a17e3eedd026cf",
+        "007-add-unique-primary-per-network": "cd2704d82d7af85524ba96aa45396395daad674f2224bc4325dd8e472b7d0fb2",
+        "008-add-transaction-external-tx-id": "190a514ed7d5c825c61a004dcb7126e88f9eb6525e30eae4d874300ca3f227c8",
+        "009-add-wallet-rights-columns": "e967a0db45118b5a736b139b6c484c6f715d2357027633c0c9be4329f3aea6c0",
+        "010-add-transaction-network-id": "e6dfb3ec57036a8b36d2e55f17c619874f87257d2bedc9791010deb661aadd7f",
+        "011-add-transaction-id-primary-key": "8cf57d47b2d3e0a3cd1e76fb6dda00d5eeb44741b8eb22e3419f20f9de069c20",
+        "012-add-messages-to-sign": "513ae59fb4eb1a69f44ed8a481dce46576ae8899c6e5c2c933579b5fdda09145"
+    }
+}

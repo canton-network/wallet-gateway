@@ -9,6 +9,7 @@ import {
     bootstrapSession,
     getPrimaryPartyId,
     prepareSignExecute,
+    signMessageFlow,
 } from './gateway'
 import type {
     PendingProposal,
@@ -407,8 +408,15 @@ export const walletHandler: WalletHandler = {
                 result = await prepareSignExecute(
                     params as Record<string, unknown>
                 )
+            } else if (method === 'canton_signMessage') {
+                const message = (params as { message?: unknown })?.message
+                if (typeof message !== 'string') {
+                    throw new Error(
+                        'Invalid canton_signMessage params: expected { message: string }'
+                    )
+                }
+                result = await signMessageFlow(message)
             } else {
-                // For other approval-required methods (signMessage, etc.)
                 const controllerMethod = method.startsWith(CANTON_PREFIX)
                     ? method.slice(CANTON_PREFIX.length)
                     : method

@@ -1,5 +1,5 @@
-name: 'Setup Canton'
-description: 'Cache, download and optionally start Canton environment'
+name: 'Setup Canton (Artifacts)'
+description: 'Cache, download and optionally start Canton environment for artifact-based workflows'
 inputs:
     network:
         description: 'Network type: devnet or mainnet'
@@ -7,18 +7,6 @@ inputs:
     canton_version:
         description: 'Canton version (required)'
         required: true
-    start_services:
-        description: 'Whether to start canton services after setup'
-        required: false
-        default: 'true'
-    save_cache:
-        description: 'Whether to save the Canton cache on a cache miss'
-        required: false
-        default: 'false'
-    lookup_only:
-        description: 'Whether to only check if the Canton cache exists without restoring it'
-        required: false
-        default: 'false'
 runs:
     using: 'composite'
     steps:
@@ -28,15 +16,9 @@ runs:
           with:
               path: .canton
               key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
-              lookup-only: ${{ inputs.lookup_only == 'true' }}
-
-        - name: Download Canton
-          if: steps.canton-cache.outputs.cache-hit != 'true'
-          shell: bash
-          run: yarn script:fetch:canton --network=${{ inputs.network }}
+              fail-on-cache-miss: true
 
         - name: Start Canton
-          if: inputs.start_services == 'true'
           shell: bash
           run: |
               set -e
@@ -60,11 +42,3 @@ runs:
                 cat "$LOGFILE"
                 exit 1
               '
-
-        - name: Save Canton cache
-          uses: ./.github/actions/save_cache_if_absent
-          with:
-              path: .canton
-              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
-              save_cache: ${{ inputs.save_cache }}
-              initial_cache_hit: ${{ steps.canton-cache.outputs.cache-hit }}

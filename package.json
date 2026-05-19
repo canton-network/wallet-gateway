@@ -108,7 +108,7 @@
         "*": "prettier --write --ignore-unknown",
         "*.{ts,tsx,js,jsx,mjs,cjs}": "eslint --fix"
     },
-    "packageManager": "yarn@4.12.0",
+    "packageManager": "yarn@4.9.4",
     "dependencies": {
         "@nx/js": "22.5.4",
         "nx": "22.5.4"

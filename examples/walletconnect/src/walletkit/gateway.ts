@@ -161,3 +161,93 @@ export async function prepareSignExecute(
         },
     }
 }
+
+export interface SignMessageFlowResult {
+    signature: string
+    publicKey?: string
+}
+
+export async function signMessageFlow(
+    message: string
+): Promise<SignMessageFlowResult> {
+    const token = await getAccessToken()
+    const response = await callDappApi<{ userUrl: string }>('signMessage', {
+        message,
+    })
+
+    const url = new URL(response.userUrl, window.location.origin)
+    const messageId = url.searchParams.get('messageId')
+    if (!messageId) {
+        throw new Error('No messageId in signMessage response')
+    }
+
+    // Use a popup so the user can approve in the wallet web UI.
+    const popup = window.open(response.userUrl, 'splice_wallet_sign_message')
+    if (!popup) {
+        throw new Error('Failed to open wallet popup')
+    }
+
+    return await new Promise<SignMessageFlowResult>((resolve, reject) => {
+        const eventsUrl = new URL(`${DAPP_PATH}/events`, window.location.origin)
+        // gateway supports token query parameter for SSE
+        eventsUrl.searchParams.set('token', token)
+        const es = new EventSource(eventsUrl.toString())
+
+        const timeout = window.setTimeout(
+            () => {
+                es.close()
+                reject(new Error('Timed out waiting for message signature'))
+            },
+            5 * 60 * 1000
+        )
+
+        const cleanup = () => {
+            window.clearTimeout(timeout)
+            es.close()
+        }
+
+        es.addEventListener('messageSignature', (e) => {
+            try {
+                // Gateway SSE uses the dApp API event format:
+                // `data:` is a JSON array of event args, where the first element is the event payload.
+                const args = JSON.parse(
+                    (e as MessageEvent).data as string
+                ) as Array<{
+                    status: 'pending' | 'signed' | 'failed'
+                    messageId: string
+                    signature?: string
+                }>
+                if (!Array.isArray(args) || args.length < 1) {
+                    throw new Error('Invalid messageSignature SSE payload')
+                }
+                const data = args[0]
+                if (data.messageId !== messageId) return
+                if (data.status === 'pending') return
+
+                cleanup()
+
+                if (data.status === 'failed') {
+                    reject(new Error('Message signing failed'))
+                    return
+                }
+
+                if (!data.signature) {
+                    reject(
+                        new Error('Missing signature in messageSignature event')
+                    )
+                    return
+                }
+
+                resolve({ signature: data.signature })
+            } catch (err) {
+                cleanup()
+                reject(err instanceof Error ? err : new Error(String(err)))
+            }
+        })
+
+        es.addEventListener('error', () => {
+            cleanup()
+            reject(new Error('Disconnected from wallet event stream'))
+        })
+    })
+}

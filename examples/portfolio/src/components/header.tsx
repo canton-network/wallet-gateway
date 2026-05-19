@@ -44,7 +44,7 @@ export const Header = () => {
             position="static"
             elevation={0}
             sx={{
-                backgroundColor: 'background.paper',
+                backgroundColor: 'inherit',
                 color: 'text.primary',
             }}
         >

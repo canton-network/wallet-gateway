@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { SignTransaction } from './typings.js'
+import { SignMessage } from './typings.js'
 import { GetTransaction } from './typings.js'
 import { GetTransactions } from './typings.js'
 import { GetKeys } from './typings.js'
@@ -12,6 +13,7 @@ import { SubscribeTransactions } from './typings.js'
 
 export type Methods = {
     signTransaction: SignTransaction
+    signMessage: SignMessage
     getTransaction: GetTransaction
     getTransactions: GetTransactions
     getKeys: GetKeys
@@ -24,6 +26,7 @@ export type Methods = {
 function buildController(methods: Methods) {
     return {
         signTransaction: methods.signTransaction,
+        signMessage: methods.signMessage,
         getTransaction: methods.getTransaction,
         getTransactions: methods.getTransactions,
         getKeys: methods.getKeys,

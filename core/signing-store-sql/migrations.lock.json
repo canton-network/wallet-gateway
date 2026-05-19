@@ -1,0 +1,8 @@
+{
+    "version": 1,
+    "migrations": {
+        "001-init": "ce148408f89c3d2589835991db5c61cf0fc927e362278bcf1243c6d7db53b397",
+        "002-add-signed-at": "3eba642ef9b54406db9868e40da85708b793459e21479614829158d02b3608ab",
+        "003-alter-date-fields": "c5195429926500de1fb010fd33ab4b5f63ecd35b27d4f4cb62cf3b426eef9727"
+    }
+}

@@ -22,6 +22,7 @@
         "@canton-network/dapp-sdk": "workspace:^",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
+        "@fontsource/inter": "^5.2.8",
         "@mui/icons-material": "^9.0.1",
         "@mui/material": "^9.0.1",
         "@mui/system": "^9.0.1",
@@ -62,7 +63,8 @@
         "tsx": "^4.21.0",
         "typescript": "~5.9.3",
         "typescript-eslint": "^8.59.2",
-        "vite": "^7.3.2"
+        "vite": "^7.3.2",
+        "vite-tsconfig-paths": "^6.1.1"
     },
     "files": [
         "dist/**"

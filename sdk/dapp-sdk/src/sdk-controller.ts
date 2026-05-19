@@ -6,6 +6,7 @@ import buildController from './dapp-api/rpc-gen'
 import {
     ConnectResult,
     LedgerApiParams,
+    MessageSignatureEvent,
     Network,
     PrepareExecuteAndWaitResult,
     PrepareExecuteParams,
@@ -153,13 +154,61 @@ export const dappSDKController = (provider: DappAsyncProvider) =>
             }),
         signMessage: async (
             params: SignMessageParams
-        ): Promise<SignMessageResult> =>
-            provider.request({
+        ): Promise<SignMessageResult> => {
+            const response = await provider.request({
                 method: 'signMessage',
                 params,
-            }),
+            })
+            const { userUrl } = response
+            popup.open(userUrl)
+
+            const messageId = new URL(userUrl).searchParams.get('messageId')
+            if (!messageId) {
+                throw new Error(
+                    'Remote signMessage userUrl is missing messageId query param'
+                )
+            }
+
+            return await new Promise<SignMessageResult>((resolve, reject) => {
+                const timeout = withTimeout(
+                    reject,
+                    'Timed out waiting for message signing approval'
+                )
+
+                const listener = (
+                    event: dappAsyncAPI.MessageSignatureEvent
+                ) => {
+                    if (event.messageId !== messageId) return
+
+                    // pending is informational; continue waiting
+                    if (event.status === 'pending') return
+
+                    provider.removeListener('messageSignature', listener)
+                    clearTimeout(timeout)
+
+                    if (event.status === 'failed') {
+                        reject({
+                            status: 'error',
+                            error: ErrorCode.TransactionFailed,
+                            details: `Message signing failed for messageId ${event.messageId}.`,
+                        })
+                        return
+                    }
+
+                    resolve({ signature: event.signature })
+                }
+
+                provider.on<dappAsyncAPI.MessageSignatureEvent>(
+                    'messageSignature',
+                    listener
+                )
+            })
+        },
         getPrimaryAccount: async (): Promise<Wallet> =>
             provider.request({
                 method: 'getPrimaryAccount',
             }),
+        messageSignature: function (): Promise<MessageSignatureEvent> {
+            throw new Error('Only for events.')
+        },
     })

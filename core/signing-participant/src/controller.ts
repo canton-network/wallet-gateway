@@ -12,6 +12,7 @@ import {
     SetConfigurationResult,
     SigningDriverInterface,
     SigningProvider,
+    SignMessageResult,
     SignTransactionParams,
     SignTransactionResult,
     SubscribeTransactionsResult,
@@ -33,6 +34,13 @@ export class ParticipantSigningDriver implements SigningDriverInterface {
                 return Promise.resolve({
                     txId: params.internalTxId || randomUUID(),
                     status: 'signed',
+                })
+            },
+            signMessage: async (): Promise<SignMessageResult> => {
+                return Promise.resolve({
+                    error: 'not_allowed',
+                    error_description:
+                        'Signing messages is not supported with Participant.',
                 })
             },
             getTransaction: function (): Promise<GetTransactionResult> {

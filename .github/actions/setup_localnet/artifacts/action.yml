@@ -1,0 +1,34 @@
+name: 'Setup Localnet (Artifacts)'
+description: 'Cache, download and optionally start Localnet environment for artifact-based workflows'
+inputs:
+    network:
+        description: 'Network type: devnet or mainnet'
+        required: true
+    splice_version:
+        description: 'Splice version (required)'
+        required: true
+runs:
+    using: 'composite'
+    steps:
+        - name: Cache Localnet files
+          uses: actions/cache/restore@v5
+          id: localnet-cache
+          with:
+              path: |
+                  .localnet/docker-compose/localnet
+                  .localnet/dars
+                  /tmp/docker-images
+              key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
+              fail-on-cache-miss: true
+
+        - name: Load cached Docker images
+          shell: bash
+          run: |
+              if [ -f /tmp/docker-images/images.tar ]; then
+                docker load -i /tmp/docker-images/images.tar
+                echo "Docker images loaded from cache."
+              fi
+
+        - name: Start Localnet
+          shell: bash
+          run: yarn start:localnet -- --network=${{ inputs.network }}

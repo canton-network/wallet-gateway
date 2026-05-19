@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material'
-import { RegistrySettings } from '../components/registry-settings'
-import { TapSettings } from '../components/tap-settings'
-import { useIsDevNet } from '../hooks/useIsDevNet'
+import { RegistrySettings } from '../../components/registry-settings'
+import { TapSettings } from '../../components/tap-settings'
+import { useIsDevNet } from '../../hooks/useIsDevNet'
 
 export function SettingsPage() {
     const { data: isDevNet } = useIsDevNet()

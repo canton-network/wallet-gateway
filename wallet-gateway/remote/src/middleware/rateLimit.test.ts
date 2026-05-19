@@ -15,20 +15,22 @@ describe('ipRateLimitKeyGenerator', () => {
         expect(ipRateLimitKeyGenerator(req)).toBe('ip:198.51.100.42')
     })
 
-    test('falls back to socket.remoteAddress when ip is unset', () => {
+    test('leaves IPv4 request ip address unchanged', () => {
         const req = {
-            socket: { remoteAddress: '10.0.0.2' },
+            ip: '198.51.100.42',
+            socket: { remoteAddress: '10.0.0.1' },
         } as Request
 
-        expect(ipRateLimitKeyGenerator(req)).toBe('ip:10.0.0.2')
+        expect(ipRateLimitKeyGenerator(req)).toBe('ip:198.51.100.42')
     })
 
-    test('uses unknown when neither ip nor remoteAddress is set', () => {
+    test('normalizes IPv6 request ip address to a subnet key', () => {
         const req = {
-            socket: {},
+            ip: '2001:db8:abcd:0012:1111:2222:3333:4444',
+            socket: { remoteAddress: '10.0.0.1' },
         } as Request
 
-        expect(ipRateLimitKeyGenerator(req)).toBe('ip:unknown')
+        expect(ipRateLimitKeyGenerator(req)).toBe('ip:2001:db8:abcd::/56')
     })
 })
 
