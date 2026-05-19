@@ -418,7 +418,20 @@
             ],
             "linkToDAR": "https://docs.digitalasset.com/utilities/mainnet/reference/dar-versions/dar-versions.html",
             "assetLogo": "https://raw.githubusercontent.com/trakx/branding/refs/heads/prod/svg/tokens/TRKXYUSDC.svg"
+        },
+        {
+            "instrumentId": {
+                "admin": "ft::12200b5582a91686c5278999a988a8e6ae2ff7f870834fe2deccbafaefad73db4f2d",
+                "id": "iBENJI"
+            },
+            "symbol": "iBENJI",
+            "registryURLs": [
+                "https://api.utilities.digitalasset.com/api/token-standard/v0/registrars/ft::12200b5582a91686c5278999a988a8e6ae2ff7f870834fe2deccbafaefad73db4f2d/registry/"
+            ],
+            "linkToDAR": "https://docs.digitalasset.com/utilities/mainnet/reference/dar-versions/dar-versions.html",
+            "assetLogo": "https://digitalassets.franklintempleton.com/images/benji-logo-full.svg"
         }
+
     ],
     "TestNet": [
         {
@@ -839,7 +852,20 @@
             ],
             "linkToDAR": "https://docs.digitalasset.com/utilities/testnet/reference/dar-versions/dar-versions.html",
             "assetLogo": "https://raw.githubusercontent.com/trakx/branding/refs/heads/stage/svg/tokens/TRKXYUSDC.svg"
+        },
+        {
+            "instrumentId": {
+                "admin": "ft::1220b53a6359da49d11169f98bb3340b8fd183523c897340fe91a7e7c70b26de5884",
+                "id": "SKY1"
+            },
+            "symbol": "SKY1",
+            "registryURLs": [
+                "https://api.utilities.digitalasset-staging.com/api/token-standard/v0/registrars/ft::1220b53a6359da49d11169f98bb3340b8fd183523c897340fe91a7e7c70b26de5884/registry/"
+            ],
+            "linkToDAR": "https://docs.digitalasset.com/utilities/testnet/reference/dar-versions/dar-versions.html",
+            "assetLogo": "https://digitalassets.franklintempleton.com/images/benji-logo-full.svg"
         }
+
     ],
     "DevNet": [
         {
