@@ -17,6 +17,7 @@ import {
 } from '@canton-network/core-tx-visualizer'
 
 import { createUserClient } from '../rpc-client'
+import { setLocationHref } from '../navigation.js'
 
 import '../index'
 import { stateManager } from '../state-manager'
@@ -130,7 +131,7 @@ export class UserUiActivities extends BaseElement {
 
     private _onReview(e: TransactionCardReviewEvent) {
         const approveHref = toRelHref('/approve')
-        window.location.href = `${approveHref}?transactionId=${e.transactionId}`
+        setLocationHref(`${approveHref}?transactionId=${e.transactionId}`)
     }
 
     private _onPageChange(e: PageChangeEvent) {
