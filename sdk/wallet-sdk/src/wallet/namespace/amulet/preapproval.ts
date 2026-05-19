@@ -164,7 +164,7 @@ export class PreapprovalNamespace {
      * @param receiverParty Receiver party id
      * @returns Resolves with the preapproval or null, if not found
      */
-    public async fetchOnce(receiverParty: PartyId) {
+    public async fetchQuick(receiverParty: PartyId) {
         try {
             return await this.ctx.amuletService.getTransferPreApprovalByParty(
                 receiverParty
