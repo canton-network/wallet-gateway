@@ -159,6 +159,25 @@ export class PreapprovalNamespace {
     }
 
     /**
+     * Fetch TransferPreapproval from ScanProxy. This does NOT retry or wait.
+     * If you want additional logic for create/renew/cancel events and retry use fetchStatus instead
+     * @param receiverParty Receiver party id
+     * @returns Resolves with the preapproval or null, if not found
+     */
+    public async fetchQuick(receiverParty: PartyId) {
+        try {
+            return await this.ctx.amuletService.getTransferPreApprovalByParty(
+                receiverParty
+            )
+        } catch (e) {
+            if (isNotFoundError(e)) {
+                this.logger.info('Preapproval is no longer visible')
+                return null
+            }
+        }
+    }
+
+    /**
      * Wait for Scan Proxy to show a receiver's TransferPreapproval, or for its CID to change after renewal,
      * or for it to disappear after cancel.
      *

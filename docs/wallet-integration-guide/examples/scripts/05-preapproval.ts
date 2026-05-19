@@ -77,7 +77,22 @@ logger.info('Successfully registered the preapproval.')
 
 // --- TEST FETCH
 
-logger.info('Fetching for preapproval status')
+const start = performance.now()
+const fetchOnceStatus = await sdk.amulet.preapproval.fetchQuick(bob.partyId)
+const end = performance.now()
+
+const duration = end - start
+if (duration < 1000) {
+    logger.info(
+        `Success! The operation was fast (${duration.toFixed(2)} ms) and fetchOnce status is ${fetchOnceStatus}.`
+    )
+} else {
+    logger.warn(
+        `Warning: Operation took longer than 1 second (${(duration / 1000).toFixed(2)} s).`
+    )
+}
+
+logger.info('Fetching for preapproval status with retry')
 
 const fetchedPreapprovalStatus = await sdk.amulet.preapproval.fetchStatus(
     bob.partyId
@@ -128,6 +143,23 @@ logger.info({ aliceAmuletValue, bobAmuletValue }, 'Result:')
 // --- TEST RENEW COMMAND
 
 logger.info('Renewing preapproval...')
+
+const start2 = performance.now()
+const fetchOnceStatusWithPreapproval = await sdk.amulet.preapproval.fetchQuick(
+    bob.partyId
+)
+const end2 = performance.now()
+
+const duration2 = end2 - start2
+if (duration < 1000) {
+    logger.info(
+        `Success! The operation was fast (${duration2.toFixed(2)} ms) and fetchOnce status is ${fetchOnceStatusWithPreapproval}.`
+    )
+} else {
+    logger.warn(
+        `Warning: Operation took longer than 1 second (${duration2.toFixed(2)} s).`
+    )
+}
 
 const newExpiresAt = new Date(fetchedPreapprovalStatus!.expiresAt)
 newExpiresAt.setDate(newExpiresAt.getDate() + 2)

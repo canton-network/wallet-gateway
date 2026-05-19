@@ -5,12 +5,6 @@ import { useEffect, useState } from 'react'
 import * as sdk from '@canton-network/dapp-sdk'
 import { WalletConnectAdapter } from '@canton-network/dapp-sdk'
 import { handleErrorToast } from '@canton-network/core-wallet-ui-components'
-import { LoopAdapter } from '@canton-network/sdk-support-provider-adapter-loop'
-
-const loopAdapter = new LoopAdapter({
-    name: '5N Loop Wallet (Devnet)',
-    network: 'devnet',
-})
 
 const wcProjectId = import.meta.env.VITE_WC_PROJECT_ID as string
 const wcAdapter = wcProjectId
@@ -27,8 +21,7 @@ const wcAdapter = wcProjectId
           },
       })
     : undefined
-
-const additionalAdapters = wcAdapter ? [loopAdapter, wcAdapter] : [loopAdapter]
+const additionalAdapters = wcAdapter ? [wcAdapter] : []
 
 /**
  * React hook that manages the connection to the wallet gateway.
