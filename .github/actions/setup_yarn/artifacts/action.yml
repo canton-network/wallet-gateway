@@ -1,0 +1,29 @@
+name: Setup Yarn (From Artifacts)
+description: 'Setup Yarn for jobs that consume build artifacts from the same workflow run'
+inputs:
+    daml_release_version:
+        description: 'Resolved DAML release version from workflow metadata job'
+        required: true
+runs:
+    using: composite
+    steps:
+        - name: Enable Corepack
+          shell: bash
+          run: corepack enable
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v6
+          with:
+              node-version: 'v24.9.0'
+              cache: 'yarn'
+
+        - name: Download build artifacts
+          uses: actions/download-artifact@v7
+          with:
+              name: build-dist-${{ github.run_id }}
+
+        - name: Install dependencies
+          shell: bash
+          env:
+              YARN_ENABLE_HARDENED_MODE: '0'
+          run: yarn install --immutable

@@ -1,5 +1,5 @@
-name: Setup Yarn
-description: 'Setup Yarn for the project'
+name: Setup Yarn (Initial Build)
+description: 'Setup Yarn for initial build jobs without relying on build artifacts'
 inputs:
     daml_release_version:
         description: 'Resolved DAML release version from workflow metadata job'
@@ -21,13 +21,6 @@ runs:
               node-version: 'v24.9.0'
               cache: 'yarn'
 
-        - name: Download build artifacts
-          id: download_build_artifacts
-          continue-on-error: true
-          uses: actions/download-artifact@v5
-          with:
-              name: build-dist-${{ github.run_id }}
-
         - name: Restore DPM cache
           id: dpm_cache
           uses: actions/cache/restore@v5
@@ -46,20 +39,17 @@ runs:
           #the OCI is only used for multiple version support and can safely be deleted to save ~ 1.3 gb.
           run: rm -rf ~/.dpm/cache/oci-layout
 
+        - name: Install dependencies
+          shell: bash
+          run: yarn install --immutable
+
+        - name: generate all
+          shell: bash
+          run: yarn generate:all
+
         - name: Save DPM cache
           uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
                   ~/.dpm
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
-              save_cache: ${{ inputs.save_cache }}
-              initial_cache_hit: ${{ steps.dpm_cache.outputs.cache-hit }}
-
-        - name: Install dependencies
-          shell: bash
-          run: yarn install --immutable
-
-        - name: generate all
-          if: ${{ steps.download_build_artifacts.outcome == 'failure' || steps.download_build_artifacts.outputs.download-path == '' }}
-          shell: bash
-          run: yarn generate:all

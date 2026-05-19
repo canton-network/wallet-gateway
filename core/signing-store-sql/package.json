@@ -23,7 +23,10 @@
         "flatpack": "yarn pack --out \"$FLATPACK_OUTDIR\"",
         "clean": "tsc -b --clean; rm -rf dist",
         "test": "vitest run --project node --passWithNoTests",
-        "test:coverage": "vitest run --project node --coverage --passWithNoTests"
+        "test:coverage": "vitest run --project node --coverage --passWithNoTests",
+        "test:migrations": "vitest run --project migrations",
+        "migrations:check-lock": "tsx ../../scripts/src/check-migration-lock.ts",
+        "migrations:update-lock": "tsx ../../scripts/src/check-migration-lock.ts --update"
     },
     "dependencies": {
         "@canton-network/core-ledger-client": "workspace:^",
@@ -41,6 +44,7 @@
     },
     "devDependencies": {
         "@swc/core": "^1.15.18",
+        "@testcontainers/postgresql": "^11.14.0",
         "@types/better-sqlite3": "^7.6.13",
         "@types/pg": "^8.18.0",
         "@vitest/coverage-v8": "^4.1.2",

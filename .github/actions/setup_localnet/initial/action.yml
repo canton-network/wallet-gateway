@@ -1,5 +1,5 @@
-name: 'Setup Localnet'
-description: 'Cache, download and optionally start Localnet environment'
+name: 'Setup Localnet (Initial)'
+description: 'Cache, download and optionally start Localnet environment for initial workflows'
 inputs:
     network:
         description: 'Network type: devnet or mainnet'
@@ -7,18 +7,6 @@ inputs:
     splice_version:
         description: 'Splice version (required)'
         required: true
-    start_services:
-        description: 'Whether to start localnet services after setup'
-        required: false
-        default: 'true'
-    save_cache:
-        description: 'Whether to save the Localnet cache on a cache miss'
-        required: false
-        default: 'false'
-    lookup_only:
-        description: 'Whether to only check if the Localnet cache exists without restoring it'
-        required: false
-        default: 'false'
 runs:
     using: 'composite'
     steps:
@@ -31,16 +19,7 @@ runs:
                   .localnet/dars
                   /tmp/docker-images
               key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
-              lookup-only: ${{ inputs.lookup_only == 'true' }}
-
-        - name: Load cached Docker images
-          if: steps.localnet-cache.outputs.cache-hit == 'true'
-          shell: bash
-          run: |
-              if [ -f /tmp/docker-images/images.tar ]; then
-                docker load -i /tmp/docker-images/images.tar
-                echo "Docker images loaded from cache."
-              fi
+              lookup-only: true
 
         - name: Download Localnet
           if: steps.localnet-cache.outputs.cache-hit != 'true'
@@ -52,13 +31,8 @@ runs:
           shell: bash
           run: yarn pull:localnet
 
-        - name: Start Localnet
-          if: ${{ inputs.start_services == 'true' }}
-          shell: bash
-          run: yarn start:localnet -- --network=${{ inputs.network }}
-
         - name: Save Docker images to cache
-          if: ${{ inputs.save_cache == 'true' && steps.localnet-cache.outputs.cache-hit != 'true' }}
+          if: ${{ steps.localnet-cache.outputs.cache-hit != 'true' }}
           shell: bash
           run: |
               mkdir -p /tmp/docker-images
@@ -71,6 +45,7 @@ runs:
               fi
 
         - name: Save Localnet cache
+          if: ${{ steps.localnet-cache.outputs.cache-hit != 'true' }}
           uses: ./.github/actions/save_cache_if_absent
           with:
               path: |
@@ -78,5 +53,3 @@ runs:
                   .localnet/dars
                   /tmp/docker-images
               key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
-              save_cache: ${{ inputs.save_cache }}
-              initial_cache_hit: ${{ steps.localnet-cache.outputs.cache-hit }}

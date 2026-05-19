@@ -1,0 +1,31 @@
+name: 'Setup Canton (Initial)'
+description: 'Cache, download and optionally start Canton environment for initial workflows'
+inputs:
+    network:
+        description: 'Network type: devnet or mainnet'
+        required: true
+    canton_version:
+        description: 'Canton version (required)'
+        required: true
+runs:
+    using: 'composite'
+    steps:
+        - name: Cache Canton binaries
+          uses: actions/cache/restore@v5
+          id: canton-cache
+          with:
+              path: .canton
+              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
+              lookup-only: true
+
+        - name: Download Canton
+          if: steps.canton-cache.outputs.cache-hit != 'true'
+          shell: bash
+          run: yarn script:fetch:canton --network=${{ inputs.network }}
+
+        - name: Save Canton cache
+          if: steps.canton-cache.outputs.cache-hit != 'true'
+          uses: ./.github/actions/save_cache_if_absent
+          with:
+              path: .canton
+              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}

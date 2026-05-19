@@ -66,11 +66,11 @@ jobs:
               with:
                   ref: ${{ github.event.inputs.ref || github.ref }}
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/initial
               with:
                   daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_localnet
+            - uses: ./.github/actions/setup_localnet/initial
               with:
                   network: ${{ github.event.inputs.network || 'devnet' }}
                   splice_version: ${{ (github.event.inputs.network || 'devnet') == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
