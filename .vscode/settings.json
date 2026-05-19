@@ -18,12 +18,4 @@
     },
     "metals.inlayHints.implicitArguments.enable": true,
     "metals.inlayHints.implicitConversions.enable": true,
-    "chat.tools.terminal.autoApprove": {
-        "pnpm": true,
-        "yarn workspace": true,
-        "git add": true,
-        "yarn build": true,
-        "yarn nx": true,
-        "git commit": true
-    },
 }
