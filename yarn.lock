@@ -2249,7 +2249,6 @@ __metadata:
     "@canton-network/core-wallet-test-utils": "workspace:^"
     "@canton-network/core-wallet-ui-components": "workspace:^"
     "@canton-network/dapp-sdk": "workspace:^"
-    "@canton-network/sdk-support-provider-adapter-loop": "workspace:^"
     "@canton-network/wallet-sdk": "workspace:^"
     "@eslint/js": "npm:^10.0.1"
     "@playwright/test": "npm:^1.58.2"
@@ -2396,7 +2395,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@canton-network/sdk-support-provider-adapter-loop@workspace:^, @canton-network/sdk-support-provider-adapter-loop@workspace:sdk-support/provider-adapter-loop":
+"@canton-network/sdk-support-provider-adapter-loop@workspace:sdk-support/provider-adapter-loop":
   version: 0.0.0-use.local
   resolution: "@canton-network/sdk-support-provider-adapter-loop@workspace:sdk-support/provider-adapter-loop"
   dependencies:
