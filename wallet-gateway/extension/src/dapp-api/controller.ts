@@ -63,4 +63,7 @@ export const dappController = (store?: Store) =>
         getPrimaryAccount: async function (): Promise<Wallet> {
             throw new Error('Function not implemented.')
         },
+        messageSignature: async () => {
+            throw new Error('Only for events.')
+        },
     })
