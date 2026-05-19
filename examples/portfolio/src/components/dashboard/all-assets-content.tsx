@@ -1,18 +1,36 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ReactNode } from 'react'
-import { Alert, Avatar, Box, Paper, Skeleton, Typography } from '@mui/material'
-import type { AllAccountAssetsResult } from '@hooks/useAllAccountAssets'
-import type { AggregatedHolding } from '@utils/aggregate-holdings'
+import { useState, type ReactNode } from 'react'
+import {
+    Alert,
+    Avatar,
+    Box,
+    ButtonBase,
+    Paper,
+    Skeleton,
+    Typography,
+} from '@mui/material'
+import type {
+    PortfolioAssetView,
+    PortfolioAssetsResult,
+} from '@hooks/useAllAccountAssets'
 import { getInstrumentInitials } from '@utils/instrument-display'
+import { AssetViewDialog } from '@components/dashboard/asset-view-dialog'
 
 export function AllAssetsContent({
     assets,
     isLoading,
     isError,
     error,
-}: AllAccountAssetsResult) {
+}: PortfolioAssetsResult) {
+    const [selectedAsset, setSelectedAsset] =
+        useState<PortfolioAssetView | null>(null)
+
+    const handleCloseAssetDialog = () => {
+        setSelectedAsset(null)
+    }
+
     if (isError) {
         return (
             <Alert severity="error">
@@ -41,11 +59,23 @@ export function AllAssetsContent({
     }
 
     return (
-        <AssetsPanel>
-            {assets.map((asset) => (
-                <AssetRow key={getAssetKey(asset)} asset={asset} />
-            ))}
-        </AssetsPanel>
+        <>
+            <AssetsPanel>
+                {assets.map((asset) => (
+                    <AssetRow
+                        key={getAssetKey(asset)}
+                        asset={asset}
+                        onClick={() => setSelectedAsset(asset)}
+                    />
+                ))}
+            </AssetsPanel>
+            {selectedAsset && (
+                <AssetViewDialog
+                    asset={selectedAsset}
+                    onClose={handleCloseAssetDialog}
+                />
+            )}
+        </>
     )
 }
 
@@ -72,17 +102,24 @@ function AssetsPanel({ children }: AssetsPanelProps) {
 }
 
 type AssetRowProps = {
-    asset: AggregatedHolding
+    asset: PortfolioAssetView
+    onClick: () => void
 }
 
-function AssetRow({ asset }: AssetRowProps) {
+function AssetRow({ asset, onClick }: AssetRowProps) {
     const name = asset.instrument?.name ?? asset.instrumentId.id
     const symbol = asset.instrument?.symbol ?? asset.instrumentId.id
     const initials = getInstrumentInitials(name)
 
     return (
         <Box
+            component={ButtonBase}
+            type="button"
+            aria-haspopup="dialog"
+            aria-label={`View ${name} holdings by wallet`}
+            onClick={onClick}
             sx={{
+                width: '100%',
                 minHeight: 64,
                 px: 2,
                 py: 1.5,
@@ -90,8 +127,27 @@ function AssetRow({ asset }: AssetRowProps) {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: 2,
+                color: 'text.primary',
+                textAlign: 'left',
                 border: (theme) => `1px solid ${theme.palette.divider}`,
                 borderRadius: 1,
+                transition: (theme) =>
+                    theme.transitions.create(
+                        ['background-color', 'border-color', 'transform'],
+                        { duration: theme.transitions.duration.short }
+                    ),
+                '&:hover': {
+                    bgcolor: 'action.hover',
+                    borderColor: 'text.secondary',
+                },
+                '&.Mui-focusVisible': {
+                    outline: (theme) =>
+                        `2px solid ${theme.palette.secondary.main}`,
+                    outlineOffset: 2,
+                },
+                '&:active': {
+                    transform: 'scale(0.99)',
+                },
             }}
         >
             <Box
@@ -159,6 +215,6 @@ function AssetRowSkeleton() {
     )
 }
 
-function getAssetKey(asset: AggregatedHolding) {
+function getAssetKey(asset: PortfolioAssetView) {
     return `${asset.instrumentId.admin}::${asset.instrumentId.id}`
 }
