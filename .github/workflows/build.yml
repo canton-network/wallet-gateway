@@ -152,7 +152,7 @@ jobs:
               uses: actions/cache/restore@v5
               with:
                   path: docs/wallet-integration-guide/.venv
-                  key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
+                  key: venv-v1-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
 
             # install dependencies if cache does not exist
             - name: Install dependencies
@@ -164,7 +164,7 @@ jobs:
               uses: ./.github/actions/save_cache_if_absent
               with:
                   path: docs/wallet-integration-guide/.venv
-                  key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
+                  key: venv-v1-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
                   initial_cache_hit: ${{ steps.cached-poetry-dependencies.outputs.cache-hit }}
 
             - name: Build docs
