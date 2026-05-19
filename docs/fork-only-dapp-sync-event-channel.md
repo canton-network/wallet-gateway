@@ -133,6 +133,40 @@ The JSON-RPC notification design ("Option B" in [Recommended upstream conversati
 
 The choice of `SPLICE_WALLET_EVENT` is therefore the smallest-cost option that closes the gap. Option B is a viable spec-level alternative that requires the same plumbing plus a guard in `WindowTransport.submit` to treat `SPLICE_WALLET_REQUEST`-with-no-`id` as notifications rather than requests addressed to the dApp.
 
+## EIP-1193 precedent: how every other JS Provider delivers events
+
+CIP-103 names [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) as its design inspiration for the dApp-facing Provider. EIP-1193 is deliberately silent on the inpage-to-wallet wire protocol — the spec text at `eip-1193.md:24` explicitly calls the API "agnostic of transport and RPC protocols," and at `:158-167` mandates only the JavaScript surface:
+
+> The Provider **MUST** implement the following event handling methods: `on`, `removeListener`. These methods **MUST** be implemented per the Node.js `EventEmitter` API.
+>
+> _To satisfy these requirements, Provider implementers should consider simply extending the Node.js `EventEmitter` class and bundling it for the target environment._
+
+In other words: EIP-1193 says the dApp must be able to call `provider.on('accountsChanged', cb)` on an in-process EventEmitter and have its listener invoked whenever the wallet decides the accounts changed. _How_ the event got from a wallet extension's background context into that emit call is an implementation detail the spec leaves entirely open.
+
+Despite that silence, the deployed-implementation convention is remarkably uniform across the Ethereum extension-wallet ecosystem. MetaMask's `@metamask/inpage-provider` set the de-facto pattern that every browser-extension wallet that followed (Rabby, Coinbase Wallet, Frame, Brave's built-in wallet, OKX, Phantom's EVM mode, etc.) reproduces almost verbatim:
+
+| Concern              | EIP-1193 convention (MetaMask et al.)                                                                   | Upstream `WindowTransport` today                                | This fork's `WindowTransport`                                                 |
+| -------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Inpage listener      | **Single, permanent**, attached at Provider construction, never removed                                 | **Per-request, self-removing** inside `submit()` (lines 65-83)  | Single permanent listener via `installEventDispatcher`                        |
+| Channel multiplexing | Responses and events share the same `window.postMessage` channel                                        | Channel is response-only; events have no path                   | Same channel, demuxed by `type` discriminator                                 |
+| Event wire shape     | JSON-RPC 2.0 **notification**: `{ method: '<eventName>', params: [...] }` with no `id`                  | N/A                                                             | Extension envelope `{ type: 'SPLICE_WALLET_EVENT', event, payload, target? }` |
+| Demux strategy       | Inspect `id`: present → route to pending promise; absent → route to `this.emit(method, params[0])`      | Filter on `type === SPLICE_WALLET_RESPONSE && id === requestId` | Filter on `type` discriminator (REQUEST/RESPONSE/EVENT)                       |
+| Provider emit path   | The inpage transport calls `provider.emit(eventName, data)` directly when it sees a notification arrive | Never reached for events                                        | `DappSyncProvider` subscribes via `transport.onEvent` and forwards to `emit`  |
+
+The MetaMask pattern is canonical enough that the EIP-1193 authors call it out (`eip-1193.md:266-275`) in the "Implementations" list and again in the JSON-RPC notifications guidance for the `message` event at `:182-196`. WalletConnect's mobile-wallet flow follows the same shape over its WebSocket relay (notifications-by-absence-of-`id`, persistent connection). The ethers.js and web3.js client libraries presume this is what every Provider does — they wrap whatever object the wallet injects and never re-implement the wire.
+
+**The structural takeaway:** EIP-1193 doesn't mandate a wire format, but the entire downstream ecosystem aligned on (a) **single permanent inpage listener** and (b) **events distinguished from responses by JSON-RPC `id` absence on a shared channel**. Any Provider that violates either property silently breaks the `provider.on(...)` contract EIP-1193 _does_ mandate — because the EventEmitter has no way for the wallet to invoke `.emit()`.
+
+### Reframing the upstream defect
+
+This reframes the upstream `WindowTransport` defect more sharply than "missing `SPLICE_WALLET_EVENT` handler":
+
+> The upstream Sync transport violates a universal EIP-1193 implementation convention: it has no permanently-installed inpage listener. The listener it _does_ install is per-request, response-shaped, and self-removing. This makes the `provider.on('<eventName>', cb)` API that CIP-103 inherits from EIP-1193 structurally non-functional — no wire envelope choice can fix it without first installing an always-on listener.
+
+The wire envelope (Option A: `SPLICE_WALLET_EVENT` extension; Option B: JSON-RPC notification on `SPLICE_WALLET_REQUEST`) is a bikeshed _on top of_ the structural fix. The fork chose Option A for the reasons discussed in [the previous section](#why-we-couldnt-have-reused-splice_wallet_response) and in [Recommended upstream conversation](#recommended-upstream-conversation) below. Option B is closer to EIP-1193 precedent (events as JSON-RPC notifications) and would be a defensible upstream-canonical choice if the project wants the closest possible alignment with prior art.
+
+Either way, the four pieces of plumbing this PR adds — `WalletEvent.SPLICE_WALLET_EVENT` enum entry, `RpcTransport.onEvent`, `WindowTransport`'s always-on `installEventDispatcher`, and the `DappSyncProvider` constructor wiring — are the minimum the upstream Sync transport needs to deliver on its EIP-1193-derived `on()`/`removeListener()` contract. The envelope name is negotiable; the always-on listener is not.
+
 ## Is this a CIP-103 spec problem?
 
 Partially. The relevant parts of CIP-103 today are:
