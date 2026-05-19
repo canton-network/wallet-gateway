@@ -144,6 +144,7 @@ jobs:
               uses: snok/install-poetry@v1
               with:
                   version: 2.1.3
+                  virtualenvs-in-project: true
 
             # load cached venv if cache exists
             - name: Load cached venv
@@ -489,23 +490,7 @@ jobs:
             - name: Test multi-sync example script (${{ matrix.network }})
               env:
                   MAX_IO_LISTENERS: '50'
-              # Retry up to 3 times: after P3 submits the token transfer, the resulting
-              # TokenTransferOffer may not yet be visible on P2's ACS (cross-participant
-              # event propagation is async). Each attempt allocates fresh parties so
-              # re-running against the same localnet instance is safe.
-              run: |
-                  for attempt in 1 2 3; do
-                    echo "--- Attempt $attempt/3 ---"
-                    if yarn script:test:examples:multi-sync; then
-                      exit 0
-                    fi
-                    echo "Attempt $attempt failed"
-                    if [ $attempt -lt 3 ]; then
-                      sleep 15
-                    fi
-                  done
-                  echo "All 3 attempts failed"
-                  exit 1
+              run: yarn script:test:examples:multi-sync
 
             - uses: ./.github/actions/check_resources
             # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
