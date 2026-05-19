@@ -45,7 +45,6 @@ export function RegistryValidationModal({
             open={true}
             maxWidth="sm"
             fullWidth
-            disableEscapeKeyDown
             slotProps={{
                 backdrop: {
                     onClick: (e) => e.stopPropagation(),
@@ -66,7 +65,7 @@ export function RegistryValidationModal({
                     }}
                 >
                     <WarningAmberIcon color="warning" />
-                    <Typography variant="h6" fontWeight="bold">
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                         Registry Configuration Required
                     </Typography>
                 </Box>

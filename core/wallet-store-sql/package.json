@@ -1,6 +1,6 @@
 {
     "name": "@canton-network/core-wallet-store-sql",
-    "version": "1.2.1",
+    "version": "1.2.3",
     "type": "module",
     "description": "SQL implementation of the Store API",
     "license": "Apache-2.0",
@@ -23,7 +23,10 @@
         "flatpack": "yarn pack --out \"$FLATPACK_OUTDIR\"",
         "clean": "tsc -b --clean; rm -rf dist",
         "test": "vitest run --project node",
-        "test:coverage": "vitest run --project node --coverage"
+        "test:coverage": "vitest run --project node --coverage",
+        "test:migrations": "vitest run --project migrations",
+        "migrations:check-lock": "tsx ../../scripts/src/check-migration-lock.ts",
+        "migrations:update-lock": "tsx ../../scripts/src/check-migration-lock.ts --update"
     },
     "dependencies": {
         "@canton-network/core-ledger-client": "workspace:^",
@@ -32,13 +35,14 @@
         "@canton-network/core-wallet-store": "workspace:^",
         "better-sqlite3": "^12.6.2",
         "commander": "^14.0.3",
-        "kysely": "^0.28.14",
+        "kysely": "^0.28.17",
         "pg": "^8.19.0",
         "pino": "^10.3.1",
         "umzug": "^3.8.2",
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@testcontainers/postgresql": "^11.14.0",
         "@types/better-sqlite3": "^7.6.13",
         "@types/pg": "^8.18.0",
         "@vitest/coverage-v8": "^4.1.2",

@@ -33,7 +33,8 @@
         "@canton-network/core-wallet-dapp-rpc-client": "workspace:^",
         "@canton-network/core-wallet-discovery": "workspace:^",
         "@canton-network/core-wallet-ui-components": "workspace:^",
-        "qrcode": "^1.5.4"
+        "qrcode": "^1.5.4",
+        "uuid": "^14.0.0"
     },
     "peerDependencies": {
         "@walletconnect/sign-client": "^2.23.8",

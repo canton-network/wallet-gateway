@@ -16,6 +16,8 @@ import {
     Session,
     WalletFilter,
     Transaction,
+    MessageRaw,
+    MessageRawStatusUpdate,
     Network,
     StoreConfig,
     UpdateWallet,
@@ -31,6 +33,7 @@ import {
     fromIdp,
     fromNetwork,
     fromTransaction,
+    fromMessageRaw,
     fromWallet,
     fromPartyRight,
     fromUserRight,
@@ -38,6 +41,7 @@ import {
     toIdp,
     toNetwork,
     toTransaction,
+    toMessageRaw,
     toWallet,
 } from './schema.js'
 import pg from 'pg'
@@ -727,6 +731,118 @@ export class StoreSql implements BaseStore, AuthAware<StoreSql> {
             .where((eb) =>
                 eb.and([
                     eb('id', '=', transactionId),
+                    eb('userId', '=', userId),
+                    eb('networkId', '=', network.id),
+                ])
+            )
+            .execute()
+    }
+
+    private mergeMessageRawStatusUpdate(
+        existing: MessageRaw,
+        status: MessageRaw['status'],
+        updates: MessageRawStatusUpdate = {}
+    ): MessageRaw {
+        const signedAt = updates.signedAt ?? existing.signedAt
+        const signature = updates.signature ?? existing.signature
+
+        return {
+            ...existing,
+            status,
+            ...(signedAt !== undefined && { signedAt }),
+            ...(signature !== undefined && { signature }),
+        }
+    }
+
+    // Message signing request methods
+    async setMessageRaw(message: MessageRaw): Promise<void> {
+        const userId = this.assertConnected()
+        if (message.userId !== userId) {
+            throw new Error(
+                `MessageRaw userId mismatch: expected ${userId}, got ${message.userId}`
+            )
+        }
+        const network = await this.getCurrentNetwork()
+        await this.db
+            .insertInto('messagesRaw')
+            .values(fromMessageRaw(message, userId, network.id))
+            .execute()
+    }
+
+    async setMessageRawStatus(
+        messageId: string,
+        status: MessageRaw['status'],
+        updates: MessageRawStatusUpdate = {}
+    ): Promise<void> {
+        const userId = this.assertConnected()
+        const network = await this.getCurrentNetwork()
+        const existing = await this.getMessageRaw(messageId)
+        if (!existing) {
+            throw new Error(`MessageRaw not found with id: ${messageId}`)
+        }
+
+        const updated = this.mergeMessageRawStatusUpdate(
+            existing,
+            status,
+            updates
+        )
+
+        await this.db
+            .updateTable('messagesRaw')
+            .set(fromMessageRaw(updated, userId, network.id))
+            .where((eb) =>
+                eb.and([
+                    eb('id', '=', messageId),
+                    eb('userId', '=', userId),
+                    eb('networkId', '=', network.id),
+                ])
+            )
+            .execute()
+    }
+
+    async getMessageRaw(messageId: string): Promise<MessageRaw | undefined> {
+        const userId = this.assertConnected()
+        const network = await this.getCurrentNetwork()
+        const message = await this.db
+            .selectFrom('messagesRaw')
+            .selectAll()
+            .where((eb) =>
+                eb.and([
+                    eb('id', '=', messageId),
+                    eb('userId', '=', userId),
+                    eb('networkId', '=', network.id),
+                ])
+            )
+            .executeTakeFirst()
+        return message ? toMessageRaw(message) : undefined
+    }
+
+    async listMessageRaws(): Promise<Array<MessageRaw>> {
+        const userId = this.assertConnected()
+        const network = await this.getCurrentNetwork()
+        const messages = await this.db
+            .selectFrom('messagesRaw')
+            .selectAll()
+            .where((eb) =>
+                eb.and([
+                    eb('userId', '=', userId),
+                    eb('networkId', '=', network.id),
+                ])
+            )
+            .orderBy('createdAt', 'desc')
+            .orderBy('id', 'desc')
+            .execute()
+        return messages.map((m) => toMessageRaw(m))
+    }
+
+    async removeMessageRaw(messageId: string): Promise<void> {
+        const userId = this.assertConnected()
+        const network = await this.getCurrentNetwork()
+        await this.db
+            .deleteFrom('messagesRaw')
+            .where((eb) =>
+                eb.and([
+                    eb('id', '=', messageId),
                     eb('userId', '=', userId),
                     eb('networkId', '=', network.id),
                 ])

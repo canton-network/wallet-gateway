@@ -12,16 +12,40 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    build:
+    version-config:
         runs-on: ubuntu-latest
+        outputs:
+            daml_release_version: ${{ steps.version.outputs.daml_release_version }}
+            devnet_canton_version: ${{ steps.version.outputs.devnet_canton_version }}
+            mainnet_canton_version: ${{ steps.version.outputs.mainnet_canton_version }}
+            devnet_splice_version: ${{ steps.version.outputs.devnet_splice_version }}
+            mainnet_splice_version: ${{ steps.version.outputs.mainnet_splice_version }}
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn
+            - name: Resolve version config outputs
+              id: version
+              shell: bash
+              run: |
+                  CONFIG=$(cat scripts/src/lib/version-config.json)
+                  echo "daml_release_version=$(echo "$CONFIG" | jq -r '.DAML_RELEASE_VERSION' | tr -d '\r\n')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_canton_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.canton.version')" >> "$GITHUB_OUTPUT"
+                  echo "devnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.devnet.splice.version')" >> "$GITHUB_OUTPUT"
+                  echo "mainnet_splice_version=$(echo "$CONFIG" | jq -r '.SUPPORTED_VERSIONS.mainnet.splice.version')" >> "$GITHUB_OUTPUT"
 
-            - name: run codegen
-              run: yarn generate:all
+    build:
+        runs-on: ubuntu-latest
+        needs: version-config
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - uses: ./.github/actions/setup_yarn/initial
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
+                  save_cache: 'true'
 
             - name: Build project
               run: yarn build:all
@@ -36,15 +60,44 @@ jobs:
                       .yarn/install-state.gz
                       .pnp.cjs
                       .pnp.loader.mjs
-                      core/*/dist/
-                      sdk/*/dist/
-                      sdk-support/*/dist/
-                      wallet-gateway/*/dist/
-                      damljs/*/dist/
+                      core/**/dist/
+                      sdk/**/dist/
+                      sdk-support/**/dist/
+                      wallet-gateway/**/dist/
+                      damljs
                       .nx/cache
                       .nx/workspace-data
                   if-no-files-found: error
                   retention-days: 1
+
+    hydrate-canton-caches:
+        name: hydrate-canton-caches (${{ matrix.network }}, ${{ matrix.instance }})
+        runs-on: ubuntu-latest
+        needs: [version-config, build]
+        strategy:
+            fail-fast: false
+            matrix:
+                network: [devnet, mainnet]
+                instance: [canton, localnet]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
+
+            - uses: ./.github/actions/setup_canton/initial
+              if: matrix.instance == 'canton'
+              with:
+                  network: ${{ matrix.network }}
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+
+            - uses: ./.github/actions/setup_localnet/initial
+              if: matrix.instance == 'localnet'
+              with:
+                  network: ${{ matrix.network }}
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
     clear-blockdaemon-policies:
         runs-on: ubuntu-latest
@@ -71,11 +124,13 @@ jobs:
 
     build-docs:
         runs-on: ubuntu-latest
+        needs: build
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
             - name: Setup Python
+              id: setup-python
               uses: actions/setup-python@v6
               with:
                   python-version-file: .python-version
@@ -88,7 +143,7 @@ jobs:
             # load cached venv if cache exists
             - name: Load cached venv
               id: cached-poetry-dependencies
-              uses: actions/cache@v5
+              uses: actions/cache/restore@v5
               with:
                   path: docs/wallet-integration-guide/.venv
                   key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
@@ -99,17 +154,26 @@ jobs:
               working-directory: docs/wallet-integration-guide
               run: poetry install --no-interaction --no-root
 
+            - name: Save venv cache
+              uses: ./.github/actions/save_cache_if_absent
+              with:
+                  path: docs/wallet-integration-guide/.venv
+                  key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('docs/wallet-integration-guide/poetry.lock') }}
+
             - name: Build docs
               working-directory: docs/wallet-integration-guide
               run: poetry run sphinx-build -c . src build --fail-on-warning
 
     test-static:
         runs-on: ubuntu-latest
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - name: Validate current PR title with commitlint
               run: echo "$TITLE" | yarn commitlint --verbose
@@ -136,14 +200,16 @@ jobs:
 
     test-unit:
         runs-on: ubuntu-latest
-        needs: build
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - uses: ./.github/actions/setup_playwright
 
@@ -154,139 +220,107 @@ jobs:
                     --head=HEAD \
                     --parallel
 
-    e2e-affected:
-        name: e2e-affected
+    check-migration-lock:
+        # Verifies migrations.lock.json is in sync with src/migrations for any
+        # affected SQL store package that defines a `migrations:check-lock`
+        # script. Catches accidental migration edits
+        needs: build
         runs-on: ubuntu-latest
-        outputs:
-            affected_ping: ${{ steps.affected_ping.outputs.affected }}
-            matched_projects_ping: ${{ steps.affected_ping.outputs.matched_projects }}
-            affected_portfolio: ${{ steps.affected_portfolio.outputs.affected }}
-            matched_projects_portfolio: ${{ steps.affected_portfolio.outputs.matched_projects }}
-            affected_wallet_sdk: ${{ steps.affected_wallet_sdk.outputs.affected }}
-            matched_projects_wallet_sdk: ${{ steps.affected_wallet_sdk.outputs.matched_projects }}
         steps:
             - name: Checkout
               uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
 
-            - name: Restore package-affected cache (ping)
-              uses: actions/cache/restore@v5
+            - name: Check migration lock files
+              run: |
+                  yarn nx affected -t migrations:check-lock \
+                    --base=origin/${{ github.base_ref }} \
+                    --head=HEAD \
+                    --parallel
+
+    test-migrations:
+        # Runs SQL migration tests for any affected package that defines a
+        # `test:migrations` script
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
               with:
-                  path: .github/.cache/package-affected/ping
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-ping-${{ github.event.pull_request.head.sha }}
-                  restore-keys: |
-                      package-affected-pr-${{ github.event.pull_request.number }}-ping-
+                  fetch-depth: 0
 
-            - name: Restore package-affected cache (portfolio)
-              uses: actions/cache/restore@v5
-              with:
-                  path: .github/.cache/package-affected/portfolio
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-portfolio-${{ github.event.pull_request.head.sha }}
-                  restore-keys: |
-                      package-affected-pr-${{ github.event.pull_request.number }}-portfolio-
+            - uses: ./.github/actions/setup_yarn/artifacts
 
-            - name: Restore package-affected cache (wallet-sdk)
-              uses: actions/cache/restore@v5
-              with:
-                  path: .github/.cache/package-affected/wallet-sdk
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-wallet-sdk-${{ github.event.pull_request.head.sha }}
-                  restore-keys: |
-                      package-affected-pr-${{ github.event.pull_request.number }}-wallet-sdk-
-
-            - name: Detect example-ping related affected projects
-              id: affected_ping
+            - name: Run affected migration tests
               run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/example-ping" \
-                    --additionalDependencies "@canton-network/wallet-gateway-remote" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$GITHUB_OUTPUT" \
-                    --cacheDir ".github/.cache/package-affected/ping"
-
-            - name: Show affected example-ping projects
-              run: |
-                  echo "affected=${{ steps.affected_ping.outputs.affected }}"
-                  echo "matched_projects=${{ steps.affected_ping.outputs.matched_projects }}"
-                  echo "cache_hit=${{ steps.affected_ping.outputs.cache_hit }}"
-                  echo "cache_reason=${{ steps.affected_ping.outputs.cache_reason }}"
-                  echo "cached_result_affected=${{ steps.affected_ping.outputs.cached_result_affected }}"
-                  echo "base_sha=${{ steps.affected_ping.outputs.base_sha }}"
-                  echo "head_sha=${{ steps.affected_ping.outputs.head_sha }}"
-                  echo "diff_fingerprint=${{ steps.affected_ping.outputs.diff_fingerprint }}"
-                  echo "relevant_changed_files=${{ steps.affected_ping.outputs.relevant_changed_files }}"
-
-            - name: Detect example-portfolio related affected projects
-              id: affected_portfolio
-              run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/example-portfolio" \
-                    --additionalDependencies "@canton-network/wallet-gateway-remote" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$GITHUB_OUTPUT" \
-                    --cacheDir ".github/.cache/package-affected/portfolio"
-
-            - name: Show affected example-portfolio projects
-              run: |
-                  echo "affected=${{ steps.affected_portfolio.outputs.affected }}"
-                  echo "matched_projects=${{ steps.affected_portfolio.outputs.matched_projects }}"
-                  echo "cache_hit=${{ steps.affected_portfolio.outputs.cache_hit }}"
-                  echo "cache_reason=${{ steps.affected_portfolio.outputs.cache_reason }}"
-                  echo "cached_result_affected=${{ steps.affected_portfolio.outputs.cached_result_affected }}"
-                  echo "base_sha=${{ steps.affected_portfolio.outputs.base_sha }}"
-                  echo "head_sha=${{ steps.affected_portfolio.outputs.head_sha }}"
-                  echo "diff_fingerprint=${{ steps.affected_portfolio.outputs.diff_fingerprint }}"
-                  echo "relevant_changed_files=${{ steps.affected_portfolio.outputs.relevant_changed_files }}"
-
-            - name: Detect wallet-sdk related affected projects
-              id: affected_wallet_sdk
-              run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/wallet-sdk" \
-                    --additionalDependencies "docs-wallet-integration-guide-examples" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$GITHUB_OUTPUT" \
-                    --cacheDir ".github/.cache/package-affected/wallet-sdk"
-
-            - name: Show affected wallet-sdk projects
-              run: |
-                  echo "affected=${{ steps.affected_wallet_sdk.outputs.affected }}"
-                  echo "matched_projects=${{ steps.affected_wallet_sdk.outputs.matched_projects }}"
-                  echo "cache_hit=${{ steps.affected_wallet_sdk.outputs.cache_hit }}"
-                  echo "cache_reason=${{ steps.affected_wallet_sdk.outputs.cache_reason }}"
-                  echo "cached_result_affected=${{ steps.affected_wallet_sdk.outputs.cached_result_affected }}"
-                  echo "base_sha=${{ steps.affected_wallet_sdk.outputs.base_sha }}"
-                  echo "head_sha=${{ steps.affected_wallet_sdk.outputs.head_sha }}"
-                  echo "diff_fingerprint=${{ steps.affected_wallet_sdk.outputs.diff_fingerprint }}"
-                  echo "relevant_changed_files=${{ steps.affected_wallet_sdk.outputs.relevant_changed_files }}"
+                  yarn nx affected -t test:migrations \
+                    --base=origin/${{ github.base_ref }} \
+                    --head=HEAD \
+                    --parallel=1
 
     ping-e2e:
-        name: ping-e2e (${{ matrix.network }})
+        name: ping-e2e (${{ matrix.network }}, ${{ matrix.db }})
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_ping == 'true'
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
                 network: [devnet, mainnet]
+                db: [sqlite, postgres]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_canton/artifacts
               with:
                   network: ${{ matrix.network }}
-                  instance: canton
+                  canton_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_canton_version || needs.version-config.outputs.mainnet_canton_version }}
+
+            - name: Start Postgres container
+              if: matrix.db == 'postgres'
+              run: |
+                  docker run -d --name wk-postgres \
+                    -e POSTGRES_USER=postgres \
+                    -e POSTGRES_PASSWORD=postgres \
+                    -e POSTGRES_DB=postgres \
+                    -p 5432:5432 \
+                    --health-cmd="pg_isready -U postgres" \
+                    --health-interval=2s \
+                    postgres:16-alpine
+
+                  until [ "$(docker inspect -f '{{.State.Health.Status}}' wk-postgres)" = "healthy" ]; do
+                    sleep 5
+                  done
+                  docker inspect -f '{{.State.Health.Status}}' wk-postgres | grep -q healthy
+
+            - name: Point gateway config at Postgres
+              if: matrix.db == 'postgres'
+              run: |
+                  CONFIG=wallet-gateway/test/config.json
+                  jq '.store.connection = {
+                        type: "postgres",
+                        host: "localhost",
+                        port: 5432,
+                        user: "postgres",
+                        password: "postgres",
+                        database: "wallet"
+                      }
+                      | .signingStore.connection = {
+                        type: "postgres",
+                        host: "localhost",
+                        port: 5432,
+                        user: "postgres",
+                        password: "postgres",
+                        database: "signing"
+                      }' "$CONFIG" > "$CONFIG.tmp"
+                  mv "$CONFIG.tmp" "$CONFIG"
 
             - name: Start remote WK
               run: |
@@ -309,63 +343,38 @@ jobs:
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
-                  name: example-ping-playwright-report-${{ matrix.network }}
+                  name: example-ping-playwright-report-${{ matrix.network }}-${{ matrix.db }}
                   path: examples/ping/playwright-report/
                   retention-days: 5
 
             - uses: actions/upload-artifact@v7
               if: ${{ !cancelled() }}
               with:
-                  name: ping-wallet-gateway-remote-log-${{ matrix.network }}
+                  name: ping-wallet-gateway-remote-log-${{ matrix.network }}-${{ matrix.db }}
                   path: wallet-gateway-remote.log
                   retention-days: 5
 
+            - name: Stop Postgres container
+              if: ${{ always() && matrix.db == 'postgres' }}
+              run: docker rm -f wk-postgres || true
+
     test-ping-e2e:
         runs-on: ubuntu-latest
-        needs: [e2e-affected, ping-e2e]
+        needs: ping-e2e
         if: always()
         steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-              with:
-                  fetch-depth: 0
-
-            - uses: ./.github/actions/setup_yarn
-
             - name: Report ping e2e execution
               run: |
-                  if [ "${{ needs.e2e-affected.outputs.affected_ping }}" = "true" ]; then
-                    if [ "${{ needs.ping-e2e.result }}" != "success" ]; then
-                      echo "ping-e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    echo "test-ping-e2e passed"
-                  else
-                    echo "test-ping-e2e skipped (package not affected)"
+                  if [ "${{ needs.ping-e2e.result }}" != "success" ]; then
+                    echo "ping-e2e did not succeed"
+                    exit 1
                   fi
-
-            - name: Refresh ping cache entry after successful verification
-              run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/example-ping" \
-                    --additionalDependencies "@canton-network/wallet-gateway-remote" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$RUNNER_TEMP/package-affected-ping.out" \
-                    --cacheDir ".github/.cache/package-affected/ping"
-
-            - name: Save package-affected cache (ping)
-              uses: actions/cache/save@v5
-              with:
-                  path: .github/.cache/package-affected/ping
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-ping-${{ github.event.pull_request.head.sha }}
+                  echo "test-ping-e2e passed"
 
     portfolio-e2e:
         name: portfolio-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_portfolio == 'true'
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -373,12 +382,14 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - name: Start remote WK
               run: yarn pm2 start ecosystem.ci.config.js --env development
@@ -408,50 +419,21 @@ jobs:
 
     test-portfolio-e2e:
         runs-on: ubuntu-latest
-        needs: [e2e-affected, portfolio-e2e]
+        needs: portfolio-e2e
         if: always()
         steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-              with:
-                  fetch-depth: 0
-
-            - uses: ./.github/actions/setup_yarn
-
             - name: Report portfolio e2e execution
               run: |
-                  if [ "${{ needs.e2e-affected.outputs.affected_portfolio }}" = "true" ]; then
-                    if [ "${{ needs.portfolio-e2e.result }}" != "success" ]; then
-                      echo "portfolio-e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    echo "portfolio-e2e passed"
-                  else
-                    echo "portfolio-e2e skipped (package not affected)"
+                  if [ "${{ needs.portfolio-e2e.result }}" != "success" ]; then
+                    echo "portfolio-e2e did not succeed"
+                    exit 1
                   fi
-
-            - name: Refresh portfolio cache entry after successful verification
-              run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/example-portfolio" \
-                    --additionalDependencies "@canton-network/wallet-gateway-remote" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$RUNNER_TEMP/package-affected-portfolio.out" \
-                    --cacheDir ".github/.cache/package-affected/portfolio"
-
-            - name: Save package-affected cache (portfolio)
-              uses: actions/cache/save@v5
-              with:
-                  path: .github/.cache/package-affected/portfolio
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-portfolio-${{ github.event.pull_request.head.sha }}
+                  echo "portfolio-e2e passed"
 
     wallet-sdk-snippets-e2e:
         name: wallet-sdk-snippets-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_wallet_sdk == 'true'
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -461,12 +443,14 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
 
@@ -499,8 +483,7 @@ jobs:
     wallet-sdk-scripts-e2e:
         name: wallet-sdk-scripts-e2e (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_wallet_sdk == 'true'
+        needs: [version-config, hydrate-canton-caches]
         strategy:
             fail-fast: false
             matrix:
@@ -510,12 +493,14 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
-            - uses: ./.github/actions/setup_canton
+            - uses: ./.github/actions/setup_localnet/artifacts
               with:
                   network: ${{ matrix.network }}
-                  instance: localnet
+                  splice_version: ${{ matrix.network == 'devnet' && needs.version-config.outputs.devnet_splice_version || needs.version-config.outputs.mainnet_splice_version }}
 
             - uses: ./.github/actions/check_resources
 
@@ -550,63 +535,34 @@ jobs:
     test-wallet-sdk-e2e:
         name: test-wallet-sdk-e2e
         runs-on: ubuntu-latest
-        needs:
-            [
-                e2e-affected,
-                wallet-sdk-snippets-e2e,
-                wallet-sdk-scripts-e2e,
-                wallet-sdk-pkg,
-            ]
+        needs: [wallet-sdk-snippets-e2e, wallet-sdk-scripts-e2e, wallet-sdk-pkg]
         if: always()
         steps:
-            - name: Checkout
-              uses: actions/checkout@v6
-              with:
-                  fetch-depth: 0
-
-            - uses: ./.github/actions/setup_yarn
-
             - name: Report wallet-sdk e2e execution
               run: |
-                  if [ "${{ needs.e2e-affected.outputs.affected_wallet_sdk }}" = "true" ]; then
-                    if [ "${{ needs.wallet-sdk-snippets-e2e.result }}" != "success" ]; then
-                      echo "wallet-sdk snippets e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    if [ "${{ needs.wallet-sdk-scripts-e2e.result }}" != "success" ]; then
-                      echo "wallet-sdk scripts e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    echo "all wallet-sdk-e2e jobs passed"
-                  else
-                    echo "wallet-sdk e2e skipped (no affected wallet-sdk dependencies)"
+                  if [ "${{ needs.wallet-sdk-snippets-e2e.result }}" != "success" ]; then
+                    echo "wallet-sdk snippets e2e did not succeed"
+                    exit 1
                   fi
-
-            - name: Refresh wallet-sdk cache entry after successful verification
-              run: |
-                  yarn tsx ./scripts/src/ci/package-affected.ts \
-                    --package "@canton-network/wallet-sdk" \
-                    --additionalDependencies "docs-wallet-integration-guide-examples" \
-                    --additionalFiles "scripts/src/lib/version-config.json,.github,scripts" \
-                    --base "origin/${{ github.base_ref }}" \
-                    --head "HEAD" \
-                    --output "$RUNNER_TEMP/package-affected-wallet-sdk.out" \
-                    --cacheDir ".github/.cache/package-affected/wallet-sdk"
-
-            - name: Save package-affected cache (wallet-sdk)
-              uses: actions/cache/save@v5
-              with:
-                  path: .github/.cache/package-affected/wallet-sdk
-                  key: package-affected-pr-${{ github.event.pull_request.number }}-wallet-sdk-${{ github.event.pull_request.head.sha }}
+                  if [ "${{ needs.wallet-sdk-scripts-e2e.result }}" != "success" ]; then
+                    echo "wallet-sdk scripts e2e did not succeed"
+                    exit 1
+                  fi
+                  if [ "${{ needs.wallet-sdk-pkg.result }}" != "success" ]; then
+                    echo "wallet-sdk package validation did not succeed"
+                    exit 1
+                  fi
+                  echo "all wallet-sdk-e2e jobs passed"
 
     wallet-sdk-pkg:
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_wallet_sdk == 'true'
+        needs: [version-config, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v6
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
+              with:
+                  daml_release_version: ${{ needs.version-config.outputs.daml_release_version }}
 
             - name: Validate SDK package install
               run: yarn script:validate:package

@@ -50,8 +50,12 @@ export interface DfnsSignature {
     signature?: string
 }
 
+function stripHexPrefix(hex: string): string {
+    return hex.startsWith('0x') ? hex.slice(2) : hex
+}
+
 function hexToBase64(hex: string): string {
-    return Buffer.from(hex, 'hex').toString('base64')
+    return Buffer.from(stripHexPrefix(hex), 'hex').toString('base64')
 }
 
 function base64ToHex(base64: string): string {
@@ -66,6 +70,11 @@ export class DfnsHandler {
     private client: DfnsApiClient
     private orgId: string
     private baseUrl: string
+    // Tracks the key that produced each signature so getSignature can look it
+    // up directly. `listKeys` (used by `iterateKeys`) is eventually-consistent
+    // — a key created moments ago may not yet appear in the list, so iterating
+    // would 404 even though the signature exists under the just-used key.
+    private signatureKey = new Map<string, string>()
 
     constructor(orgId: string, baseUrl: string, credentials: DfnsCredentials) {
         this.orgId = orgId
@@ -190,40 +199,59 @@ export class DfnsHandler {
     }
 
     /**
-     * Submit a hash signing request to Dfns. Returns immediately with the
-     * signature id and current status; signature bytes are fetched via
-     * {@link getSignature} once the request reaches `signed` status.
+     * Sign a Canton hash (raw or multihash-framed) by handing the bytes to
+     * Dfns's `Message` kind, which signs the supplied hex with raw ed25519 —
+     * the same shape Fireblocks's `RAW` operation produces.
      *
-     * The hash is reused as the Dfns idempotency key — re-signing the same
-     * hash returns the existing signature rather than producing a duplicate,
-     * which is safe because Canton's command deduplication handles repeats
-     * at the ledger level.
-     *
-     * @param keyId   Dfns key id resolved from the gateway's key identifier.
-     * @param hashBase64  32-byte hash, base64-encoded (Canton TxHash format).
+     * `kind: 'Hash'` would be the natural fit but its regex caps at 32 bytes,
+     * forcing us to strip the multihash prefix; Canton then rejects the
+     * resulting signature because it verifies over the full 34-byte
+     * multihash, not the digest. Every Canton-tagged kind (Hash/Message/
+     * Transaction + `blockchainKind: 'Canton'`) is server-rejected, so we
+     * use plain `Message` (no `blockchainKind`) and pass the raw bytes.
      */
     public async signHash(
         keyId: string,
-        hashBase64: string
+        hashBase64: string,
+        externalId?: string
+    ): Promise<DfnsSignature> {
+        const messageHex = base64ToHex(hashBase64)
+        const body = {
+            kind: 'Message' as const,
+            message: messageHex,
+            ...(externalId ? { externalId } : {}),
+        }
+        return this.submitSignatureRequest(keyId, body)
+    }
+
+    private async submitSignatureRequest(
+        keyId: string,
+        body: Parameters<DfnsApiClient['keys']['generateSignature']>[0]['body']
     ): Promise<DfnsSignature> {
         try {
             const result = await this.client.keys.generateSignature({
                 keyId,
-                body: {
-                    kind: 'Hash',
-                    hash: base64ToHex(hashBase64),
-                    blockchainKind: 'Canton',
-                    externalId: base64ToHex(hashBase64),
-                },
+                body,
             })
+            const mapped = this.mapStatus(result.status)
+            if (mapped === 'failed' || mapped === 'rejected') {
+                logger.error(
+                    { keyId, result },
+                    `Dfns signing returned ${result.status}`
+                )
+            }
+            this.signatureKey.set(result.id, keyId)
             return {
                 id: result.id,
                 keyId,
-                status: this.mapStatus(result.status),
+                status: mapped,
                 signature: this.extractSignature(result.signature),
             }
         } catch (error) {
-            logger.error(error, 'Error signing hash with Dfns')
+            logger.error(
+                { keyId, err: error },
+                'Error generating Dfns signature'
+            )
             throw error
         }
     }
@@ -250,13 +278,21 @@ export class DfnsHandler {
     }
 
     /**
-     * Locate a signature across all Canton keys. Used when the gateway
-     * polls by signature id without knowing the originating key id.
+     * Locate a signature by id. Prefers the cached key from the originating
+     * sign call — `listKeys` is eventually-consistent, so iterating right
+     * after creating a key would miss the signature. Falls back to iteration
+     * when the cache misses (e.g. across a gateway restart).
      */
     public async findSignature(
         signatureId: string
     ): Promise<DfnsSignature | undefined> {
+        const cachedKeyId = this.signatureKey.get(signatureId)
+        if (cachedKeyId) {
+            const sig = await this.getSignature(cachedKeyId, signatureId)
+            if (sig) return sig
+        }
         for await (const key of this.iterateKeys()) {
+            if (key.id === cachedKeyId) continue
             const sig = await this.getSignature(key.id, signatureId)
             if (sig) return sig
         }
@@ -294,8 +330,11 @@ export class DfnsHandler {
     }): string | undefined {
         if (!signature) return undefined
         // For ed25519, `encoded` is the 64-byte r||s concat in hex; fall back
-        // to assembling it from r/s if `encoded` is not populated.
-        const hex = signature.encoded ?? `${signature.r}${signature.s}`
+        // to assembling it from r/s if `encoded` is not populated. Each field
+        // may carry an 0x prefix that must be stripped before hex decoding.
+        const hex = signature.encoded
+            ? stripHexPrefix(signature.encoded)
+            : `${stripHexPrefix(signature.r)}${stripHexPrefix(signature.s)}`
         return hexToBase64(hex)
     }
 

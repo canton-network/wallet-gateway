@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { OfflineSdkContext } from '../../../../../sdk.js'
+import { OfflineSDKContext } from '../../../../../sdk.js'
 import { Encoder } from './encoder.js'
 import { DamlTransaction } from '@canton-network/core-ledger-proto'
 import { PrimitiveEncoder } from './primitiveEncoder.js'
@@ -36,7 +36,7 @@ export class TransactionEncoder
     private readonly encodePrimitive: PrimitiveEncoder
     private readonly encodeCollection: CollectionEncoder
     private readonly encodeLedgerApiValue: LedgerApiValueEncoder
-    constructor(protected readonly ctx: OfflineSdkContext) {
+    constructor(protected readonly ctx: OfflineSDKContext) {
         super(ctx)
         this.encodePrimitive = new PrimitiveEncoder(ctx)
         this.encodeCollection = new CollectionEncoder(ctx)

@@ -216,7 +216,10 @@ export class LedgerClient {
 
         const match = supportedVersions.find((v) => version.startsWith(v))
         if (!match) {
-            throw new Error(`Unsupported version - found ${version}`)
+            this.logger.warn(
+                `Unknown support of version ${version} (defaulting to ${this.clientVersion}) please check if a newer version is available that support this version of canton.`
+            )
+            return this.clientVersion
         }
 
         return match

@@ -64,6 +64,8 @@ exports[`testing doc snippets > token.ts 1`] = `undefined`;
 
 exports[`testing doc snippets > token-extended.ts 1`] = `undefined`;
 
+exports[`testing doc snippets > transaction-update-by-id.ts 1`] = `undefined`;
+
 exports[`testing doc snippets > user.ts 1`] = `undefined`;
 
 exports[`testing doc snippets > withdraw-transfer-instruction.ts 1`] = `undefined`;

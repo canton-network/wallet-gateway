@@ -1,0 +1,44 @@
+name: 'Setup Canton (Artifacts)'
+description: 'Cache, download and optionally start Canton environment for artifact-based workflows'
+inputs:
+    network:
+        description: 'Network type: devnet or mainnet'
+        required: true
+    canton_version:
+        description: 'Canton version (required)'
+        required: true
+runs:
+    using: 'composite'
+    steps:
+        - name: Cache Canton binaries
+          uses: actions/cache/restore@v5
+          id: canton-cache
+          with:
+              path: .canton
+              key: ${{ runner.os }}-canton-${{ inputs.canton_version }}
+              fail-on-cache-miss: true
+
+        - name: Start Canton
+          shell: bash
+          run: |
+              set -e
+              timeout 5m bash -c '
+                LOGFILE=canton_start.log
+                yarn start:canton --network=${{ inputs.network }} > "$LOGFILE" 2>&1 &
+                pid=$!
+                for i in {1..60}; do
+                  if grep -q "Bootstrap script successfully executed." "$LOGFILE"; then
+                    echo "Canton started successfully."
+                    exit 0
+                  fi
+                  if ! kill -0 $pid 2>/dev/null; then
+                    echo "Canton process exited unexpectedly."
+                    cat "$LOGFILE"
+                    exit 1
+                  fi
+                  sleep 5
+                done
+                echo "Timeout: '"'"'Bootstrap script successfully executed.'"'"' not found in 5 minutes."
+                cat "$LOGFILE"
+                exit 1
+              '

@@ -1,7 +1,7 @@
 {
     "openrpc": "1.2.6",
     "info": {
-        "title": "Splice Wallet JSON-RPC Remote dApp API",
+        "title": "Wallet JSON-RPC Remote dApp API",
         "version": "0.1.0",
         "description": "An OpenRPC specification for remotely hosted Wallet Providers. Due to the remote nature, an implementing provider must bridge certain functionality on the client-side to satisfy the general dApp API spec."
     },
@@ -93,6 +93,7 @@
             "params": [
                 {
                     "name": "params",
+                    "required": true,
                     "schema": {
                         "title": "signMessageParams",
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageRequest"
@@ -102,10 +103,21 @@
             "result": {
                 "name": "result",
                 "schema": {
-                    "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageResult"
+                    "title": "signMessageResult",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "messageId": {
+                            "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageId"
+                        },
+                        "userUrl": {
+                            "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/UserUrl"
+                        }
+                    },
+                    "required": ["messageId", "userUrl"]
                 }
             },
-            "description": "Signs a message."
+            "description": "Requests a message signature. The wallet will prompt the user for confirmation."
         },
         {
             "name": "ledgerApi",
@@ -185,6 +197,16 @@
                 "name": "result",
                 "schema": {
                     "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/TxChangedEvent"
+                }
+            }
+        },
+        {
+            "name": "messageSignature",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignatureEvent"
                 }
             }
         }

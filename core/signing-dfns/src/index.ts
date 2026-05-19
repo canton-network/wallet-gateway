@@ -6,6 +6,7 @@ import {
     PartyMode,
     SigningDriverInterface,
     SigningProvider,
+    SignMessageResult,
 } from '@canton-network/core-signing-lib'
 
 import {
@@ -113,7 +114,11 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                         }
                     }
 
-                    const sig = await this.dfns.signHash(keyId, params.txHash)
+                    const sig = await this.dfns.signHash(
+                        keyId,
+                        params.txHash,
+                        params.internalTxId
+                    )
 
                     return toTransaction(sig, params.keyIdentifier.publicKey)
                 } catch (error) {
@@ -267,6 +272,9 @@ export default class DfnsSigningDriver implements SigningDriverInterface {
                 _params: SubscribeTransactionsParams
             ): Promise<SubscribeTransactionsResult> => {
                 return Promise.resolve({} as SubscribeTransactionsResult)
+            },
+            signMessage: function (): Promise<SignMessageResult> {
+                throw new Error('Function not implemented.')
             },
         })
 }

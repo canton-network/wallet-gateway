@@ -112,6 +112,7 @@
             "params": [
                 {
                     "name": "params",
+                    "required": true,
                     "schema": {
                         "title": "signMessageParams",
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/SignMessageRequest"
@@ -184,6 +185,16 @@
                 "name": "result",
                 "schema": {
                     "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/TxChangedEvent"
+                }
+            }
+        },
+        {
+            "name": "messageSignature",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignatureEvent"
                 }
             }
         }
@@ -481,6 +492,11 @@
                 "type": "string",
                 "description": "The unique identifier of the command associated with the transaction."
             },
+            "MessageId": {
+                "title": "MessageId",
+                "type": "string",
+                "description": "The unique identifier of the message associated with the message to be signed."
+            },
             "TxChangedPendingEvent": {
                 "title": "TxChangedPendingEvent",
                 "description": "Event emitted when a transaction is pending.",
@@ -616,6 +632,80 @@
                     },
                     {
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/TxChangedFailedEvent"
+                    }
+                ]
+            },
+            "MessageSignaturePendingEvent": {
+                "title": "MessageSignaturePendingEvent",
+                "description": "Event emitted when a message signature is requested.",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "status": {
+                        "title": "statusPending",
+                        "type": "string",
+                        "enum": ["pending"],
+                        "description": "The status of the message signature."
+                    },
+                    "messageId": {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageId"
+                    }
+                },
+                "required": ["status", "messageId"]
+            },
+            "MessageSignatureSignedEvent": {
+                "title": "MessageSignatureSignedEvent",
+                "description": "Event emitted when a message signature is completed.",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "status": {
+                        "title": "statusSigned",
+                        "type": "string",
+                        "enum": ["signed"],
+                        "description": "The status of the message signature."
+                    },
+                    "messageId": {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageId"
+                    },
+                    "signature": {
+                        "title": "signature",
+                        "type": "string",
+                        "description": "The signature of the message."
+                    }
+                },
+                "required": ["status", "messageId", "signature"]
+            },
+            "MessageSignatureFailedEvent": {
+                "title": "MessageSignatureFailedEvent",
+                "description": "Event emitted when a message signature has failed.",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "status": {
+                        "title": "statusFailed",
+                        "type": "string",
+                        "enum": ["failed"],
+                        "description": "The status of the message signature."
+                    },
+                    "messageId": {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageId"
+                    }
+                },
+                "required": ["status", "messageId"]
+            },
+            "MessageSignatureEvent": {
+                "title": "MessageSignatureEvent",
+                "description": "Event emitted when a message signature is requested or completed.",
+                "oneOf": [
+                    {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignaturePendingEvent"
+                    },
+                    {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignatureSignedEvent"
+                    },
+                    {
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/MessageSignatureFailedEvent"
                     }
                 ]
             },

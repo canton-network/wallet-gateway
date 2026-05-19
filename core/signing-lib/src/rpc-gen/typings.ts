@@ -61,6 +61,12 @@ export type InternalTxId = string
 type AlwaysTrue = any
 /**
  *
+ * Arbitrary UTF-8 message to sign.
+ *
+ */
+export type Message = string
+/**
+ *
  * Unique identifier of the signed transaction given by the Signing Provider. This may not be the same as the internal txId given by the Wallet Gateway.
  *
  */
@@ -126,6 +132,9 @@ export interface Transaction {
     publicKey?: PublicKey
     metadata?: Metadata
 }
+export interface SignatureResult {
+    signature: Signature
+}
 /**
  *
  * List of transactions matching the provided filters
@@ -156,6 +165,10 @@ export interface SignTransactionParams {
     internalTxId?: InternalTxId
     [k: string]: any
 }
+export interface SignMessageParams {
+    message: Message
+    keyIdentifier?: KeyIdentifier
+}
 export interface GetTransactionParams {
     txId: TxId
     [k: string]: any
@@ -181,6 +194,7 @@ export interface SubscribeTransactionsParams {
     txIds: TxIds
 }
 export type SignTransactionResult = Error | Transaction
+export type SignMessageResult = Error | SignatureResult
 export type GetTransactionResult = Error | Transaction
 export type GetTransactionsResult = Error | TransactionsResult
 export type GetKeysResult = Error | Keys
@@ -207,6 +221,9 @@ export interface SubscribeTransactionsResult {
 export type SignTransaction = (
     params: SignTransactionParams
 ) => Promise<SignTransactionResult>
+export type SignMessage = (
+    params: SignMessageParams
+) => Promise<SignMessageResult>
 export type GetTransaction = (
     params: GetTransactionParams
 ) => Promise<GetTransactionResult>

@@ -1,7 +1,7 @@
 {
     "openrpc": "1.2.6",
     "info": {
-        "title": "Splice Wallet JSON-RPC User API",
+        "title": "Wallet JSON-RPC User API",
         "version": "0.1.0",
         "description": "An OpenRPC specification for the user to interact with the Wallet Gateway."
     },
@@ -527,6 +527,134 @@
                 }
             },
             "description": "Signs the provided data with the private key of the specified or active party."
+        },
+        {
+            "name": "signMessage",
+            "params": [
+                {
+                    "name": "params",
+                    "schema": {
+                        "title": "SignMessageParams",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "messageId": {
+                                "$ref": "#/components/schemas/MessageId"
+                            },
+                            "partyId": {
+                                "title": "partyId",
+                                "type": "string",
+                                "description": "Party that should sign the message. If omitted, the primary wallet is used."
+                            }
+                        },
+                        "required": ["messageId"]
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "title": "SignMessageResult",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "signature": {
+                            "title": "signature",
+                            "type": "string",
+                            "description": "Base64-encoded Ed25519 signature over the message."
+                        },
+                        "publicKey": {
+                            "title": "publicKey",
+                            "type": "string",
+                            "description": "Base64-encoded Ed25519 public key of the wallet that produced the signature."
+                        }
+                    },
+                    "required": ["signature", "publicKey"]
+                }
+            },
+            "description": "Signs an arbitrary UTF-8 message with the wallet's private key (Ed25519). The message bytes are signed as-is; callers are expected to embed any application-level domain separation (e.g. EIP-4361 / SIWX text) in the message itself. Only supported for WALLET_KERNEL wallets."
+        },
+        {
+            "name": "getMessageToSign",
+            "params": [
+                {
+                    "name": "params",
+                    "schema": {
+                        "title": "GetMessageToSignParams",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "messageId": {
+                                "$ref": "#/components/schemas/MessageId"
+                            }
+                        },
+                        "required": ["messageId"]
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "title": "GetMessageToSignResult",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "message": {
+                            "$ref": "#/components/schemas/MessageRaw"
+                        }
+                    },
+                    "required": ["message"]
+                }
+            },
+            "description": "Gets a pending message signing request."
+        },
+        {
+            "name": "listMessagesToSign",
+            "params": [],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "title": "ListMessagesToSignResult",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "messages": {
+                            "title": "messages",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/MessageRaw"
+                            }
+                        }
+                    },
+                    "required": ["messages"]
+                }
+            }
+        },
+        {
+            "name": "deleteMessageToSign",
+            "params": [
+                {
+                    "name": "params",
+                    "schema": {
+                        "title": "DeleteMessageToSignParams",
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                            "messageId": {
+                                "$ref": "#/components/schemas/MessageId"
+                            }
+                        },
+                        "required": ["messageId"]
+                    }
+                }
+            ],
+            "result": {
+                "name": "result",
+                "schema": {
+                    "$ref": "#/components/schemas/Null"
+                }
+            },
+            "description": "Rejects a pending message signing request."
         },
         {
             "name": "execute",
@@ -1127,6 +1255,73 @@
                     "preparedTransaction",
                     "preparedTransactionHash"
                 ]
+            },
+            "MessageRaw": {
+                "title": "MessageRaw",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "id": {
+                        "$ref": "#/components/schemas/MessageId"
+                    },
+                    "status": {
+                        "title": "status",
+                        "type": "string",
+                        "enum": ["pending", "signed", "failed"]
+                    },
+                    "partyId": {
+                        "title": "partyId",
+                        "type": "string",
+                        "description": "The party id of the wallet to be removed."
+                    },
+                    "publicKey": {
+                        "title": "publicKey",
+                        "type": "string",
+                        "description": "The public key of the party."
+                    },
+                    "message": {
+                        "title": "message",
+                        "type": "string",
+                        "description": "The message to sign."
+                    },
+                    "origin": {
+                        "title": "origin",
+                        "type": "string",
+                        "description": "The origin of the message."
+                    },
+                    "createdAt": {
+                        "title": "createdAt",
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The timestamp when the message was created."
+                    },
+                    "signedAt": {
+                        "title": "signedAt",
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "The timestamp when the message was signed."
+                    },
+                    "signature": {
+                        "title": "signature",
+                        "type": "string",
+                        "description": "The signature of the message."
+                    }
+                },
+                "required": [
+                    "id",
+                    "status",
+                    "userId",
+                    "partyId",
+                    "publicKey",
+                    "message",
+                    "createdAt"
+                ]
+            },
+            "MessageId": {
+                "title": "MessageId",
+                "type": "string",
+                "format": "uuid",
+                "description": "The internal identifier of the pending message-signing request."
             }
         }
     }

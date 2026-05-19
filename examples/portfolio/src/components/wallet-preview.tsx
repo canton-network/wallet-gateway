@@ -71,12 +71,12 @@ export const WalletPreview: React.FC<WalletPreviewProps> = ({
                 >
                     <Typography
                         sx={{
+                            fontWeight: 'bold',
                             textOverflow: 'ellipsis',
                             overflow: 'hidden',
                             whiteSpace: 'nowrap',
                             maxWidth: '200px',
                         }}
-                        fontWeight="bold"
                         color="secondary"
                     >
                         {walletName}
@@ -126,8 +126,8 @@ const InstrumentRow: React.FC<InstrumentRowProps> = ({ item }) => {
     return (
         <Box
             data-testid={`instrument-row-${symbol}`}
-            borderRadius={0}
             sx={{
+                borderRadius: 0,
                 '&:not(:first-of-type)': {
                     borderTop: (theme) => `1px solid ${theme.palette.divider}`,
                 },
@@ -153,7 +153,7 @@ const InstrumentRow: React.FC<InstrumentRowProps> = ({ item }) => {
                 <Typography
                     data-testid="instrument-total-amount"
                     variant="body2"
-                    fontWeight="700"
+                    sx={{ fontWeight: '700' }}
                 >
                     {item.totalAmount} {symbol}
                     {hasLockedAmount && (

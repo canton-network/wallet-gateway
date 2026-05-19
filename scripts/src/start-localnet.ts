@@ -8,7 +8,6 @@ import { getRepoRoot, getNetworkArg, SUPPORTED_VERSIONS } from './lib/utils.js'
 
 const args = process.argv.slice(2)
 const command = args[0]
-
 const rootDir = getRepoRoot()
 const LOCALNET_DIR = path.join(rootDir, '.localnet/docker-compose/localnet')
 const GENERATED_COMPOSE_OVERRIDE = path.join(
@@ -74,7 +73,12 @@ const env = { ...process.env, IMAGE_TAG: spliceVersion }
 
 ensureComposeOverride()
 
-if (command === 'start') {
+if (command === 'pull') {
+    execFileSync(composeBase[0], [...composeBase.slice(1), 'pull'], {
+        stdio: 'inherit',
+        env,
+    })
+} else if (command === 'start') {
     execFileSync(composeBase[0], [...composeBase.slice(1), 'up', '-d'], {
         stdio: 'inherit',
         env,
@@ -85,6 +89,6 @@ if (command === 'start') {
         env,
     })
 } else {
-    console.error('Usage: start-localnet.ts <start|stop>')
+    console.error('Usage: start-localnet.ts <start|stop|pull>')
     process.exit(1)
 }

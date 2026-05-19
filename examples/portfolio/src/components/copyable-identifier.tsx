@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
-import { Box, IconButton, Tooltip, Typography } from '@mui/material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import CheckIcon from '@mui/icons-material/Check'
+import React from 'react'
+import { Box, Typography } from '@mui/material'
+import { CopyIconButton } from './ui/CopyIconButton'
 
 interface CopyableIdentifierProps {
     value: string
@@ -12,18 +11,6 @@ export const CopyableIdentifier: React.FC<CopyableIdentifierProps> = ({
     value,
     maxLength = 8,
 }) => {
-    const [copied, setCopied] = useState(false)
-
-    const handleCopy = async () => {
-        try {
-            await navigator.clipboard.writeText(value)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-        } catch (err) {
-            console.error('Failed to copy:', err)
-        }
-    }
-
     const truncate = (str: string, len: number) => {
         if (str.length <= len) {
             return str
@@ -52,15 +39,7 @@ export const CopyableIdentifier: React.FC<CopyableIdentifierProps> = ({
             <Typography variant="body2" component="span">
                 {displayValue}
             </Typography>
-            <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'}>
-                <IconButton size="small" onClick={handleCopy} sx={{ p: 0.5 }}>
-                    {copied ? (
-                        <CheckIcon fontSize="small" />
-                    ) : (
-                        <ContentCopyIcon fontSize="small" />
-                    )}
-                </IconButton>
-            </Tooltip>
+            <CopyIconButton value={value} sx={{ p: 0.5 }} />
         </Box>
     )
 }
