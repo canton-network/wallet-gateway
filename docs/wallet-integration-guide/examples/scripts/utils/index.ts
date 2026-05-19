@@ -1,5 +1,6 @@
 import { JSContractEntry } from '@canton-network/core-ledger-client'
 import {
+    TokenConfigExtended,
     TokenProviderConfig,
     localNetStaticConfig,
 } from '@canton-network/wallet-sdk'
@@ -26,6 +27,11 @@ export const TOKEN_PROVIDER_CONFIG_DEFAULT: TokenProviderConfig = {
     },
 }
 export const TOKEN_NAMESPACE_CONFIG: TokenConfig = {
+    registries: [localNetStaticConfig.LOCALNET_REGISTRY_API_URL],
+    auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
+}
+
+export const TOKEN_NAMESPACE_CONFIG_EXTENDED: TokenConfigExtended = {
     validatorUrl: localNetStaticConfig.LOCALNET_APP_VALIDATOR_URL,
     registries: [localNetStaticConfig.LOCALNET_REGISTRY_API_URL],
     auth: TOKEN_PROVIDER_CONFIG_DEFAULT,

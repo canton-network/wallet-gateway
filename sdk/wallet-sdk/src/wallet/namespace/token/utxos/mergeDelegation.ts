@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { TokenNamespaceConfig } from '../../../sdk.js'
+import { TokenNamespaceConfigExtended } from '../../../sdk.js'
 import { Metadata } from '@canton-network/core-token-standard'
 import {
     DisclosedContract,
@@ -11,13 +11,13 @@ import { Holding, PrettyContract } from '@canton-network/core-tx-parser'
 import { WrappedCommand } from '../../ledger/types.js'
 import { PartyId } from '@canton-network/core-types'
 import { LedgerNamespace } from '../../ledger/index.js'
-import { UtxoNamespace } from './index.js'
+import { UtxoNamespaceExtended } from './index.js'
 
 export class MergeDelegationNamespace {
     private readonly ledger: LedgerNamespace
     constructor(
-        private readonly ctx: TokenNamespaceConfig,
-        private readonly utxoService: UtxoNamespace
+        private readonly ctx: TokenNamespaceConfigExtended,
+        private readonly utxoService: UtxoNamespaceExtended
     ) {
         this.ledger = new LedgerNamespace(ctx.commonCtx)
     }

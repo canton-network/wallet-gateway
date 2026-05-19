@@ -9,13 +9,18 @@ import { PartyNamespace } from '../../namespace/party/index.js'
 import { UserNamespace } from '../../namespace/user/index.js'
 import { SDKUtilsNamespace } from '../../namespace/utils/index.js'
 import { AmuletNamespace } from '../../namespace/amulet/namespace.js'
-import { AssetNamespace, TokenNamespace } from '../../sdk.js'
+import {
+    AssetNamespace,
+    TokenNamespace,
+    TokenNamespaceExtended,
+} from '../../sdk.js'
 import { EventsNamespace } from '../../namespace/events/namespace.js'
 import {
     AmuletConfig,
     AssetConfig,
     EventsConfig,
     TokenConfig,
+    TokenConfigExtended,
 } from './config.js'
 import { Provider } from '@canton-network/core-splice-provider'
 import { LedgerTypes } from '@canton-network/core-ledger-client-types'
@@ -56,7 +61,7 @@ export type ExtendedSDKOptions = EnforceKeys<
     (typeof EXTENDED_SDK_OPTION_KEYS)[number],
     Readonly<{
         amulet: AmuletConfig
-        token: TokenConfig
+        token: TokenConfig | TokenConfigExtended
         asset: AssetConfig
         events: EventsConfig
     }>
@@ -91,7 +96,7 @@ export type BasicSDKInterface<
 
 export type ExtendedFullSDKInterface = Readonly<{
     amulet: AmuletNamespace
-    token: TokenNamespace
+    token: TokenNamespace | TokenNamespaceExtended
     asset: AssetNamespace
     events: EventsNamespace
 }>

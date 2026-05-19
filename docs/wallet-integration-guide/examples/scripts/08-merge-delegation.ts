@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 import { existsSync } from 'fs'
 import { readFile } from 'fs/promises'
 import {
-    TOKEN_NAMESPACE_CONFIG,
+    TOKEN_NAMESPACE_CONFIG_EXTENDED,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     AMULET_NAMESPACE_CONFIG,
 } from './utils/index.js'
@@ -32,7 +32,7 @@ if (!existsSync(spliceUtilTokenStandardWalletDarPath)) {
 const sdk = await SDK.create({
     auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
     ledgerClientUrl: localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL,
-    token: TOKEN_NAMESPACE_CONFIG,
+    token: TOKEN_NAMESPACE_CONFIG_EXTENDED,
     amulet: AMULET_NAMESPACE_CONFIG,
 })
 

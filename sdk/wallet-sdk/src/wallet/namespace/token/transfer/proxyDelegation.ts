@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { PartyId } from '@canton-network/core-types'
-import { TokenNamespaceConfig } from '../../../sdk.js'
+import { TokenNamespaceConfigExtended } from '../../../sdk.js'
 import {
     Beneficiaries,
     FEATURED_APP_DELEGATE_PROXY_INTERFACE_ID,
@@ -44,7 +44,7 @@ type ProxyDelegationCommands = {
 
 export class ProxyDelegationNamespace {
     private readonly ledger: LedgerNamespace
-    constructor(private readonly ctx: TokenNamespaceConfig) {
+    constructor(private readonly ctx: TokenNamespaceConfigExtended) {
         this.ledger = new LedgerNamespace(ctx.commonCtx)
     }
 

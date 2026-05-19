@@ -1,7 +1,10 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { TokenNamespaceConfig } from '../namespace.js'
+import {
+    TokenNamespaceConfig,
+    TokenNamespaceConfigExtended,
+} from '../namespace.js'
 import { PartyId } from '@canton-network/core-types'
 import {
     TRANSFER_INSTRUCTION_INTERFACE_ID,
@@ -13,10 +16,7 @@ import { ProxyDelegationNamespace } from './proxyDelegation.js'
 import { findAsset } from '../../asset/index.js'
 
 export class TransferNamespace {
-    public readonly delegatedProxy: ProxyDelegationNamespace
-    constructor(private readonly sdkContext: TokenNamespaceConfig) {
-        this.delegatedProxy = new ProxyDelegationNamespace(sdkContext)
-    }
+    constructor(protected readonly sdkContext: TokenNamespaceConfig) {}
 
     async pending(partyId: PartyId) {
         return await this.sdkContext.tokenStandardService.listContractsByInterface<TransferInstructionView>(
@@ -93,5 +93,13 @@ export class TransferNamespace {
             )
 
         return [{ ExerciseCommand: transferCommand }, disclosedContracts]
+    }
+}
+
+export class TransferNameSpaceExtended extends TransferNamespace {
+    public readonly delegatedProxy: ProxyDelegationNamespace
+    constructor(protected readonly sdkContext: TokenNamespaceConfigExtended) {
+        super(sdkContext)
+        this.delegatedProxy = new ProxyDelegationNamespace(sdkContext)
     }
 }

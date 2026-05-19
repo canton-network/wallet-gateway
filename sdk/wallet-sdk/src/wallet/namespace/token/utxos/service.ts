@@ -6,18 +6,23 @@ import { HOLDING_INTERFACE_ID } from '@canton-network/core-token-standard'
 import { TokenStandardService } from '@canton-network/core-token-standard-service'
 import { Holding, PrettyContract } from '@canton-network/core-tx-parser'
 import { WrappedCommand } from '../../ledger/types.js'
-import { findAsset, LedgerTypes, TokenNamespaceConfig } from '../../../sdk.js'
+import {
+    findAsset,
+    LedgerTypes,
+    TokenNamespaceConfig,
+    TokenNamespaceConfigExtended,
+} from '../../../sdk.js'
 import { Decimal } from 'decimal.js'
 import { TransferNamespace } from '../transfer/index.js'
 import { MergeDelegationNamespace } from './mergeDelegation.js'
 
 export class UtxoNamespace {
-    public readonly delegatedMerge: MergeDelegationNamespace
+    // public readonly delegatedMerge: MergeDelegationNamespace
     constructor(
-        private readonly sdkContext: TokenNamespaceConfig,
-        private readonly transfer: TransferNamespace // Type this as your Transfer service
+        protected readonly sdkContext: TokenNamespaceConfig,
+        protected readonly transfer: TransferNamespace // Type this as your Transfer service
     ) {
-        this.delegatedMerge = new MergeDelegationNamespace(sdkContext, this)
+        // this.delegatedMerge = new MergeDelegationNamespace(sdkContext, this)
     }
 
     /**
@@ -156,5 +161,16 @@ export class UtxoNamespace {
               )
 
         return filteredUtxos
+    }
+}
+
+export class UtxoNamespaceExtended extends UtxoNamespace {
+    public readonly delegatedMerge: MergeDelegationNamespace
+    constructor(
+        protected readonly sdkContext: TokenNamespaceConfigExtended,
+        protected readonly transfer: TransferNamespace // Type this as your Transfer service
+    ) {
+        super(sdkContext, transfer)
+        this.delegatedMerge = new MergeDelegationNamespace(sdkContext, this)
     }
 }
