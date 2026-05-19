@@ -13,6 +13,7 @@ import {
 } from '@canton-network/core-wallet-ui-components'
 import { SigningProvider } from '@canton-network/core-signing-lib'
 import { createUserClient } from '../../rpc-client'
+import { setLocationHref } from '../../navigation.js'
 import { stateManager } from '../../state-manager'
 import '../../index'
 import { WALLET_CREATION_STATUS_CODE } from '../index'
@@ -65,7 +66,7 @@ export class UserUiAddParty extends BaseElement {
     }
 
     private navigateBack() {
-        window.location.href = toRelHref('/parties')
+        setLocationHref(toRelHref('/parties'))
     }
 
     private async onCreateParty(event: WalletCreateEvent) {
@@ -93,7 +94,9 @@ export class UserUiAddParty extends BaseElement {
 
             const createPartyStatus = statusMap[result.wallet.status]
 
-            window.location.href = `${toRelPath('/parties/')}?createPartyStatus=${createPartyStatus}`
+            setLocationHref(
+                `${toRelPath('/parties/')}?createPartyStatus=${createPartyStatus}`
+            )
         } catch (error) {
             this.loading = false
             handleErrorToast(error)

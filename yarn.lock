@@ -2453,10 +2453,12 @@ __metadata:
     "@canton-network/core-wallet-ui-components": "workspace:^"
     "@canton-network/core-wallet-user-rpc-client": "workspace:^"
     "@commander-js/extra-typings": "npm:^14.0.0"
+    "@open-wc/testing-helpers": "npm:^3.0.1"
     "@types/cors": "npm:^2.8.19"
     "@types/express": "npm:^5.0.6"
     "@types/node": "npm:^25.3.3"
     "@types/supertest": "npm:^7.2.0"
+    "@vitest/browser-playwright": "npm:^4.1.2"
     "@vitest/coverage-v8": "npm:^4.1.2"
     commander: "npm:^14.0.3"
     cors: "npm:^2.8.6"
@@ -2469,6 +2471,7 @@ __metadata:
     pino: "npm:^10.3.1"
     pino-pretty: "npm:^13.1.3"
     pino-test: "npm:^1.1.0"
+    playwright: "npm:^1.58.2"
     supertest: "npm:^7.2.2"
     tsx: "npm:^4.21.0"
     typescript: "npm:^5.9.3"
@@ -6242,6 +6245,34 @@ __metadata:
   bin:
     open-rpc-typings: build/cli.js
   checksum: 10c0/50aa976c66557668d71754e0a173843a2a71444ad370a0ee58d0485eda5e44a241c00cdfc23823c08ed54bb9c09846212d4a2a6c355ec8582b7ac5e69e7817cb
+  languageName: node
+  linkType: hard
+
+"@open-wc/dedupe-mixin@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "@open-wc/dedupe-mixin@npm:2.0.1"
+  checksum: 10c0/ce287636ce54ebd217063521d45d1716a3646af6fdd487b3e6f2304f27394f643a14db0c57a4e107588738e9bd0ee7a2782ed7b6405e30eaf59c32e4f1a9c225
+  languageName: node
+  linkType: hard
+
+"@open-wc/scoped-elements@npm:^3.0.2":
+  version: 3.0.6
+  resolution: "@open-wc/scoped-elements@npm:3.0.6"
+  dependencies:
+    "@open-wc/dedupe-mixin": "npm:^2.0.0"
+    lit: "npm:^3.0.0"
+  checksum: 10c0/fc30e953503478af19b9e2ad0525cda71bc2e17ae751f3c9ebd7d56d1d76d9302a27f30bc3d06be4393c1c728e4f17808f2f42b2686561b6cf27fac6ab43a3f9
+  languageName: node
+  linkType: hard
+
+"@open-wc/testing-helpers@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "@open-wc/testing-helpers@npm:3.0.1"
+  dependencies:
+    "@open-wc/scoped-elements": "npm:^3.0.2"
+    lit: "npm:^2.0.0 || ^3.0.0"
+    lit-html: "npm:^2.0.0 || ^3.0.0"
+  checksum: 10c0/84da7ca3ee338508d3cddba9de7f9c136c1c912244837853bd3ae34912844b26e582aad7d6c5e8c3b10470dee9659b88fcb12b82cd9955ab630148c777ac71b5
   languageName: node
   linkType: hard
 
@@ -16280,12 +16311,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lit-html@npm:^2.0.0 || ^3.0.0":
+  version: 3.3.3
+  resolution: "lit-html@npm:3.3.3"
+  dependencies:
+    "@types/trusted-types": "npm:^2.0.2"
+  checksum: 10c0/84e57314412ff385cc67fc482d26b77057370e2cfe3c6495cc45f692bdad840d5ed0519ddddcfae1d043bb098c66daa7e807593d5a21ac72094da14274497879
+  languageName: node
+  linkType: hard
+
 "lit-html@npm:^3.3.0":
   version: 3.3.2
   resolution: "lit-html@npm:3.3.2"
   dependencies:
     "@types/trusted-types": "npm:^2.0.2"
   checksum: 10c0/0a6763875acd03dfc5d4483ea74ca4bfe5d71a90b05bfc484e8201721c8603db982760fd27566a69a834f21d34437f7c390e21cd4c6bff149ca7e3a46d3b217a
+  languageName: node
+  linkType: hard
+
+"lit@npm:^2.0.0 || ^3.0.0, lit@npm:^3.0.0":
+  version: 3.3.3
+  resolution: "lit@npm:3.3.3"
+  dependencies:
+    "@lit/reactive-element": "npm:^2.1.0"
+    lit-element: "npm:^4.2.0"
+    lit-html: "npm:^3.3.0"
+  checksum: 10c0/11b6175ebffce92f4cf835ddd8a198d49707c27f34b0a7c538d2cb294f6c2fb7ff40aabd3589fcf0c2ed162404faaf2bb7c966fad9024bb9e02d013e2d5aa0b5
   languageName: node
   linkType: hard
 
