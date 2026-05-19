@@ -194,14 +194,24 @@ export async function createTokenRulesAndMintForBob(
         .sign(tokenAdmin.keyPair.privateKey)
         .execute({ partyId: tokenAdmin.partyId })
 
-    const transferOffers = await p2Sdk.ledger.acs.read({
-        templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
-        parties: [bob.partyId],
-        filterByParty: true,
-    })
-    const transferOfferCid = transferOffers[0]?.contractId
+    // Cross-participant propagation from P3 → P2 is async: P3's execute() returns once
+    // the transaction is committed on P3's participant, but the resulting TokenTransferOffer
+    // event must still be delivered to P2's participant before it appears on P2's ACS.
+    // Poll until the contract is visible or a 30-second deadline is exceeded.
+    let transferOfferCid: string | undefined
+    const deadline = Date.now() + 30_000
+    while (!transferOfferCid && Date.now() < deadline) {
+        const transferOffers = await p2Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
+            parties: [bob.partyId],
+            filterByParty: true,
+        })
+        transferOfferCid = transferOffers[0]?.contractId
+        if (!transferOfferCid)
+            await new Promise((res) => setTimeout(res, 2_000))
+    }
     if (!transferOfferCid)
-        throw new Error('TokenTransferOffer not found for Bob')
+        throw new Error('TokenTransferOffer not found for Bob after 30s')
 
     const [acceptCommand, acceptDisclosed] =
         await tokenNamespaceP2.transfer.accept({
