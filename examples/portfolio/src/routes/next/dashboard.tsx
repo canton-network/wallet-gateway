@@ -13,6 +13,7 @@ import {
 import {
     createFileRoute,
     Link,
+    Navigate,
     Outlet,
     useLocation,
     useMatchRoute,
@@ -32,7 +33,7 @@ export const Route = createFileRoute('/next/dashboard')({
 
 function RouteComponent() {
     const accounts = useAccounts()
-    const { open, disconnect } = useConnection()
+    const { initialized, status, open, disconnect } = useConnection()
     const pathname = useLocation({ select: (location) => location.pathname })
     const matchRoute = useMatchRoute()
     const wallets = useMemo(
@@ -45,6 +46,14 @@ function RouteComponent() {
             ),
         [accounts]
     )
+
+    if (!initialized) {
+        return null
+    }
+
+    if (!status?.connection?.isConnected) {
+        return <Navigate to="/next/connect" replace />
+    }
 
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh' }}>
