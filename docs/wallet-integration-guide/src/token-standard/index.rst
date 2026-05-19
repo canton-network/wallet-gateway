@@ -244,3 +244,13 @@ If you have accidentally created a transfer preapproval that you dont want to ke
             partyId: myPartyId,
         })
 
+
+How do I fetch transaction by updateId? 
+----------------------------------------
+
+Given an update Id, the token namespace has a method for getting a transaction based on the updateId.
+This will print out the transaction in the same format as `sdk.token.holdings`
+
+.. literalinclude:: ../../examples/snippets/transaction-update-by-id.ts
+    :language: typescript
+    :dedent:

@@ -1,12 +1,12 @@
-import '../App.css'
-import { HoldingsTab } from '../oldcomponents/HoldingsTab'
-import { RegistriesTab } from '../oldcomponents/RegistriesTab'
-import { PendingTransfersTab } from '../oldcomponents/PendingTransfersTab'
-import { TwoStepTransferTab } from '../oldcomponents/TwoStepTransferTab'
-import { TransactionHistoryTab } from '../oldcomponents/TransactionHistoryTab'
-import { ConnectionCard } from '../oldcomponents/ConnectionCard'
-import { AllocationsTab } from '../oldcomponents/AllocationsTab'
-import { Tabs } from '../oldcomponents/Tabs'
+import '../../App.css'
+import { HoldingsTab } from '../../oldcomponents/HoldingsTab'
+import { RegistriesTab } from '../../oldcomponents/RegistriesTab'
+import { PendingTransfersTab } from '../../oldcomponents/PendingTransfersTab'
+import { TwoStepTransferTab } from '../../oldcomponents/TwoStepTransferTab'
+import { TransactionHistoryTab } from '../../oldcomponents/TransactionHistoryTab'
+import { ConnectionCard } from '../../oldcomponents/ConnectionCard'
+import { AllocationsTab } from '../../oldcomponents/AllocationsTab'
+import { Tabs } from '../../oldcomponents/Tabs'
 
 export function OldApp() {
     return (

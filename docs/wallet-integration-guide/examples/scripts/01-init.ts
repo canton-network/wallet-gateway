@@ -121,7 +121,7 @@ const [amuletTapCommand, amuletTapDisclosedContracts] = await sdk.amulet.tap(
     '10000'
 )
 
-await sdk.ledger
+const result = await sdk.ledger
     .prepare({
         partyId: sender.partyId,
         commands: amuletTapCommand,
@@ -132,6 +132,24 @@ await sdk.ledger
 
 const senderUtxos = await sdk.token.utxos.list({ partyId: sender.partyId })
 
+const tapTransaction = await sdk.token.transactionsById({
+    updateId: result.updateId,
+    partyId: sender.partyId,
+})
+
+const mintEvent = tapTransaction.events.find(
+    (tokenStandardEvent) =>
+        tokenStandardEvent.label.type === 'Mint' &&
+        tokenStandardEvent.unlockedHoldingsChange.creates.find(
+            (h) => h.amount === '10000.0000000000'
+        )
+)
+
+if (mintEvent) {
+    logger.info('Found token standard event with type Mint')
+} else {
+    throw new Error(`Couldn't find tap transaction by updateId`)
+}
 const senderAmuletUtxos = senderUtxos.filter((utxo) => {
     return (
         utxo.interfaceViewValue.amount === '10000.0000000000' &&

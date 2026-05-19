@@ -161,6 +161,21 @@ You can also specify offsets for pagination:
        beforeOffset: 100,
    })
 
+Transactions by updateId:
+
+.. before-after::
+
+   .. code-block:: javascript
+
+        await sdk.setPartyId(partyId)
+        const tx = await sdk.tokenStandard.getTransactionById('my-update-id')
+
+   ---
+
+   .. code-block:: javascript
+
+      const tx = await sdk.token.transactionsById({ updateId, partyId })
+
 UTXOs
 -----
 

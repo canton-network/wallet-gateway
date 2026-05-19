@@ -4,6 +4,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { WalletDetailPage } from './wallet.$walletId.component'
 
-export const Route = createFileRoute('/wallet/$walletId')({
+export const Route = createFileRoute('/_legacy/wallet/$walletId')({
     component: WalletDetailPage,
 })

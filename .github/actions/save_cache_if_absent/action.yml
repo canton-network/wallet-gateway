@@ -7,18 +7,10 @@ inputs:
     key:
         description: Cache key
         required: true
-    save_cache:
-        description: Whether cache saving is enabled
-        required: false
-        default: 'true'
-    initial_cache_hit:
-        description: Cache hit output from the initial restore step
-        required: true
 runs:
     using: composite
     steps:
         - name: Re-check cache before save
-          if: ${{ inputs.save_cache == 'true' && inputs.initial_cache_hit != 'true' }}
           id: cache-pre-save
           uses: actions/cache/restore@v5
           with:
@@ -27,7 +19,7 @@ runs:
               lookup-only: true
 
         - name: Save cache
-          if: ${{ inputs.save_cache == 'true' && inputs.initial_cache_hit != 'true' && steps.cache-pre-save.outputs.cache-hit != 'true' }}
+          if: ${{ steps.cache-pre-save.outputs.cache-hit != 'true' }}
           uses: actions/cache/save@v5
           with:
               path: ${{ inputs.path }}
