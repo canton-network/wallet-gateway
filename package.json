@@ -35,6 +35,7 @@
         "script:fetch:canton": "tsx ./scripts/src/fetch-canton.ts",
         "script:fetch:splice": "tsx ./scripts/src/fetch-splice.ts",
         "script:fetch:localnet": "tsx ./scripts/src/fetch-localnet.ts",
+        "script:verify:daml-release-version": "tsx ./scripts/src/verify-daml-release-version.ts",
         "script:openrpc:titles": "tsx ./scripts/src/schema-title-validation.ts",
         "script:validate:package": "tsx ./scripts/src/package-and-verify-wallet-sdk.ts",
         "script:test:examples": "yarn node --trace-uncaught --enable-source-maps --import tsx ./scripts/src/test-example-scripts.ts",
