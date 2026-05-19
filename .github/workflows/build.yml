@@ -232,7 +232,7 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
 
             - name: Check migration lock files
               run: |
@@ -252,7 +252,7 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - uses: ./.github/actions/setup_yarn
+            - uses: ./.github/actions/setup_yarn/artifacts
 
             - name: Run affected migration tests
               run: |
