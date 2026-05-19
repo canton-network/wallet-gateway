@@ -4,7 +4,7 @@
 
 **Affects:** any dApp that uses `@canton-network/dapp-sdk` with a CIP-103-compliant **browser extension** wallet provider (e.g. Send Connect). Wallet-gateway HTTP/SSE flows are unaffected.
 
-## Symptom (Joel's report, 2026-05-15)
+## Symptom
 
 > I was testing again on the Ping example. Ledger query works as expected, but when I test creating the Ping contract, I get prompted to sign the transaction. I sign it successfully, but the transaction never seems to go through.
 
@@ -14,16 +14,7 @@ Verified locally against `wallet-gateway/examples/ping` (this repo, rebased onto
 - The Send approval popup appears; user signs.
 - `apps/test-dapp`-style observers would now see `status: 'executed'` + `updateId`.
 - **The wallet-gateway `examples/ping` dApp UI never updates.** The `Total transactions: 1` block expected by `useTransactions()` (driven by `sdk.onTxChanged(listener)`) never renders.
-- The transaction _does_ land on the ledger. Confirmed via PQS:
-
-    ```
-    tx_id        : 12207e0cca4a2b8b909f9e147518f2fc962a34ca6fbe628e460683aceb5475d34336
-    contract_id  : 0023446cd6f5a3dc7faf127f39683f04e4fb371b9a37abdae19ff2d227c4cbdad3ca…
-    template_fqn : canton-builtin-admin-workflow-ping:Canton.Internal.Ping:Ping
-    signatory    : cantonwallet-testnetallen2::1220dc8e9c5d…
-    payload.id   : my-test-1778880360044
-    effective_at : 2026-05-15 21:26:24 UTC
-    ```
+- The transaction _does_ land on the ledger (verified by querying the participant's transaction store and matching the expected `commandId` with `template_fqn = canton-builtin-admin-workflow-ping:Canton.Internal.Ping:Ping`).
 
 So the wallet did its job. The dApp is the one that thinks nothing happened.
 
@@ -246,12 +237,12 @@ The cycle-2 `rl review` re-flagged this gap as a blocker on `bb/dapp-sync-event-
 # 2. Wallet-gateway example dApp:
 yarn workspace @canton-network/example-ping dev   # http://localhost:8080
 
-# 3. Loki tail for testnet api-gateway (correlates with what the wallet ends up hitting):
-sloki query '{worker="canton-api-gateway-testnet"} |~ "(?i)(prepare|execute|allen2|dapp)"' --tail
+# 3. Tail your wallet provider's api-gateway logs for prepare/execute traces
+#    (whatever logging surface your provider exposes — Loki / Datadog / stdout).
 
-# 4. PQS lookup for the resulting update:
-sinfra psql pqs-testnet --exec \
-  "SELECT effective_at, transaction_id FROM __transactions WHERE effective_at > NOW() - INTERVAL '5 minutes' ORDER BY effective_at DESC LIMIT 5"
+# 4. Confirm the transaction landed on the ledger by querying the participant's
+#    transaction store (PQS / ledger gRPC) for the expected commandId:
+#    SELECT effective_at, transaction_id FROM __transactions WHERE ... ORDER BY effective_at DESC LIMIT 5
 ```
 
 In the dApp tab DevTools, the four observable signals (in order):
