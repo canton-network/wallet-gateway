@@ -1,25 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * Generates typed route files for the TestToken registry server from the four
- * Token Standard OpenAPI specs located in api-specs/splice/0.6.1/.
- *
- * For each spec it produces a `routes.ts` in the corresponding feature-slice directory:
- *   features/metadata/routes.ts              ← token-metadata-v1.yaml
- *   features/transfer/routes.ts              ← transfer-instruction-v1.yaml
- *   features/allocation-instruction/routes.ts← allocation-instruction-v1.yaml
- *   features/allocation/routes.ts            ← allocation-v1.yaml
- *
- * Each generated file contains:
- *   • TypeScript types derived from components.schemas
- *   • A typed handler interface (one method per OpenAPI operation)
- *   • A registerXxxRoutes(route, respond, handlers) function
- *
- * The implementation (handler logic) lives in the manually maintained handlers.ts
- * files beside each generated routes.ts.
- */
-
 import * as fs from 'fs'
 import * as path from 'path'
 import * as yaml from 'js-yaml'
@@ -34,19 +15,14 @@ const featuresDir = path.join(
     'docs/wallet-integration-guide/examples/scripts/15-multi-sync/_registry/features'
 )
 
-// ── Raw OpenAPI types (only the subset we need) ───────────────────────────────
-
 interface JsonSchema {
     type?: string
-    format?: string
     properties?: Record<string, JsonSchema>
     required?: string[]
     items?: JsonSchema
     additionalProperties?: JsonSchema | boolean
     $ref?: string
-    default?: unknown
     enum?: string[]
-    description?: string
 }
 
 interface Parameter {
@@ -54,12 +30,10 @@ interface Parameter {
     in: 'path' | 'query' | 'header' | 'cookie'
     required?: boolean
     schema: JsonSchema
-    description?: string
 }
 
 interface PathItem {
     operationId: string
-    description?: string
     parameters?: Parameter[]
     requestBody?: {
         required?: boolean
@@ -80,8 +54,6 @@ interface OpenApiSpec {
         schemas: Record<string, JsonSchema>
     }
 }
-
-// ── Generator configuration ───────────────────────────────────────────────────
 
 interface SpecConfig {
     specFile: string
@@ -123,13 +95,10 @@ const SPEC_CONFIGS: SpecConfig[] = [
     },
 ]
 
-// ── Schema → TypeScript conversion ────────────────────────────────────────────
-
 function refName(ref: string): string {
     return ref.split('/').pop()!
 }
 
-/** Convert an inline JSON Schema to a TypeScript type expression. */
 function schemaToTs(schema: JsonSchema): string {
     if (schema.$ref) return refName(schema.$ref)
 
@@ -163,7 +132,6 @@ function schemaToTs(schema: JsonSchema): string {
     return 'unknown'
 }
 
-/** Generate a named TypeScript type or interface for a top-level schema. */
 function generateNamedType(name: string, schema: JsonSchema): string {
     if (schema.$ref) return `export type ${name} = ${refName(schema.$ref)}`
 
@@ -192,8 +160,6 @@ function generateSchemaTypes(schemas: Record<string, JsonSchema>): string {
         .map(([name, schema]) => generateNamedType(name, schema))
         .join('\n\n')
 }
-
-// ── Operation extraction ──────────────────────────────────────────────────────
 
 interface OperationInfo {
     operationId: string
@@ -245,8 +211,6 @@ function extractOperations(spec: OpenApiSpec): OperationInfo[] {
     return ops
 }
 
-// ── Handler interface generation ──────────────────────────────────────────────
-
 function operationToHandlerMethod(
     op: OperationInfo,
     nullable: boolean
@@ -287,8 +251,6 @@ function generateHandlerInterface(
     return `export interface ${name} {\n${methods.join('\n')}\n}`
 }
 
-// ── Route registration generation ─────────────────────────────────────────────
-
 function generateRouteBody(op: OperationInfo, nullable: boolean): string {
     const callArgs: string[] = []
 
@@ -300,7 +262,6 @@ function generateRouteBody(op: OperationInfo, nullable: boolean): string {
     }
 
     if (op.queryParams.length > 0) {
-        // Query param extraction — callers may parse req.url for actual values if needed.
         callArgs.push('{}')
     }
 
@@ -361,8 +322,6 @@ function generateRegisterFunction(
     ].join('\n')
 }
 
-// ── File assembly ─────────────────────────────────────────────────────────────
-
 const FILE_HEADER = `\
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
@@ -395,19 +354,14 @@ function generateRoutesFile(
         `import type { ServerResponse } from 'node:http'`,
         `import type { RouteHandler } from '../../http/router.js'`,
         '',
-        '// ── Schema types (generated from components.schemas) ─────────────────────────',
         schemaSection,
         '',
-        '// ── Handler interface ────────────────────────────────────────────────────────',
         handlerSection,
         '',
-        '// ── Route registration ───────────────────────────────────────────────────────',
         registerSection,
         '',
     ].join('\n')
 }
-
-// ── Entry point ───────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
     let generated = 0

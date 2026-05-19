@@ -26,7 +26,6 @@ export const LOCALNET_TEST_TOKEN_REGISTRY_URL = new URL(
     `http://localhost:${LOCALNET_TEST_TOKEN_REGISTRY_PORT}`
 )
 
-// Party hint labels used when allocating parties
 export const PARTY_HINT_ALICE = 'Alice'
 export const PARTY_HINT_BOB = 'Bob'
 export const PARTY_HINT_TRADING_APP = 'TradingApp'

@@ -29,8 +29,6 @@ export interface AdminHandlerContext {
 export function createAdminHandlers(ctx: AdminHandlerContext): AdminHandlers {
     return {
         async setupTokenRules(): Promise<void> {
-            // Create TokenRules on both synchronizers in parallel so the
-            // registry's ACS cache picks them up on the next call.
             await Promise.all([
                 ctx.submitAsTokenAdmin({
                     commands: {
@@ -51,8 +49,7 @@ export function createAdminHandlers(ctx: AdminHandlerContext): AdminHandlers {
                     synchronizerId: ctx.appSynchronizerId,
                 }),
             ])
-            // Invalidate the ACS cache so transfer-factory requests see the
-            // newly created TokenRules contracts immediately.
+
             invalidateCache()
         },
 

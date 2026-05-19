@@ -46,10 +46,6 @@ function ensureComposeOverride() {
             '  multi-sync-startup:',
             '    volumes:',
             `      - ${LOCALNET_DARS_DIR}:/app/dars:ro`,
-            // Mount our custom bootstrap script over the downloaded .localnet version.
-            // Ours adds package vetting topology for all participants on app-synchronizer
-            // and waits for propagation — ensuring the package service is ready before
-            // the container exits and before start:localnet returns.
             `      - ${MULTI_SYNC_APP_SYNCHRONIZER_SC}:/app/app-synchronizer.sc:ro`
         )
     }
@@ -100,19 +96,9 @@ if (command === 'pull') {
     })
     // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
     if (multiSync) {
-        // Block until the multi-sync bootstrap finishes.
-        // We first follow logs (for CI visibility), then use `docker wait` as the
-        // authoritative gate: unlike `docker logs --follow`, `docker wait` is guaranteed
-        // to block until the container exits on all Docker versions / CI environments.
-        // (`docker logs --follow` can return prematurely on some CI runners before the
-        // container actually exits, which would cause start:localnet to return while the
-        // app-synchronizer.sc package-vetting script is still running.)
         console.log(
             'Waiting for multi-sync bootstrap (package vetting) to complete...'
         )
-        // `docker wait` blocks until the container exits and returns its exit code.
-        // This is the authoritative gate: unlike `docker logs --follow`, it is
-        // guaranteed to block until exit on all Docker versions / CI environments.
         const waitResult = spawnSync('docker', ['wait', 'multi-sync-startup'], {
             encoding: 'utf8',
         })

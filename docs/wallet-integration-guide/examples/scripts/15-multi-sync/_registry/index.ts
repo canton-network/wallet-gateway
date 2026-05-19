@@ -135,26 +135,18 @@ const ROUTES: RouteEntry[] = [
         operationId: 'getAllocationCancelContext',
     },
 ]
-
-// ── public API ─────────────────────────────────────────────────────────────
 export interface RegistryConfig {
     tokenAdminPartyId: string
     port: number
     ledgerUrl: URL
     logger: Logger
-    /** ID of the global (trade) synchronizer — used to select the allocation factory. */
     globalSynchronizerId: string
-    /** ID of the app synchronizer — used to select the factory for self-transfers. */
     appSynchronizerId: string
-    /**
-     * Callback to submit signed commands on behalf of tokenAdmin.
-     * Provided by the example so the registry never holds the private key.
-     */
+
     submitAsTokenAdmin: SubmitAsTokenAdmin
 }
 
 export interface RegistryHandle {
-    /** Gracefully stops the HTTP server. */
     stop(): Promise<void>
 }
 
@@ -192,7 +184,6 @@ export async function startRegistry(
         return all.find((c) => c.synchronizerId === synchronizerId) ?? all[0]!
     }
 
-    // Build handler objects (one per API slice)
     const metadata = createMetadataHandlers({
         tokenAdminPartyId,
         supportedApis: SUPPORTED_APIS,

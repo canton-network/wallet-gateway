@@ -34,7 +34,6 @@ export interface TransferHandlerContext {
     getTokenRules: (
         synchronizerId?: string
     ) => Promise<TokenRulesContract | null>
-    /** ID of the app synchronizer — returned as the factory for self-transfers. */
     appSynchronizerId: string
 }
 
@@ -45,8 +44,6 @@ export function createTransferHandlers(
         getTransferFactory: async (
             req: GetFactoryRequest
         ): Promise<TransferFactoryWithChoiceContext | null> => {
-            // Inspect choiceArguments to determine the kind of transfer.
-            // The SDK sends the full TransferFactory_Transfer args as choiceArguments.
             const args = req.choiceArguments as unknown as Record<
                 string,
                 unknown
@@ -60,8 +57,6 @@ export function createTransferHandlers(
                 transfer.sender === transfer.receiver
             const transferKind: 'self' | 'offer' = isSelf ? 'self' : 'offer'
 
-            // All TestToken transfers target the app synchronizer, so always use its TokenRules
-            // as the factory regardless of whether this is a self-transfer or an offer.
             const synchronizerId = ctx.appSynchronizerId
             const tokenRules = await ctx.getTokenRules(synchronizerId)
             if (!tokenRules) return null

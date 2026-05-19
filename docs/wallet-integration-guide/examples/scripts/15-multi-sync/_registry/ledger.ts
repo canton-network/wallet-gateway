@@ -13,11 +13,9 @@ import { LedgerClient } from '@canton-network/core-ledger-client'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import type { Logger } from 'pino'
 
-// Template ID of the TestToken TokenRules contract (package:module:entity)
 export const TOKEN_RULES_TEMPLATE_ID =
     '#splice-test-token-v1:Splice.Testing.Tokens.TestTokenV1:TokenRules'
 
-// Matches the fields from jsActiveContract.createdEvent + synchronizerId
 export interface TokenRulesContract {
     contractId: string
     templateId: string
@@ -25,7 +23,6 @@ export interface TokenRulesContract {
     synchronizerId: string
 }
 
-// ── cache ─────────────────────────────────────────────────────────────────────
 interface Cache {
     contracts: TokenRulesContract[]
     expireAt: number
@@ -34,7 +31,6 @@ interface Cache {
 let cache: Cache | null = null
 const CACHE_TTL_MS = 5_000
 
-// ── client factory ────────────────────────────────────────────────────────────
 export function buildLedgerClient(
     ledgerUrl: URL,
     logger: Logger
@@ -56,7 +52,6 @@ export function buildLedgerClient(
     return new LedgerClient({ baseUrl: ledgerUrl, logger, accessTokenProvider })
 }
 
-// ── ACS read ──────────────────────────────────────────────────────────────────
 /**
  * Returns all `TokenRules` contracts visible to `tokenAdminPartyId`, served from a
  * short-lived cache so each HTTP request does not cause a ledger round-trip.
@@ -74,7 +69,6 @@ export async function readTokenRules(
 
     logger.debug('Fetching TokenRules from ledger ACS…')
 
-    // Get the current ledger end so the ACS query is anchored to a consistent offset
     const ledgerEnd = await client.get('/v2/state/ledger-end')
     const offset = ledgerEnd.offset ?? 0
 
@@ -121,7 +115,6 @@ export async function readTokenRules(
     return contracts
 }
 
-/** Invalidate the ACS cache (call after known on-ledger state changes). */
 export function invalidateCache(): void {
     cache = null
 }

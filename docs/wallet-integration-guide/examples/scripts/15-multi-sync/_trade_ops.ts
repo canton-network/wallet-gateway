@@ -22,8 +22,6 @@ interface AcsContractEntry {
     synchronizerId: string
 }
 
-// ── Template / interface identifiers ─────────────────────────────────────────
-
 export const AMULET_TEMPLATE_ID = '#splice-amulet:Splice.Amulet:Amulet'
 export const TEST_TOKEN_PREFIX =
     '#splice-test-token-v1:Splice.Testing.Tokens.TestTokenV1'
@@ -147,7 +145,6 @@ export async function createTokenRulesAndMintForBob(
         appSynchronizerId,
     } = setup
 
-    // Create TokenRules on global + app synchronizers via registry admin API.
     const registryBase = LOCALNET_TEST_TOKEN_REGISTRY_URL.href.replace(
         /\/$/,
         ''
@@ -158,7 +155,6 @@ export async function createTokenRulesAndMintForBob(
         body: '{}',
     })
 
-    // Mint a Token holding for tokenAdmin via registry admin API.
     await fetch(`${registryBase}/admin/v1/mint`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -194,10 +190,6 @@ export async function createTokenRulesAndMintForBob(
         .sign(tokenAdmin.keyPair.privateKey)
         .execute({ partyId: tokenAdmin.partyId })
 
-    // Cross-participant propagation from P3 → P2 is async: P3's execute() returns once
-    // the transaction is committed on P3's participant, but the resulting TokenTransferOffer
-    // event must still be delivered to P2's participant before it appears on P2's ACS.
-    // Poll until the contract is visible or a 30-second deadline is exceeded.
     let transferOfferCid: string | undefined
     const deadline = Date.now() + 30_000
     while (!transferOfferCid && Date.now() < deadline) {

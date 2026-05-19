@@ -75,8 +75,6 @@ export interface MultiSyncSetup {
 export async function setupMultiSyncTrade(
     logger: Logger
 ): Promise<MultiSyncSetup> {
-    // Create three SDK instances — one per participant node.
-    // Include the TestToken registry URL so sdk.token.transfer.create() can discover the TestToken asset.
     const testTokenTokenConfig = {
         ...TOKEN_NAMESPACE_CONFIG,
         registries: [
@@ -141,7 +139,6 @@ export async function setupMultiSyncTrade(
         appSynchronizerId,
     }
 
-    // Load DARs bundled alongside this script and vet on all participants × both synchronizers.
     const here = path.dirname(fileURLToPath(import.meta.url))
     const darsDir = path.join(here, DARS_PATH)
     for (const [darPath, darName] of [
@@ -163,9 +160,6 @@ export async function setupMultiSyncTrade(
         fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
     ])
 
-    // P1, P2 and P3 vet DARs on both synchronizers.
-    // sv (P3) is connected to both synchronizers so that TokenAdmin can submit
-    // TokenRules and Token contracts on the app-synchronizer.
     await Promise.all(
         [p1SdkCtx, p2SdkCtx, p3SdkCtx].flatMap((ctx) =>
             [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
@@ -234,7 +228,6 @@ export async function setupMultiSyncTrade(
         `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P3)`
     )
 
-    // Register Alice, Bob, and TokenAdmin on app-synchronizer so they can transact there.
     await Promise.all([
         p1Sdk.party.external
             .create(alice.keyPair.publicKey, {
@@ -260,7 +253,6 @@ export async function setupMultiSyncTrade(
     ])
     logger.info('Alice, Bob, and TokenAdmin registered on app-synchronizer')
 
-    // Connect scan proxy and discover Amulet admin
     const auth = new AuthTokenProvider(TOKEN_PROVIDER_CONFIG_DEFAULT, logger)
     const scanProxy = new ScanProxyClient(
         localNetStaticConfig.LOCALNET_APP_VALIDATOR_URL,

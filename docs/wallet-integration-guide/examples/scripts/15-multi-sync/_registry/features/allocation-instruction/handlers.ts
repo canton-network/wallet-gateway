@@ -20,11 +20,10 @@ import type {
 import type { TokenRulesContract } from '../../ledger.js'
 
 export interface AllocationInstructionHandlerContext {
-    /** Returns the TokenRules on the requested synchronizer, or the first one if not found. */
     getTokenRules: (
         synchronizerId?: string
     ) => Promise<TokenRulesContract | null>
-    /** ID of the global (trade) synchronizer — allocations must use this synchronizer's factory. */
+
     globalSynchronizerId: string
 }
 
@@ -35,9 +34,6 @@ export function createAllocationInstructionHandlers(
         getAllocationFactory: async (
             _req: GetFactoryRequest
         ): Promise<FactoryWithChoiceContext | null> => {
-            // Always use the global-synchronizer TokenRules as the allocation factory.
-            // Allocations for trade settlement are executed on the global synchronizer,
-            // so the factory contract must live there.
             const tokenRules = await ctx.getTokenRules(ctx.globalSynchronizerId)
             if (!tokenRules) return null
             return {
