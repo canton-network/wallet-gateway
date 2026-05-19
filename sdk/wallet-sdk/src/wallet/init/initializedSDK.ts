@@ -19,6 +19,7 @@ import {
     ExtendedFullSDKInterface,
     ExtendedSDKOptions,
     OfflineSDKInterface,
+    RegisteredPlugins,
     SDKInterface,
     TokenConfig,
 } from './types/index.js'
@@ -32,6 +33,7 @@ import { TokenStandardService } from '@canton-network/core-token-standard-servic
 import { SDKLogger } from '../logger/logger.js'
 import { AmuletNamespace } from '../namespace/amulet/namespace.js'
 import { EventsNamespace } from '../namespace/events/index.js'
+import { SDKPlugin } from './plugin.js'
 
 const createNamespace: {
     [K in keyof ExtendedSDKOptions]: (
@@ -155,6 +157,24 @@ export class InitializedSDK implements BasicSDKInterface {
     ) {
         return await ExtendedInitializedSDK.create(this.ctx, config)
     }
+
+    public registerPlugins<
+        P extends Record<string, new (ctx: SDKContext) => SDKPlugin>,
+    >(plugins: P): InitializedSDK & RegisteredPlugins<P> {
+        const newSDK = new InitializedSDK(this.ctx)
+
+        for (const name in plugins) {
+            const plugin = new plugins[name](this.ctx)
+            Object.defineProperty(newSDK, plugin.name, {
+                value: plugin,
+                writable: false,
+                enumerable: true,
+                configurable: false,
+            })
+        }
+
+        return newSDK as InitializedSDK & RegisteredPlugins<P>
+    }
 }
 
 export class OfflineInitializedSDK implements OfflineSDKInterface {
@@ -229,7 +249,7 @@ export class ExtendedInitializedSDK<
             ...config,
         } as Pick<ExtendedSDKOptions, ExtendedItems | NewItems>
 
-        return await ExtendedInitializedSDK.create(this.ctx, mergedConfig)
+        return await super.extend(mergedConfig)
     }
 }
 

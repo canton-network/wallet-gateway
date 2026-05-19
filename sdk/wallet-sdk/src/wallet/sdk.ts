@@ -56,7 +56,7 @@ export type OfflineSDKContext = {
     error: SDKErrorHandler
 }
 
-export type * from './init/index.js'
+export * from './init/index.js'
 export { PrepareOptions, ExecuteOptions } from './namespace/ledger/index.js'
 export * from './namespace/transactions/prepared.js'
 export * from './namespace/transactions/signed.js'
