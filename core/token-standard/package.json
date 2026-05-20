@@ -29,7 +29,7 @@
     "dependencies": {
         "@canton-network/core-types": "workspace:^",
         "@canton-network/core-wallet-auth": "workspace:^",
-        "@daml/types": "3.4.11",
+        "@daml/types": "^3.5.0",
         "@mojotech/json-type-validation": "^3.1.0",
         "lodash": "^4.18.1",
         "openapi-fetch": "^0.17.0",

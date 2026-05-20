@@ -20,14 +20,13 @@ import {
     Metadata,
     FEATURED_APP_DELEGATE_PROXY_INTERFACE_ID,
     Holding,
-    ContractId,
     Beneficiaries,
 } from '@canton-network/core-token-standard'
 import {
     EventFilterBySetup,
     type LedgerCommonSchemas,
 } from '@canton-network/core-ledger-client-types'
-import { Logger, PartyId } from '@canton-network/core-types'
+import { ContractId, Logger, PartyId } from '@canton-network/core-types'
 import { ACSReader, AcsOptions } from '@canton-network/core-acs-reader'
 import {
     TokenStandardTransactionInterfaces,

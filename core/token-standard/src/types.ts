@@ -90,18 +90,6 @@ export type {
     AnyValue,
 } from '@daml.js/token-standard-models-1.0.0/lib/Splice/Api/Token/MetadataV1/module.js'
 
-export type {
-    ContractId,
-    Party,
-    Time,
-    Date,
-    Numeric,
-    Int,
-    Map,
-    Optional,
-    Serializable,
-} from '@daml/types'
-
 export type Beneficiaries = {
     beneficiary: PartyId
     weight: number

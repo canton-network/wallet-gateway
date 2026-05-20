@@ -45,13 +45,14 @@ export class MergeDelegationNamespace {
     async approve(args: { owner: PartyId; synchronizerId?: string }) {
         const { owner, synchronizerId = '' } = args
 
-        const mergeDelegationProposals = await this.ledger.acs.readJsContracts({
-            parties: [owner],
-            templateIds: [
-                '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegationProposal',
-            ],
-            filterByParty: true,
-        })
+        const mergeDelegationProposals =
+            await this.ledger.acsReader.readJsContracts({
+                parties: [owner],
+                templateIds: [
+                    '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegationProposal',
+                ],
+                filterByParty: true,
+            })
 
         const mergeDelegationProposal = mergeDelegationProposals[0]
 
@@ -108,7 +109,7 @@ export class MergeDelegationNamespace {
             []
 
         const mergeDelegationContractsForUser =
-            await this.ledger.acs.readJsContracts({
+            await this.ledger.acsReader.readJsContracts({
                 parties: [party],
                 templateIds: [
                     '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:MergeDelegation',
@@ -122,7 +123,7 @@ export class MergeDelegationNamespace {
             )
 
         const batchMergeUtilityContracts =
-            await this.ledger.acs.readJsContracts({
+            await this.ledger.acsReader.readJsContracts({
                 parties: [this.ctx.validatorParty],
                 templateIds: [
                     '#splice-util-token-standard-wallet:Splice.Util.Token.Wallet.MergeDelegation:BatchMergeUtility',
@@ -229,7 +230,7 @@ export class MergeDelegationNamespace {
 
     private activeContractToDisclosedContract(
         data: Awaited<
-            ReturnType<LedgerNamespace['acs']['readJsContracts']>
+            ReturnType<LedgerNamespace['acsReader']['readJsContracts']>
         >[number]
     ) {
         return {

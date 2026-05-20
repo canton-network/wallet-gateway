@@ -1,7 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { ContractId } from '@canton-network/core-token-standard'
 import { ACEvent, ACS_UPDATE_CONFIG, ACSState } from '../types'
 import {
     AbstractLedgerProvider,
@@ -15,6 +14,7 @@ import {
     AcsService,
     buildActiveContractFilter,
 } from '../service'
+import { ContractId } from '@canton-network/core-types'
 
 export type ACSCacheOptions = Pick<
     LRUCacheOptions<string, ACSCache>,

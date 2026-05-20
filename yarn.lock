@@ -1464,7 +1464,6 @@ __metadata:
   dependencies:
     "@canton-network/core-ledger-client-types": "workspace:^"
     "@canton-network/core-provider-ledger": "workspace:^"
-    "@canton-network/core-token-standard": "workspace:^"
     "@canton-network/core-types": "workspace:^"
     "@types/node": "npm:^25.0.10"
     "@vitest/browser-playwright": "npm:^4.1.2"
@@ -1905,7 +1904,7 @@ __metadata:
   dependencies:
     "@canton-network/core-types": "workspace:^"
     "@canton-network/core-wallet-auth": "workspace:^"
-    "@daml/types": "npm:3.4.11"
+    "@daml/types": "npm:^3.5.0"
     "@mojotech/json-type-validation": "npm:^3.1.0"
     "@rollup/plugin-alias": "npm:^5.0.0"
     "@rollup/plugin-commonjs": "npm:^29.0.0"
@@ -1973,6 +1972,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@canton-network/core-types@workspace:core/types"
   dependencies:
+    "@daml/types": "npm:^3.5.0"
     "@vitest/browser-playwright": "npm:^4.1.2"
     "@vitest/coverage-v8": "npm:^4.1.2"
     playwright: "npm:^1.58.2"
@@ -2718,14 +2718,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@daml/types@npm:3.4.11":
-  version: 3.4.11
-  resolution: "@daml/types@npm:3.4.11"
+"@daml/types@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "@daml/types@npm:3.5.0"
   dependencies:
     "@mojotech/json-type-validation": "npm:^3.1.0"
     "@types/lodash": "npm:^4.5"
     lodash: "npm:^4.5"
-  checksum: 10c0/acfc461910451aec81445d546ab2ec5e2d98727720f336864a4cd54e8a8c08406577fda80385b7c9e7b68cf869a8ce9bba33ba98eedf1c348c8d6d26c473fc74
+  checksum: 10c0/38253cdeadbbf625b04b7195848cda320d6b8bfe2fdab2b3268ffce203eace7f3c5067e89444f7f07cb8728ae15b68f0a9006e07be99a86d166fa6ec150005d3
   languageName: node
   linkType: hard
 
@@ -20245,7 +20245,6 @@ __metadata:
   resolution: "systeminformation@npm:5.31.6"
   bin:
     systeminformation: lib/cli.js
-  checksum: 10c0/fb0c9dae20e47277d26f3dd374f14c846567adba15a2bf9715e0a871f912424d31b75f6c27e0c8b819abc3fcd285ae8c1f6468acd8a161f18a1a39b632a01923
   conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard

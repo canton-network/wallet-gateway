@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { LedgerCommonSchemas } from '@canton-network/core-ledger-client-types'
-import { ContractId } from '@canton-network/core-token-standard'
-import { PartyId } from '@canton-network/core-types'
+import { ContractId, PartyId } from '@canton-network/core-types'
 
 export type ACSKey = Partial<{
     party: PartyId

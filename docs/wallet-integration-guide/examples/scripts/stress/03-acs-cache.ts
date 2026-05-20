@@ -67,7 +67,7 @@ const timeResults: [number, number][] = []
 
 for (const party of parties) {
     const firstStartTime = performance.now()
-    await sdk.ledger.acs.readJsContracts({
+    await sdk.ledger.acsReader.readJsContracts({
         parties: [party.partyId],
         filterByParty: true,
         templateIds: [
@@ -75,7 +75,7 @@ for (const party of parties) {
         ],
     })
     const secondStartTime = performance.now()
-    await sdk.ledger.acs.readJsContracts({
+    await sdk.ledger.acsReader.readJsContracts({
         parties: [party.partyId],
         filterByParty: true,
         templateIds: [

@@ -221,3 +221,15 @@ export enum WALLET_DISABLED_REASON {
  */
 export const CANTON_REQUEST_PROVIDER_EVENT = 'canton:requestProvider' as const
 export const CANTON_ANNOUNCE_PROVIDER_EVENT = 'canton:announceProvider' as const
+
+export type {
+    ContractId,
+    Party,
+    Time,
+    Date,
+    Numeric,
+    Int,
+    Map,
+    Optional,
+    Serializable,
+} from '@daml/types'

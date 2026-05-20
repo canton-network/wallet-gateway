@@ -142,7 +142,7 @@ const setupIteration =
             })
 
         const activeContractsForDelegateTreasuryProxy =
-            sdk.ledger.acs.readJsContracts({
+            sdk.ledger.acsReader.readJsContracts({
                 parties: [treasury.partyId],
                 templateIds: [
                     '#splice-util-featured-app-proxies:Splice.Util.FeaturedApp.DelegateProxy:DelegateProxy',
