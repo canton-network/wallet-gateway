@@ -52,7 +52,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
         },
         {
             label: PARTY_HINT_TOKEN_ADMIN,
-            sdk: p3Sdk,
+            sdk: p2Sdk,
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
         },
@@ -146,8 +146,9 @@ export async function createTokenRulesAndMintForBob(
         globalSynchronizerId,
     } = setup
 
+    // tokenAdmin is hosted on P2; use p2Sdk for all tokenAdmin submissions
     await Promise.all([
-        p3Sdk.ledger
+        p2Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -161,7 +162,7 @@ export async function createTokenRulesAndMintForBob(
             })
             .sign(tokenAdmin.keyPair.privateKey)
             .execute({ partyId: tokenAdmin.partyId }),
-        p3Sdk.ledger
+        p2Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -177,7 +178,8 @@ export async function createTokenRulesAndMintForBob(
             .execute({ partyId: tokenAdmin.partyId }),
     ])
 
-    await p3Sdk.ledger
+    // Mint Token on app-synchronizer via P2 (sv/P3 is global-only)
+    await p2Sdk.ledger
         .prepare({
             partyId: tokenAdmin.partyId,
             commands: [
@@ -467,6 +469,10 @@ export async function allocateTokenForBob(
     const tokenHolding = tokenHoldings[0]
     if (!tokenHolding) throw new Error('Token holding not found for Bob')
 
+    // Explicitly reassign Bob's token from app-synchronizer to global before allocation.
+    // Canton requires the submitter to be a stakeholder of a contract already on the
+    // target synchronizer (SUBMITTER_ALWAYS_STAKEHOLDER policy). Without this step,
+    // Bob has no contracts on global, so the allocation submission would be rejected.
     if (tokenHolding.synchronizerId !== globalSynchronizerId) {
         await p2Sdk.ledger.internal.reassign({
             submitter: bob.partyId,
@@ -642,6 +648,19 @@ export async function aliceSelfTransferToApp(
             inputUtxos: [aliceTokenCid],
         })
 
+    // Explicitly reassign Alice's token from global to app-synchronizer before the self-transfer.
+    // Canton's SUBMITTER_ALWAYS_STAKEHOLDER policy requires the submitter to be a stakeholder
+    // of a contract already on the target synchronizer. Without this, Alice has no
+    // contracts on app-synchronizer and the submission is rejected.
+    if (aliceToken.synchronizerId !== appSynchronizerId) {
+        await p1Sdk.ledger.internal.reassign({
+            submitter: alice.partyId,
+            contractId: aliceToken.contractId,
+            source: aliceToken.synchronizerId,
+            target: appSynchronizerId,
+        })
+    }
+
     await p1Sdk.ledger
         .prepare({
             partyId: alice.partyId,
@@ -653,8 +672,7 @@ export async function aliceSelfTransferToApp(
         .execute({ partyId: alice.partyId })
 
     logger.info(
-        `Alice: ${TRADE_TOKEN_AMOUNT} TestToken self-transferred on app-synchronizer ` +
-            `(Canton auto-reassigned Alice's Token from global → app)`
+        `Alice: ${TRADE_TOKEN_AMOUNT} TestToken self-transferred on app-synchronizer`
     )
 }
 

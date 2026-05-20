@@ -1,9 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import path from 'path'
-import { fileURLToPath } from 'url'
-import fs from 'fs/promises'
 import type { Logger } from 'pino'
 import {
     localNetStaticConfig,
@@ -19,7 +16,6 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
-    vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -39,10 +35,6 @@ export type PartyInfo = Omit<
     topologyTransactions?: string[] | undefined
     keyPair: KeyPair
 }
-
-const DARS_PATH = '../../../../../.localnet/dars'
-const TRADING_APP_DAR = 'splice-token-test-trading-app-1.0.0.dar'
-const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
 export interface MultiSyncSetup {
     p1Sdk: SDKInterface<'token'>
@@ -116,7 +108,9 @@ export async function setupMultiSyncTrade(
             `Expected at least 2 connected synchronizers (global + app), found ${allSynchronizers.length}`
         )
 
-    const globalSynchronizerId = await p1Sdk.ledger.state.globalSynchronizerId()
+    const globalSynchronizerId = allSynchronizers.find(
+        (s) => s.synchronizerAlias === 'global'
+    )?.synchronizerId
     const appSynchronizerId = allSynchronizers.find(
         (s) => s.synchronizerAlias === 'app-synchronizer'
     )?.synchronizerId
@@ -172,10 +166,11 @@ export async function setupMultiSyncTrade(
     logger.info('DARs vetted: P1+P2+P3 on both synchronizers')
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
+    // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
     const aliceKey = p1Sdk.keys.generate()
     const bobKey = p1Sdk.keys.generate()
     const tradingAppKey = p1Sdk.keys.generate()
-    const tokenAdminKey = p3Sdk.keys.generate()
+    const tokenAdminKey = p2Sdk.keys.generate()
 
     const [
         allocatedAlice,
@@ -204,7 +199,7 @@ export async function setupMultiSyncTrade(
             })
             .sign(tradingAppKey.privateKey)
             .execute(),
-        p3Sdk.party.external
+        p2Sdk.party.external
             .create(tokenAdminKey.publicKey, {
                 partyHint: PARTY_HINT_TOKEN_ADMIN,
                 synchronizerId: globalSynchronizerId,
@@ -243,7 +238,8 @@ export async function setupMultiSyncTrade(
             })
             .sign(bob.keyPair.privateKey)
             .execute({ grantUserRights: false }),
-        p3Sdk.party.external
+        // tokenAdmin must be registered via P2 (app-provider) — sv (P3) is global-only
+        p2Sdk.party.external
             .create(tokenAdmin.keyPair.publicKey, {
                 partyHint: tokenAdmin.partyId.split('::')[0],
                 synchronizerId: appSynchronizerId,

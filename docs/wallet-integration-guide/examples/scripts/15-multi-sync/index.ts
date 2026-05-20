@@ -25,7 +25,7 @@ const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 
 // ── Setup: create SDKs, discover synchronizers, vet DARs, allocate parties ───
 // Step 1: Create SDKs for all 3 participants (P1, P2, P3) and discover global + app synchronizers
-// Step 2: Vet DARs on all synchronizers (global + app) and all participants (P1, P2, P3)
+// Step 2: Vet DARs on both synchronizers for P1+P2; global only for P3 (sv is not connected to app-synchronizer)
 // Step 3: Allocate parties for Alice (P1), Bob (P2), TradingApp (P3), and TokenAdmin (P3)
 const setup = await setupMultiSyncTrade(logger)
 const {
