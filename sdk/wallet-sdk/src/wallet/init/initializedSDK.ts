@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
-import { parseAssets } from '../namespace/utils/url.js'
+import { parseAssets, ParsedURL } from '../namespace/utils/url.js'
 import { KeysNamespace } from '../namespace/keys/index.js'
 import { LedgerNamespace } from '../namespace/ledger/index.js'
 import { PartyNamespace } from '../namespace/party/index.js'
@@ -42,17 +42,17 @@ const createNamespace: {
     amulet: async (ctx: SDKContext, config: AmuletConfig) => {
         const auth = new AuthTokenProvider(config.auth, ctx.logger)
         const scanProxyClient = new ScanProxyClient(
-            config.validatorUrl.toURL(),
+            new ParsedURL(ctx, config.validatorUrl),
             ctx.logger,
             auth
         )
         const scanClient = new ScanClient(
-            config.scanApiUrl.toURL(),
+            new ParsedURL(ctx, config.scanApiUrl),
             ctx.logger,
             auth
         )
         const validatorParty = await getValidatorParty(
-            config.validatorUrl.toURL(),
+            new ParsedURL(ctx, config.validatorUrl),
             ctx.logger,
             auth
         )
@@ -72,7 +72,7 @@ const createNamespace: {
 
         return new AmuletNamespace({
             commonCtx: ctx,
-            registry: config.registryUrl,
+            registry: new ParsedURL(ctx, config.registryUrl),
             amuletService,
             tokenStandardService,
             validatorParty,
@@ -87,14 +87,16 @@ const createNamespace: {
             false
         )
         const validatorParty = await getValidatorParty(
-            config.validatorUrl.toURL(),
+            new ParsedURL(ctx, config.validatorUrl),
             ctx.logger,
             auth
         )
 
         return new TokenNamespace({
             tokenStandardService,
-            registryUrls: config.registries,
+            registryUrls: config.registries.map(
+                (input) => new ParsedURL(ctx, input)
+            ),
             validatorParty,
             commonCtx: ctx,
         })
@@ -110,7 +112,9 @@ const createNamespace: {
 
         return new AssetNamespace({
             tokenStandardService,
-            registries: config.registries,
+            registries: config.registries.map(
+                (input) => new ParsedURL(ctx, input)
+            ),
             error: ctx.error,
             list: parseAssets(
                 ctx,
@@ -125,7 +129,7 @@ const createNamespace: {
         return new EventsNamespace({
             commonCtx: ctx,
             auth,
-            websocketURL: config.websocketURL,
+            websocketURL: new ParsedURL(ctx, config.websocketURL),
         })
     },
 }

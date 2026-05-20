@@ -15,14 +15,14 @@ import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
 import { Decimal } from 'decimal.js'
-import { parseAssets, URLParser } from '../utils/url.js'
+import { parseAssets, ParsedURL } from '../utils/url.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
 
 export type AmuletNamespaceConfig = {
     commonCtx: SDKContext
-    registry: URLParser | AssetBody
+    registry: ParsedURL | AssetBody
     amuletService: AmuletService
     tokenStandardService: TokenStandardService
     validatorParty: PartyId
@@ -39,11 +39,11 @@ export class AmuletNamespace {
     }
 
     private async amulet(): Promise<AssetBody> {
-        if (this.sdkContext.registry instanceof URLParser) {
+        if (this.sdkContext.registry instanceof ParsedURL) {
             return parseAssets(
                 this.sdkContext.commonCtx,
                 await this.sdkContext.tokenStandardService.registriesToAssets([
-                    this.sdkContext.registry.toString(),
+                    this.sdkContext.registry.href,
                 ])
             )[0]
         } else {
@@ -202,11 +202,11 @@ interface FeaturedAppNamespace {
 export async function fetchAmulet(
     amuletCtx: AmuletNamespaceConfig
 ): Promise<AssetBody> {
-    if (amuletCtx.registry instanceof URLParser) {
+    if (amuletCtx.registry instanceof ParsedURL) {
         return parseAssets(
             amuletCtx.commonCtx,
             await amuletCtx.tokenStandardService.registriesToAssets([
-                amuletCtx.registry.toString(),
+                amuletCtx.registry.href,
             ])
         )[0]
     } else {

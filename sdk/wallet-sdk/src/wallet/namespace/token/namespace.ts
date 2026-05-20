@@ -8,11 +8,11 @@ import { TokenStandardService } from '@canton-network/core-token-standard-servic
 import { PartyId } from '@canton-network/core-types'
 import { PrettyTransactions } from '@canton-network/core-tx-parser'
 import { SDKContext } from '../../sdk.js'
-import { URLParser } from '../utils/url.js'
+import { ParsedURL } from '../utils/url.js'
 
 export type TokenNamespaceConfig = {
     tokenStandardService: TokenStandardService
-    registryUrls: URLParser[]
+    registryUrls: ParsedURL[]
     validatorParty: PartyId
     commonCtx: SDKContext
 }

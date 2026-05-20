@@ -1,34 +1,25 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SDKContext } from '@/wallet/sdk'
+import { SDKContext } from '../../sdk.js'
 import { TokenStandardService } from '@canton-network/core-token-standard-service'
 
 export type URLInput = URL | string
 
-export class ParsedURL {
+export class ParsedURL extends URL {
     constructor(
         private readonly ctx: SDKContext,
-        private readonly value: URLInput
-    ) {}
-
-    toURL() {
+        private readonly input: URLInput
+    ) {
         try {
-            return typeof this.value === 'string'
-                ? new URL(this.value)
-                : this.value
+            super(input)
         } catch (e) {
-            this.ctx.error.throw({
-                message: `Invalid URL provided ${this.value}.`,
+            ctx.error.throw({
+                message: `Invalid URL provided ${input}.`,
                 type: 'BadRequest',
                 originalError: e,
             })
         }
-    }
-
-    toString() {
-        if (this.value instanceof URL) return this.value.href
-        return this.value
     }
 }
 

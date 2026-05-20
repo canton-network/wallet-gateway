@@ -63,16 +63,17 @@ export class UtxoNamespace {
                 group[0].interfaceViewValue.instrumentId
 
             const assets = parseAssets(
+                this.sdkContext.commonCtx,
                 await this.sdkContext.tokenStandardService.registriesToAssets(
                     this.sdkContext.registryUrls.map((url) => url.href)
-                ),
-                this.sdkContext.commonCtx.error
+                )
             )
 
-            const registryUrl = new URL(
-                findAsset(assets, instrumentId, this.sdkContext.commonCtx.error)
-                    .registryUrl
-            )
+            const registryUrl = findAsset(
+                assets,
+                instrumentId,
+                this.sdkContext.commonCtx.error
+            ).registryUrl
 
             const transfers = Math.ceil(group.length / transferInputUtxoLimit)
 

@@ -18,7 +18,7 @@ import {
     AllocationContextParams,
 } from './types.js'
 import { TokenNamespaceConfig } from '../../../sdk.js'
-import { toURL } from '../../utils/url.js'
+import { ParsedURL } from '../../utils/url.js'
 
 export class AllocationNamespace {
     constructor(private readonly sdkContext: TokenNamespaceConfig) {}
@@ -77,19 +77,22 @@ export class AllocationNamespace {
         execute: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchExecuteTransferChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
         withdraw: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchWithdrawAllocationChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
         cancel: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchCancelAllocationChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
     }

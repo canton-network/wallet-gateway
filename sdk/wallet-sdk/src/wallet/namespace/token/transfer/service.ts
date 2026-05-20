@@ -63,10 +63,10 @@ export class TransferNamespace {
         params: TransferParams
     ): Promise<PreparedCommand<'ExerciseCommand'>> {
         const assets = parseAssets(
+            this.sdkContext.commonCtx,
             await this.sdkContext.tokenStandardService.registriesToAssets(
                 this.sdkContext.registryUrls.map((url) => url.href)
-            ),
-            this.sdkContext.commonCtx.error
+            )
         )
         const asset = findAsset(
             assets,
