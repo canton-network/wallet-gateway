@@ -181,7 +181,7 @@ export async function setupMultiSyncTrade(
     }
 
     logger.info(
-        `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P3)`
+        `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P2)`
     )
 
     // Register Alice, Bob, and TokenAdmin on app-synchronizer so they can transact there.
