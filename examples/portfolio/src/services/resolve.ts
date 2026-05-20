@@ -9,6 +9,7 @@ import { TokenStandardClient } from '@canton-network/core-token-standard'
 import { ScanProxyClient } from '@canton-network/core-splice-client'
 import { TransactionHistoryService } from './transaction-history-service'
 import type { LedgerProvider } from '@canton-network/core-provider-ledger'
+import * as sdk from '@canton-network/dapp-sdk'
 import {
     AuthTokenProvider,
     type AccessTokenProvider,
@@ -17,11 +18,12 @@ import {
 // This module allows us to resolve (i.e. get an instance of) the different
 // dependency services used throughout the project.
 
-const resolveLedgerProvider = () => {
-    if (window.canton) {
-        return window.canton as unknown as LedgerProvider
+export const resolveLedgerProvider = () => {
+    const provider = sdk.getConnectedProvider()
+    if (provider) {
+        return provider as unknown as LedgerProvider
     } else {
-        throw new Error('window.canton is not available')
+        throw new Error('Dapp Provider is not available')
     }
 }
 

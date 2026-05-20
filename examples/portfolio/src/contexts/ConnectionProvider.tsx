@@ -107,7 +107,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // Second effect: request accounts only when connected
     useEffect(() => {
-        const provider = window.canton
+        const provider = sdk.getConnectedProvider()
         if (!provider || !connectionStatus?.connection?.isConnected) return
         provider
             .request({
