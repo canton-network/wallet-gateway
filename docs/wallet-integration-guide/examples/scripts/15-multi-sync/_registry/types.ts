@@ -119,22 +119,6 @@ export interface AllocationInstructionHandlers {
         | Promise<FactoryWithChoiceContext | null>
 }
 
-// ── admin ──────────────────────────────────────────────────────────────────
-
-/**
- * Callback provided by the caller so the registry can submit signed
- * commands on behalf of tokenAdmin without holding the private key itself.
- */
-export type SubmitAsTokenAdmin = (opts: {
-    commands: unknown
-    synchronizerId: string
-}) => Promise<unknown>
-
-export interface AdminHandlers {
-    setupTokenRules(): Promise<void>
-    mintToken(body: { amount: string }): Promise<void>
-}
-
 // ── allocation-v1 ──────────────────────────────────────────────────────────
 
 export interface AllocationHandlers {
