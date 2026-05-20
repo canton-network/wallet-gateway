@@ -30,9 +30,21 @@ interface Registry {
     registryUrl: string
 }
 
+const INSECURE_REGISTRY_URL_WARNING =
+    'Registry responses can be spoofed by network attackers. Use HTTPS.'
+const registryUrlSchema = z.url({
+    message: 'Must be a valid HTTP or HTTPS URL',
+    protocol: /^https?$/,
+})
+
+const isInsecureRegistryUrl = (value: string) => {
+    const result = registryUrlSchema.safeParse(value)
+    return result.success && new URL(result.data).protocol === 'http:'
+}
+
 const registryFormSchema = z.object({
     partyId: z.string().min(1, 'Party ID is required'),
-    registryUrl: z.url('Must be a valid URL'),
+    registryUrl: registryUrlSchema,
 })
 
 type RegistryFormData = z.infer<typeof registryFormSchema>
@@ -59,7 +71,11 @@ export function RegistrySettings() {
             const partyId =
                 formData.partyId.trim() === '' ? undefined : formData.partyId
             registryService.setRegistryUrl(partyId, formData.registryUrl)
-            toast.success('Registry URL set')
+            if (isInsecureRegistryUrl(formData.registryUrl)) {
+                toast.warning(INSECURE_REGISTRY_URL_WARNING)
+            } else {
+                toast.success('Registry URL set')
+            }
             form.reset()
         },
         validators: {
@@ -95,7 +111,14 @@ export function RegistrySettings() {
                             form.handleSubmit()
                         }}
                     >
-                        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'flex-start',
+                                gap: 2,
+                                mb: 2,
+                            }}
+                        >
                             <form.Field name="partyId">
                                 {(field) => (
                                     <TextField
@@ -119,26 +142,47 @@ export function RegistrySettings() {
                                 )}
                             </form.Field>
                             <form.Field name="registryUrl">
-                                {(field) => (
-                                    <TextField
-                                        label="Registry URL"
-                                        value={field.state.value}
-                                        onChange={(e) =>
-                                            field.handleChange(e.target.value)
-                                        }
-                                        onBlur={field.handleBlur}
-                                        error={
-                                            field.state.meta.isTouched &&
-                                            field.state.meta.errors.length > 0
-                                        }
-                                        helperText={
-                                            field.state.meta.isTouched &&
-                                            field.state.meta.errors[0]?.message
-                                        }
-                                        fullWidth
-                                        size="small"
-                                    />
-                                )}
+                                {(field) => {
+                                    const hasError =
+                                        field.state.meta.isTouched &&
+                                        field.state.meta.errors.length > 0
+                                    const showInsecureWarning =
+                                        !hasError &&
+                                        isInsecureRegistryUrl(field.state.value)
+
+                                    return (
+                                        <TextField
+                                            label="Registry URL"
+                                            value={field.state.value}
+                                            onChange={(e) =>
+                                                field.handleChange(
+                                                    e.target.value
+                                                )
+                                            }
+                                            onBlur={field.handleBlur}
+                                            error={hasError}
+                                            helperText={
+                                                hasError
+                                                    ? field.state.meta.errors[0]
+                                                          ?.message
+                                                    : showInsecureWarning
+                                                      ? INSECURE_REGISTRY_URL_WARNING
+                                                      : undefined
+                                            }
+                                            slotProps={{
+                                                formHelperText: {
+                                                    sx: showInsecureWarning
+                                                        ? {
+                                                              color: 'warning.main',
+                                                          }
+                                                        : undefined,
+                                                },
+                                            }}
+                                            fullWidth
+                                            size="small"
+                                        />
+                                    )
+                                }}
                             </form.Field>
                             <form.Subscribe
                                 selector={(state) => ({
@@ -151,6 +195,7 @@ export function RegistrySettings() {
                                         type="submit"
                                         variant="contained"
                                         disabled={!canSubmit || isSubmitting}
+                                        sx={{ minHeight: 40 }}
                                     >
                                         {isSubmitting ? 'Submitting...' : 'Add'}
                                     </Button>
