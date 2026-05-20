@@ -3,6 +3,7 @@
 
 import { v4 } from 'uuid'
 import { PartyId } from '@canton-network/core-types'
+import * as sdk from '@canton-network/dapp-sdk'
 import {
     type Holding,
     type TransferInstructionView,
@@ -107,7 +108,7 @@ export const createTransfer = async ({
         disclosedContracts,
     }
 
-    const provider = window.canton
+    const provider = sdk.getConnectedProvider()
     // TODO: check success
     await provider?.request({
         method: 'prepareExecuteAndWait',
@@ -149,7 +150,7 @@ export const exerciseTransfer = async ({
         disclosedContracts,
     }
 
-    const provider = window.canton
+    const provider = sdk.getConnectedProvider()
     // TODO: check success
     await provider?.request({
         method: 'prepareExecuteAndWait',
@@ -214,7 +215,7 @@ export const createAllocation = async ({
         disclosedContracts,
     }
 
-    const provider = window.canton
+    const provider = sdk.getConnectedProvider()
     // TODO: check success
     await provider?.request({
         method: 'prepareExecuteAndWait',
@@ -267,7 +268,7 @@ export const withdrawAllocation = async ({
         disclosedContracts,
     }
 
-    const provider = window.canton
+    const provider = sdk.getConnectedProvider()
     // TODO: check success
     await provider?.request({
         method: 'prepareExecuteAndWait',
@@ -339,7 +340,7 @@ export const tap = async ({
         disclosedContracts,
     }
 
-    const provider = window.canton
+    const provider = sdk.getConnectedProvider()
     // TODO: check success
     await provider?.request({
         method: 'prepareExecuteAndWait',
