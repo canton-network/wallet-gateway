@@ -652,11 +652,11 @@ export async function aliceSelfTransferToApp(
     // Canton's SUBMITTER_ALWAYS_STAKEHOLDER policy requires the submitter to be a stakeholder
     // of a contract already on the target synchronizer. Without this, Alice has no
     // contracts on app-synchronizer and the submission is rejected.
-    if (aliceToken.synchronizerId !== appSynchronizerId) {
+    if (aliceTokens[0]!.synchronizerId !== appSynchronizerId) {
         await p1Sdk.ledger.internal.reassign({
             submitter: alice.partyId,
-            contractId: aliceToken.contractId,
-            source: aliceToken.synchronizerId,
+            contractId: aliceTokens[0]!.contractId,
+            source: aliceTokens[0]!.synchronizerId,
             target: appSynchronizerId,
         })
     }

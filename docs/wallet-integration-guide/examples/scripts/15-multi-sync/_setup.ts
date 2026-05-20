@@ -1,6 +1,9 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import path from 'path'
+import { fileURLToPath } from 'url'
+import fs from 'fs/promises'
 import type { Logger } from 'pino'
 import {
     localNetStaticConfig,
@@ -16,6 +19,7 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
+    vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -27,6 +31,10 @@ import {
     PARTY_HINT_TRADING_APP,
     PARTY_HINT_TOKEN_ADMIN,
 } from './_config.js'
+
+const DARS_PATH = '../../../../../.localnet/dars'
+const TRADING_APP_DAR = 'splice-token-test-trading-app-1.0.0.dar'
+const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
 export type PartyInfo = Omit<
     GenerateTransactionResponse,
@@ -137,7 +145,7 @@ export async function setupMultiSyncTrade(
     const darsDir = path.join(here, DARS_PATH)
     for (const [darPath, darName] of [
         [path.join(darsDir, TRADING_APP_DAR), TRADING_APP_DAR],
-        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
+        [path.join(darsDir, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
     ] as [string, string][]) {
         try {
             await fs.stat(darPath)
@@ -151,7 +159,7 @@ export async function setupMultiSyncTrade(
 
     const [tradingAppDar, testTokenV1Dar] = await Promise.all([
         fs.readFile(path.join(darsDir, TRADING_APP_DAR)),
-        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
+        fs.readFile(path.join(darsDir, TEST_TOKEN_V1_DAR)),
     ])
 
     await Promise.all(
