@@ -23,7 +23,7 @@ export default async function () {
             }
 
             myMethod() {
-                console.log("It's working!", this.ctx)
+                console.log("It's working!")
             }
         },
     })
