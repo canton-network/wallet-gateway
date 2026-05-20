@@ -13,10 +13,9 @@ import { SDKLogger } from './logger.js' // eslint-disable-line @typescript-eslin
  *   from which the log originates. For example, in ConsoleLogAdapter and PinoLogAdapter,
  *   the namespace is prepended to the log message, helping to distinguish logs from different
  *   parts of the application and making log filtering and analysis easier.
- *   It is recommended to use {@link SDKLogger.child} to set the namespace for each logger instance.
+ *   It is recommended to use {@link SDKLogger['child']} to set the namespace for each logger instance.
  * @property timestamp Optional timestamp for the log entry. This is provided by default by the logger implementation.
  * @property response Optional response data to include in the log.
- * @property arguments Optional arguments or parameters related to the log event.
  * @property traceId Optional trace identifier for correlating logs across systems.
  * @property partyId Optional party identifier for domain-specific context.
  * @property [data: string] Any additional custom metadata fields.
@@ -25,7 +24,6 @@ export type LogContext = Partial<{
     namespace: string
     timestamp: string
     response: unknown
-    arguments: unknown
     traceId: string
     partyId: PartyId
     [data: string]: unknown

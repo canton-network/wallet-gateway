@@ -233,7 +233,7 @@ const cancelled = await sdk.amulet.preapproval.fetchStatus(bob.partyId, {
     cancelled: true,
 })
 
-const preapprovalACS = await sdk.ledger.acs.read({
+const preapprovalACS = await sdk.ledger.acsReader.readJsContracts({
     parties: [bob.partyId],
     filterByParty: true,
 })

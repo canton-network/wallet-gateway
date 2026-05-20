@@ -26,6 +26,7 @@
         "test:coverage": "vitest run --project node --project browser --coverage --passWithNoTests"
     },
     "dependencies": {
+        "@daml/types": "^3.5.0",
         "uuid": "^14.0.0",
         "zod": "^4.3.6"
     },

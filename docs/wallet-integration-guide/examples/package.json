@@ -27,7 +27,8 @@
         "run-13": "tsx ./scripts/13-rewards-for-deposits/index.ts | pino-pretty",
         "run-14": "tsx ./scripts/14-offline-signing.ts | pino-pretty",
         "stress-run-01": "tsx ./scripts/stress/01-merge-utxos.ts | pino-pretty",
-        "stress-run-02": "tsx ./scripts/stress/02-merge-utxos-delegate.ts | pino-pretty"
+        "stress-run-02": "tsx ./scripts/stress/02-merge-utxos-delegate.ts | pino-pretty",
+        "stress-run-03": "tsx ./scripts/stress/03-acs-cache.ts | pino-pretty"
     },
     "devDependencies": {
         "@canton-network/core-signing-lib": "workspace:^",

@@ -9,7 +9,7 @@ export default async function () {
     //we use holdings as an example here
     const myTemplateId = '#splice-amulet:Splice.Amulet:Amulet'
 
-    await sdk.ledger.acs.read({
+    await sdk.ledger.acsReader.read({
         parties: [myParty],
         templateIds: [myTemplateId], //this is optional for if you want to filter by template id
         filterByParty: true,

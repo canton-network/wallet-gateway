@@ -159,7 +159,7 @@ logger.info(
 
 // Bob accepts OTCTradeProposal
 
-const activeTradeProposals = await sdk.ledger.acs.read({
+const activeTradeProposals = await sdk.ledger.acsReader.readJsContracts({
     templateIds: [
         '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
     ],
@@ -197,7 +197,7 @@ logger.info('Bob accepted OTCTradeProposal')
 
 //Venue initiates settlement of OTCTradeProposal
 
-const activeTradeProposals2 = await sdk.ledger.acs.read({
+const activeTradeProposals2 = await sdk.ledger.acsReader.readJsContracts({
     templateIds: [
         '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
     ],
@@ -234,7 +234,7 @@ await sdk.ledger
 
 logger.info('Venue initated settlement of OTCTradeProposal')
 
-const otcTrades = await sdk.ledger.acs.read({
+const otcTrades = await sdk.ledger.acsReader.readJsContracts({
     templateIds: [
         '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTrade',
     ],

@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
+// Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 // generateOutputDocs.js
 //
 // - Reads a single export config: docs/config/exportConfig.json
 // - Writes extracted snippets into: docs-output/<snippetName>.mdx
 // - Resolves source files relative to the repo root
 
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
 const REPO_ROOT = path.join(__dirname, '..', '..')
 const EXPORT_CONFIG_PATH = path.join(REPO_ROOT, 'docs/config/exportConfig.json')
@@ -17,7 +20,9 @@ function readFileContent(filePath) {
     try {
         return fs.readFileSync(filePath, 'utf8')
     } catch (error) {
-        throw new Error(`Failed to read file ${filePath}: ${error.message}`)
+        throw new Error(`Failed to read file ${filePath}: ${error.message}`, {
+            cause: error,
+        })
     }
 }
 
@@ -86,7 +91,9 @@ function extractByJsonIndex(fileContent, start, end) {
     try {
         arr = JSON.parse(fileContent)
     } catch (e) {
-        throw new Error(`File is not valid JSON: ${e.message}`)
+        throw new Error(`File is not valid JSON: ${e.message}`, {
+            cause: e,
+        })
     }
     if (!Array.isArray(arr)) {
         throw new Error(
@@ -278,7 +285,7 @@ function main() {
             try {
                 processSnippet(snippet)
                 successCount++
-            } catch (error) {
+            } catch {
                 errorCount++
             }
         }
