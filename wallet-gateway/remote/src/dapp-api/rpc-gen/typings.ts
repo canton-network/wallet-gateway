@@ -70,7 +70,7 @@ export type Command =
  * Non-empty array of Daml command atoms to submit atomically as a single transaction.
  *
  */
-export type JsCommands = Command[]
+export type Commands = Command[]
 /**
  *
  * The party that signed the transaction.
@@ -508,7 +508,7 @@ export interface MessageSignatureFailedEvent {
  */
 export interface PrepareExecuteParams {
     commandId?: CommandId
-    commands: JsCommands
+    commands: Commands
     actAs?: ActAs
     readAs?: ReadAs
     disclosedContracts?: DisclosedContracts

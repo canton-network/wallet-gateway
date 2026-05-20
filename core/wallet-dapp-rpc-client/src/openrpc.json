@@ -261,7 +261,7 @@
                         "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/CommandId"
                     },
                     "commands": {
-                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/JsCommands"
+                        "$ref": "api-specs/openrpc-dapp-api.json#/components/schemas/Commands"
                     },
                     "actAs": {
                         "title": "actAs",
@@ -409,8 +409,8 @@
                     }
                 ]
             },
-            "JsCommands": {
-                "title": "JsCommands",
+            "Commands": {
+                "title": "Commands",
                 "type": "array",
                 "minItems": 1,
                 "description": "Non-empty array of Daml command atoms to submit atomically as a single transaction.",

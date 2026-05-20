@@ -5,7 +5,7 @@ import { v4 } from 'uuid'
 import { LedgerClient, Types } from '@canton-network/core-ledger-client'
 import type {
     DisclosedContracts,
-    JsCommands,
+    Commands,
     PackageIdSelectionPreference,
 } from './dapp-api/rpc-gen/typings.js'
 
@@ -34,7 +34,7 @@ export async function networkStatus(
 
 export interface PrepareParams {
     commandId?: string
-    commands?: JsCommands
+    commands?: Commands
     actAs?: string[]
     readAs?: string[]
     disclosedContracts?: DisclosedContracts
