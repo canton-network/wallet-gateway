@@ -1,6 +1,9 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import path from 'path'
+import { fileURLToPath } from 'url'
+import fs from 'fs/promises'
 import type { Logger } from 'pino'
 import {
     localNetStaticConfig,
@@ -17,6 +20,7 @@ import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
     resolveGlobalSynchronizerId,
+    vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -35,6 +39,8 @@ export type PartyInfo = Omit<
     topologyTransactions?: string[] | undefined
     keyPair: KeyPair
 }
+
+const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
 export interface MultiSyncSetup {
     p1Sdk: SDKInterface<'token'>
@@ -123,6 +129,25 @@ export async function setupMultiSyncTrade(
         globalSynchronizerId,
         appSynchronizerId,
     }
+
+    // Load and vet the TestTokenV1 DAR (bundled alongside this script).
+    // The trading-app DAR is already uploaded and vetted by Splice on startup;
+    // app-synchronizer.sc replicates that vetting to the app synchronizer.
+    const here = path.dirname(fileURLToPath(import.meta.url))
+    const testTokenV1Dar = await fs.readFile(path.join(here, TEST_TOKEN_V1_DAR))
+
+    // P1 and P2 vet on both synchronizers; P3 (sv) is global-only
+    await Promise.all([
+        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
+            [globalSynchronizerId, appSynchronizerId].map((sid) =>
+                vetDar(ctx.ledgerProvider, testTokenV1Dar, sid)
+            )
+        ),
+        vetDar(p3SdkCtx.ledgerProvider, testTokenV1Dar, globalSynchronizerId),
+    ])
+    logger.info(
+        'TestTokenV1 DAR vetted: P1+P2 on both synchronizers, P3 on global only'
+    )
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
     // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
