@@ -21,6 +21,7 @@ import type { SynchronizerMap } from '../utils/index.js'
 import {
     LOCALNET_BOB_LEDGER_URL,
     LOCALNET_TRADING_APP_LEDGER_URL,
+    LOCALNET_TEST_TOKEN_REGISTRY_URL,
     PARTY_HINT_ALICE,
     PARTY_HINT_BOB,
     PARTY_HINT_TRADING_APP,
@@ -66,22 +67,28 @@ export interface MultiSyncSetup {
 export async function setupMultiSyncTrade(
     logger: Logger
 ): Promise<MultiSyncSetup> {
-    // Create three SDK instances — one per participant node
+    const testTokenTokenConfig = {
+        ...TOKEN_NAMESPACE_CONFIG,
+        registries: [
+            ...(TOKEN_NAMESPACE_CONFIG.registries as URL[]),
+            LOCALNET_TEST_TOKEN_REGISTRY_URL,
+        ],
+    }
     const [p1Sdk, p2Sdk, p3Sdk] = await Promise.all([
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: localNetStaticConfig.LOCALNET_APP_USER_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: LOCALNET_BOB_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
         SDK.create({
             auth: TOKEN_PROVIDER_CONFIG_DEFAULT,
             ledgerClientUrl: LOCALNET_TRADING_APP_LEDGER_URL,
-            token: TOKEN_NAMESPACE_CONFIG,
+            token: testTokenTokenConfig,
         }),
     ])
 
@@ -125,6 +132,38 @@ export async function setupMultiSyncTrade(
         globalSynchronizerId,
         appSynchronizerId,
     }
+
+    const here = path.dirname(fileURLToPath(import.meta.url))
+    const darsDir = path.join(here, DARS_PATH)
+    for (const [darPath, darName] of [
+        [path.join(darsDir, TRADING_APP_DAR), TRADING_APP_DAR],
+        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
+    ] as [string, string][]) {
+        try {
+            await fs.stat(darPath)
+        } catch {
+            throw new Error(
+                `Required DAR not found: ${darPath}\n` +
+                    `  "${darName}" must be present in .localnet/dars/.`
+            )
+        }
+    }
+
+    const [tradingAppDar, testTokenV1Dar] = await Promise.all([
+        fs.readFile(path.join(darsDir, TRADING_APP_DAR)),
+        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
+    ])
+
+    await Promise.all(
+        [p1SdkCtx, p2SdkCtx, p3SdkCtx].flatMap((ctx) =>
+            [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
+                [tradingAppDar, testTokenV1Dar].map((dar) =>
+                    vetDar(ctx.ledgerProvider, dar, sid)
+                )
+            )
+        )
+    )
+    logger.info('DARs vetted: P1+P2+P3 on both synchronizers')
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
     // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
@@ -184,7 +223,6 @@ export async function setupMultiSyncTrade(
         `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P3)`
     )
 
-    // Register Alice, Bob, and TokenAdmin on app-synchronizer so they can transact there.
     await Promise.all([
         p1Sdk.party.external
             .create(alice.keyPair.publicKey, {
@@ -211,7 +249,6 @@ export async function setupMultiSyncTrade(
     ])
     logger.info('Alice, Bob, and TokenAdmin registered on app-synchronizer')
 
-    // Connect scan proxy and discover Amulet admin
     const auth = new AuthTokenProvider(TOKEN_PROVIDER_CONFIG_DEFAULT, logger)
     const scanProxy = new ScanProxyClient(
         localNetStaticConfig.LOCALNET_APP_VALIDATOR_URL,

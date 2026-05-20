@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { execFileSync } from 'child_process'
+import { execFileSync, spawnSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -25,6 +25,11 @@ const GENERATED_COMPOSE_OVERRIDE = path.join(
 const CANTON_MAX_COMMANDS_IN_FLIGHT = 256
 const LOCALNET_DARS_DIR = path.join(rootDir, '.localnet/dars')
 // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
+const MULTI_SYNC_APP_SYNCHRONIZER_SC = path.join(
+    rootDir,
+    'canton/multi-sync/app-synchronizer.sc'
+)
+
 function ensureComposeOverride() {
     fs.mkdirSync(path.dirname(GENERATED_COMPOSE_OVERRIDE), { recursive: true })
     const lines = [
@@ -40,7 +45,8 @@ function ensureComposeOverride() {
         lines.push(
             '  multi-sync-startup:',
             '    volumes:',
-            `      - ${LOCALNET_DARS_DIR}:/app/dars:ro`
+            `      - ${LOCALNET_DARS_DIR}:/app/dars:ro`,
+            `      - ${MULTI_SYNC_APP_SYNCHRONIZER_SC}:/app/app-synchronizer.sc:ro`
         )
     }
     lines.push('')
@@ -88,6 +94,22 @@ if (command === 'pull') {
         stdio: 'inherit',
         env,
     })
+    // TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
+    if (multiSync) {
+        console.log(
+            'Waiting for multi-sync bootstrap (package vetting) to complete...'
+        )
+        const waitResult = spawnSync('docker', ['wait', 'multi-sync-startup'], {
+            encoding: 'utf8',
+        })
+        const exitCode = waitResult.stdout?.trim() ?? '1'
+        if (exitCode !== '0') {
+            throw new Error(
+                `multi-sync bootstrap script failed with exit code ${exitCode}`
+            )
+        }
+        console.log('Multi-sync bootstrap completed successfully.')
+    }
 } else if (command === 'stop') {
     execFileSync(composeBase[0], [...composeBase.slice(1), 'down', '-v'], {
         stdio: 'inherit',

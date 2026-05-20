@@ -10,6 +10,7 @@ import {
     PARTY_HINT_BOB,
     PARTY_HINT_TRADING_APP,
     PARTY_HINT_TOKEN_ADMIN,
+    LOCALNET_TEST_TOKEN_REGISTRY_URL,
 } from './_config.js'
 
 // ── ACS contract entry (as returned by ledger.acs.read) ───────────────────────
@@ -20,8 +21,6 @@ interface AcsContractEntry {
     createdEventBlob?: string
     synchronizerId: string
 }
-
-// ── Template / interface identifiers ─────────────────────────────────────────
 
 export const AMULET_TEMPLATE_ID = '#splice-amulet:Splice.Amulet:Amulet'
 export const TEST_TOKEN_PREFIX =
@@ -137,8 +136,15 @@ export async function createTokenRulesAndMintForBob(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p2Sdk, bob, tokenAdmin, globalSynchronizerId, appSynchronizerId } =
-        setup
+    const {
+        p2Sdk,
+        p3Sdk,
+        tokenNamespaceP2,
+        bob,
+        tokenAdmin,
+        appSynchronizerId,
+        globalSynchronizerId,
+    } = setup
 
     // tokenAdmin is hosted on P2; use p2Sdk for all tokenAdmin submissions
     await Promise.all([
@@ -201,101 +207,61 @@ export async function createTokenRulesAndMintForBob(
         .sign(tokenAdmin.keyPair.privateKey)
         .execute({ partyId: tokenAdmin.partyId })
 
-    // Read tokenAdmin's contracts via P2 (P2 is connected to both synchronizers)
-    const [tokenRulesContracts, adminTokenHoldings] = await Promise.all([
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [tokenAdmin.partyId],
-            filterByParty: true,
-        }),
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [tokenAdmin.partyId],
-            filterByParty: true,
-        }),
-    ])
-    const appTokenRules = tokenRulesContracts.find(
-        (c) => c.synchronizerId === appSynchronizerId
-    )
-    if (!appTokenRules)
-        throw new Error(
-            'TokenRules not found on app synchronizer after creation'
-        )
+    const adminTokenHoldings = await p3Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [tokenAdmin.partyId],
+        filterByParty: true,
+    })
     const adminTokenCid = adminTokenHoldings[0]?.contractId
     if (!adminTokenCid)
         throw new Error('TokenAdmin Token holding not found after mint')
 
-    // Transfer Token to Bob on app-synchronizer via P2 (sv/P3 is global-only)
-    await p2Sdk.ledger
+    const [transferCommand, transferDisclosed] =
+        await p3Sdk.token.transfer.create({
+            sender: tokenAdmin.partyId,
+            recipient: bob.partyId,
+            amount: BOB_TOKEN_MINT_AMOUNT,
+            instrumentId: 'TestToken',
+            registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL,
+            inputUtxos: [adminTokenCid],
+        })
+
+    await p3Sdk.ledger
         .prepare({
             partyId: tokenAdmin.partyId,
-            commands: [
-                {
-                    ExerciseCommand: {
-                        templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: appTokenRules.contractId,
-                        choice: 'TransferFactory_Transfer',
-                        choiceArgument: {
-                            expectedAdmin: tokenAdmin.partyId,
-                            transfer: {
-                                sender: tokenAdmin.partyId,
-                                receiver: bob.partyId,
-                                amount: BOB_TOKEN_MINT_AMOUNT,
-                                instrumentId: {
-                                    admin: tokenAdmin.partyId,
-                                    id: 'TestToken',
-                                },
-                                requestedAt: new Date(Date.now()).toISOString(),
-                                executeBefore: new Date(
-                                    Date.now() + MS_24_HOURS
-                                ).toISOString(),
-                                inputHoldingCids: [adminTokenCid],
-                                meta: { values: {} },
-                            },
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
-                        },
-                    },
-                },
-            ],
-            disclosedContracts: [],
+            commands: [transferCommand],
+            disclosedContracts: transferDisclosed,
             synchronizerId: appSynchronizerId,
         })
         .sign(tokenAdmin.keyPair.privateKey)
         .execute({ partyId: tokenAdmin.partyId })
 
-    const transferOffers = await p2Sdk.ledger.acs.read({
-        templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
-        parties: [bob.partyId],
-        filterByParty: true,
-    })
-    const transferOfferCid = transferOffers[0]?.contractId
+    let transferOfferCid: string | undefined
+    const deadline = Date.now() + 30_000
+    while (!transferOfferCid && Date.now() < deadline) {
+        const transferOffers = await p2Sdk.ledger.acs.read({
+            templateIds: [`${TEST_TOKEN_PREFIX}:TokenTransferOffer`],
+            parties: [bob.partyId],
+            filterByParty: true,
+        })
+        transferOfferCid = transferOffers[0]?.contractId
+        if (!transferOfferCid)
+            await new Promise((res) => setTimeout(res, 2_000))
+    }
     if (!transferOfferCid)
-        throw new Error('TokenTransferOffer not found for Bob')
+        throw new Error('TokenTransferOffer not found for Bob after 30s')
 
-    const transferInstructionIface =
-        '#splice-api-token-transfer-instruction-v1:Splice.Api.Token.TransferInstructionV1:TransferInstruction'
+    const [acceptCommand, acceptDisclosed] =
+        await tokenNamespaceP2.transfer.accept({
+            transferInstructionCid: transferOfferCid,
+            registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL,
+        })
+
     await p2Sdk.ledger
         .prepare({
             partyId: bob.partyId,
-            commands: [
-                {
-                    ExerciseCommand: {
-                        templateId: transferInstructionIface,
-                        contractId: transferOfferCid,
-                        choice: 'TransferInstruction_Accept',
-                        choiceArgument: {
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
-                        },
-                    },
-                },
-            ],
-            disclosedContracts: [],
+            commands: [acceptCommand],
+            disclosedContracts: acceptDisclosed,
             synchronizerId: appSynchronizerId,
         })
         .sign(bob.keyPair.privateKey)
@@ -494,27 +460,14 @@ export async function allocateTokenForBob(
     )!
     if (!legId) throw new Error('No transfer leg found for Bob')
 
-    const [tokenHoldings, tokenRulesContracts] = await Promise.all([
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-        // Read tokenAdmin's TokenRules via P2 (P2 is connected to both synchronizers)
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [tokenAdmin.partyId],
-            filterByParty: true,
-        }),
-    ])
+    const tokenHoldings = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
 
     const tokenHolding = tokenHoldings[0]
     if (!tokenHolding) throw new Error('Token holding not found for Bob')
-    const tokenRulesOnGlobal = tokenRulesContracts.find(
-        (c) => c.synchronizerId === globalSynchronizerId
-    )
-    if (!tokenRulesOnGlobal)
-        throw new Error('TokenRules not found on global synchronizer')
 
     // Explicitly reassign Bob's token from app-synchronizer to global before allocation.
     // Canton requires the submitter to be a stakeholder of a contract already on the
@@ -540,33 +493,18 @@ export async function allocateTokenForBob(
                 id: 'TestToken',
                 displayName: 'TestToken',
                 symbol: 'TT',
-                registryUrl: 'http://unused.invalid',
+                registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL.href,
                 admin: tokenAdmin.partyId,
             },
             inputUtxos: [tokenHolding.contractId],
             requestedAt: new Date(Date.now()).toISOString(),
-            prefetchedRegistryChoiceContext: {
-                factoryId: tokenRulesOnGlobal.contractId,
-                choiceContext: {
-                    choiceContextData: {} as Record<string, never>,
-                    disclosedContracts: [],
-                },
-            },
         })
 
     await p2Sdk.ledger
         .prepare({
             partyId: bob.partyId,
             commands: [command],
-            disclosedContracts: [
-                ...disclosedFromHelper,
-                {
-                    templateId: tokenRulesOnGlobal.templateId,
-                    contractId: tokenRulesOnGlobal.contractId,
-                    createdEventBlob: tokenRulesOnGlobal.createdEventBlob!,
-                    synchronizerId: tokenRulesOnGlobal.synchronizerId,
-                },
-            ],
+            disclosedContracts: disclosedFromHelper,
             synchronizerId: globalSynchronizerId,
         })
         .sign(bob.keyPair.privateKey)
@@ -593,6 +531,7 @@ export async function settleOtcTrade(
     const {
         p3Sdk,
         tokenNamespaceP1: tokenNamespaceP1,
+        tokenNamespaceP2,
         alice,
         tradingApp,
         globalSynchronizerId,
@@ -607,10 +546,16 @@ export async function settleOtcTrade(
     )
     if (!amuletAllocation) throw new Error('Amulet allocation not found')
 
-    const amuletExecCtx = await tokenNamespaceP1.allocation.context.execute({
-        allocationCid: amuletAllocation.contractId,
-        registryUrl: localNetStaticConfig.LOCALNET_REGISTRY_API_URL,
-    })
+    const [amuletExecCtx, tokenExecCtx] = await Promise.all([
+        tokenNamespaceP1.allocation.context.execute({
+            allocationCid: amuletAllocation.contractId,
+            registryUrl: localNetStaticConfig.LOCALNET_REGISTRY_API_URL,
+        }),
+        tokenNamespaceP2.allocation.context.execute({
+            allocationCid: testTokenAllocationCid,
+            registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL,
+        }),
+    ])
 
     const allocationsWithContext = {
         [legIdAlice]: {
@@ -629,13 +574,30 @@ export async function settleOtcTrade(
         },
         [legIdBob]: {
             _1: testTokenAllocationCid,
-            _2: { context: { values: {} }, meta: { values: {} } },
+            _2: {
+                context: {
+                    ...(tokenExecCtx.choiceContextData ?? {}),
+                    values:
+                        (tokenExecCtx.choiceContextData?.values as Record<
+                            string,
+                            unknown
+                        >) ?? {},
+                },
+                meta: { values: {} },
+            },
         },
     }
 
-    const disclosedContracts = (amuletExecCtx.disclosedContracts ?? []).map(
-        (c) => ({ ...c, synchronizerId: '' })
-    )
+    const disclosedContracts = [
+        ...(amuletExecCtx.disclosedContracts ?? []).map((c) => ({
+            ...c,
+            synchronizerId: '',
+        })),
+        ...(tokenExecCtx.disclosedContracts ?? []).map((c) => ({
+            ...c,
+            synchronizerId: '',
+        })),
+    ]
 
     await p3Sdk.ledger
         .prepare({
@@ -665,28 +627,26 @@ export async function aliceSelfTransferToApp(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p1Sdk, p2Sdk, alice, tokenAdmin, appSynchronizerId } = setup
+    const { p1Sdk, tokenNamespaceP1, alice, appSynchronizerId } = setup
 
-    const [aliceTokens, tokenRulesContracts] = await Promise.all([
-        p1Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [alice.partyId],
-            filterByParty: true,
-        }),
-        // Read tokenAdmin's TokenRules via P2 (sv/P3 is global-only)
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [tokenAdmin.partyId],
-            filterByParty: true,
-        }),
-    ])
-    const aliceToken = aliceTokens[0]
-    if (!aliceToken)
+    const aliceTokens = await p1Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [alice.partyId],
+        filterByParty: true,
+    })
+    const aliceTokenCid = aliceTokens[0]?.contractId
+    if (!aliceTokenCid)
         throw new Error('Alice: Token holding not found after settlement')
-    const tokenRules = tokenRulesContracts.find(
-        (c) => c.synchronizerId === appSynchronizerId
-    )
-    if (!tokenRules) throw new Error('TokenRules not found on app-synchronizer')
+
+    const [transferCommand, transferDisclosed] =
+        await tokenNamespaceP1.transfer.create({
+            sender: alice.partyId,
+            recipient: alice.partyId,
+            amount: TRADE_TOKEN_AMOUNT,
+            instrumentId: 'TestToken',
+            registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL,
+            inputUtxos: [aliceTokenCid],
+        })
 
     // Explicitly reassign Alice's token from global to app-synchronizer before the self-transfer.
     // Canton's SUBMITTER_ALWAYS_STAKEHOLDER policy requires the submitter to be a stakeholder
@@ -704,48 +664,8 @@ export async function aliceSelfTransferToApp(
     await p1Sdk.ledger
         .prepare({
             partyId: alice.partyId,
-            commands: [
-                {
-                    ExerciseCommand: {
-                        templateId: TRANSFER_FACTORY_IFACE,
-                        contractId: tokenRules.contractId,
-                        choice: 'TransferFactory_Transfer',
-                        choiceArgument: {
-                            expectedAdmin: tokenAdmin.partyId,
-                            transfer: {
-                                sender: alice.partyId,
-                                receiver: alice.partyId,
-                                amount: TRADE_TOKEN_AMOUNT,
-                                instrumentId: {
-                                    admin: tokenAdmin.partyId,
-                                    id: 'TestToken',
-                                },
-                                requestedAt: new Date(Date.now()).toISOString(),
-                                executeBefore: new Date(
-                                    Date.now() + MS_24_HOURS
-                                ).toISOString(),
-                                inputHoldingCids: [aliceToken.contractId],
-                                meta: { values: {} },
-                            },
-                            extraArgs: {
-                                context: { values: {} },
-                                meta: { values: {} },
-                            },
-                        },
-                    },
-                },
-            ],
-            disclosedContracts: [
-                {
-                    templateId: tokenRules.templateId,
-                    contractId: tokenRules.contractId,
-                    createdEventBlob: tokenRules.createdEventBlob!,
-                    synchronizerId: tokenRules.synchronizerId,
-                },
-                // Alice's token is in her own ACS (she is a stakeholder) and has
-                // already been reassigned to app-synchronizer above, so no
-                // disclosure is needed for it.
-            ],
+            commands: [transferCommand],
+            disclosedContracts: transferDisclosed,
             synchronizerId: appSynchronizerId,
         })
         .sign(alice.keyPair.privateKey)
@@ -760,30 +680,18 @@ export async function bobSelfTransferToApp(
     setup: MultiSyncSetup,
     logger: Logger
 ): Promise<void> {
-    const { p2Sdk, bob, tokenAdmin, appSynchronizerId } = setup
+    const { p2Sdk, tokenNamespaceP2, bob, appSynchronizerId } = setup
 
-    const [bobTokens, tokenRulesContracts] = await Promise.all([
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
-            parties: [bob.partyId],
-            filterByParty: true,
-        }),
-        // Read tokenAdmin's TokenRules via P2 (sv/P3 is global-only)
-        p2Sdk.ledger.acs.read({
-            templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
-            parties: [tokenAdmin.partyId],
-            filterByParty: true,
-        }),
-    ])
+    const bobTokens = await p2Sdk.ledger.acs.read({
+        templateIds: [`${TEST_TOKEN_PREFIX}:Token`],
+        parties: [bob.partyId],
+        filterByParty: true,
+    })
 
     if (bobTokens.length === 0) {
         logger.info('Bob: no TestToken holdings to self-transfer')
         return
     }
-    const tokenRules = tokenRulesContracts.find(
-        (c) => c.synchronizerId === appSynchronizerId
-    )
-    if (!tokenRules) throw new Error('TokenRules not found on app-synchronizer')
 
     for (const token of bobTokens) {
         const holdingAmount = (
@@ -794,64 +702,21 @@ export async function bobSelfTransferToApp(
         if (!holdingAmount)
             throw new Error('Cannot read amount from Bob Token holding')
 
-        // Explicitly reassign Bob's token to app-synchronizer before the self-transfer
-        // (same SUBMITTER_ALWAYS_STAKEHOLDER constraint as above)
-        if (token.synchronizerId !== appSynchronizerId) {
-            await p2Sdk.ledger.internal.reassign({
-                submitter: bob.partyId,
-                contractId: token.contractId,
-                source: token.synchronizerId,
-                target: appSynchronizerId,
+        const [transferCommand, transferDisclosed] =
+            await tokenNamespaceP2.transfer.create({
+                sender: bob.partyId,
+                recipient: bob.partyId,
+                amount: holdingAmount,
+                instrumentId: 'TestToken',
+                registryUrl: LOCALNET_TEST_TOKEN_REGISTRY_URL,
+                inputUtxos: [token.contractId],
             })
-        }
 
         await p2Sdk.ledger
             .prepare({
                 partyId: bob.partyId,
-                commands: [
-                    {
-                        ExerciseCommand: {
-                            templateId: TRANSFER_FACTORY_IFACE,
-                            contractId: tokenRules.contractId,
-                            choice: 'TransferFactory_Transfer',
-                            choiceArgument: {
-                                expectedAdmin: tokenAdmin.partyId,
-                                transfer: {
-                                    sender: bob.partyId,
-                                    receiver: bob.partyId,
-                                    amount: holdingAmount,
-                                    instrumentId: {
-                                        admin: tokenAdmin.partyId,
-                                        id: 'TestToken',
-                                    },
-                                    requestedAt: new Date(
-                                        Date.now()
-                                    ).toISOString(),
-                                    executeBefore: new Date(
-                                        Date.now() + MS_24_HOURS
-                                    ).toISOString(),
-                                    inputHoldingCids: [token.contractId],
-                                    meta: { values: {} },
-                                },
-                                extraArgs: {
-                                    context: { values: {} },
-                                    meta: { values: {} },
-                                },
-                            },
-                        },
-                    },
-                ],
-                disclosedContracts: [
-                    {
-                        templateId: tokenRules.templateId,
-                        contractId: tokenRules.contractId,
-                        createdEventBlob: tokenRules.createdEventBlob!,
-                        synchronizerId: tokenRules.synchronizerId,
-                    },
-                    // Bob's token is in his own ACS (he is a stakeholder) and has
-                    // already been reassigned to app-synchronizer above, so no
-                    // disclosure is needed for it.
-                ],
+                commands: [transferCommand],
+                disclosedContracts: transferDisclosed,
                 synchronizerId: appSynchronizerId,
             })
             .sign(bob.keyPair.privateKey)
