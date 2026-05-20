@@ -3,7 +3,7 @@
 
 import type { SDKInterface } from '@canton-network/wallet-sdk'
 import type { Logger } from 'pino'
-import type { SynchronizerMap } from '@canton-network/wallet-sdk'
+import type { SynchronizerMap } from './index.js'
 
 export type ContractReadSpec = {
     label: string

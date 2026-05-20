@@ -6,12 +6,6 @@ import { Ops } from '@canton-network/core-provider-ledger'
 import { SDKLogger } from '../../logger/index.js'
 import { v3_4 } from '@canton-network/core-ledger-client-types'
 
-/** Maps the two synchronizer roles used in multi-synchronizer setups. */
-export type SynchronizerMap = {
-    globalSynchronizerId: string
-    appSynchronizerId: string
-}
-
 export type ConnectedSynchronizersOptions = {
     party?: string
     participantId?: string
@@ -26,26 +20,6 @@ export class State {
 
     constructor(private readonly ctx: SDKContext) {
         this.logger = ctx.logger.child({ namespace: 'State' })
-    }
-
-    /**
-     * Returns the ID of the global synchronizer for this participant.
-     *
-     * Fetches the connected synchronizers list and selects the entry whose alias
-     * is `'global'`. Falls back to the first entry when no alias matches (e.g.
-     * single-synchronizer setups).
-     *
-     * @returns The `synchronizerId` of the global synchronizer.
-     * @throws {Error} When no synchronizers are connected.
-     */
-    public async globalSynchronizerId(): Promise<string> {
-        const result = await this.connectedSynchronizers()
-        const synchronizers = result.connectedSynchronizers ?? []
-        const global =
-            synchronizers.find((s) => s.synchronizerAlias === 'global') ??
-            synchronizers[0]
-        if (!global) throw new Error('No connected synchronizers found')
-        return global.synchronizerId
     }
 
     /**
