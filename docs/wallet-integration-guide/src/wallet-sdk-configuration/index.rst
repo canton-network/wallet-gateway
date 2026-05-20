@@ -150,7 +150,7 @@ Creating and Registering a Plugin
 To create a plugin, extend the ``SDKPlugin`` class and implement your custom functionality. Plugins are registered using the
 ``registerPlugins`` method, which accepts a record of plugin constructors keyed by their desired property names.
 
-.. literalinclude:: ../examples/snippets/plugin.ts
+.. literalinclude:: ../../examples/snippets/plugin.ts
             :language: typescript
             :dedent:
 
@@ -161,11 +161,4 @@ Key Points
 - **Type Safety**: The ``registerPlugins`` method provides full type safety, ensuring that registered plugins are accessible with proper autocompletion and type checking.
 - **Access to SDK Context**: Plugins have access to the SDK's context, logger, and other internal utilities through the ``ctx`` property.
 - **Multiple Plugins**: You can register multiple plugins at once by passing them in a single object to ``registerPlugins``.
-
-Example with Multiple Plugins:
-
-.. literalinclude:: ../../examples/snippets/plugin.ts
-            :language: typescript
-            :dedent:
-
 
