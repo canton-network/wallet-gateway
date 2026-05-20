@@ -48,5 +48,5 @@
         "typedoc": "^0.28.17",
         "typescript": "^5.9.3"
     },
-    "repository": "github:canton-network/wallet-gateway"
+    "repository": "github:canton-network/wallet"
 }

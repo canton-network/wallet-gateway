@@ -47,7 +47,7 @@ Fireblocks is a third-party crypto custody service provider that offers enterpri
 
 **Setup:**
 
-1. Complete steps 1-3 from the [Fireblocks signing documentation](https://github.com/canton-network/wallet-gateway/tree/main/core/signing-fireblocks)
+1. Complete steps 1-3 from the [Fireblocks signing documentation](https://github.com/canton-network/wallet/tree/main/core/signing-fireblocks)
 
 2. Supply an environment variable named `FIREBLOCKS_API_KEY` containing your Fireblocks API key (from the `API User (ID)` column in the Fireblocks API users table).
 

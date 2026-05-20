@@ -1,6 +1,6 @@
 # Examples
 
-The following example dApps demonstrate how to use the dApp SDK and Wallet Gateway. You can find them in the [`/examples`](https://github.com/canton-network/wallet-gateway/tree/main/examples) directory of the repository.
+The following example dApps demonstrate how to use the dApp SDK and Wallet Gateway. You can find them in the [`/examples`](https://github.com/canton-network/wallet/tree/main/examples) directory of the repository.
 
 ## Ping
 
@@ -13,7 +13,7 @@ yarn install
 yarn dev
 ```
 
-[Source code](https://github.com/canton-network/wallet-gateway/tree/main/examples/ping)
+[Source code](https://github.com/canton-network/wallet/tree/main/examples/ping)
 
 ## Portfolio
 
@@ -29,4 +29,4 @@ yarn start:all   # this service lives at http://localhost:8081
 yarn stop:all
 ```
 
-[Source code](https://github.com/canton-network/wallet-gateway/tree/main/examples/portfolio)
+[Source code](https://github.com/canton-network/wallet/tree/main/examples/portfolio)
