@@ -48,8 +48,11 @@ test('dApp: execute externally signed tx with Blockdaemon', async ({
 
     await dappPage.getByRole('button', { name: 'Accounts' }).click()
     expect(
-        await dappPage.getByText(`${blockdaemonPartyHint}::`).count()
-    ).toBeGreaterThanOrEqual(2)
+        await dappPage
+            .getByText(`${blockdaemonPartyHint}::`)
+            .filter({ visible: true })
+            .count()
+    ).toBe(1)
 
     // Guard against another wallet being selected as primary.
     await wg.setPrimaryWallet(blockdaemonPartyId)

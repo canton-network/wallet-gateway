@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-// Import global Window augmentation for the DappProvider injection
+// Import global Window augmentation for `window.canton`
 import '@canton-network/core-provider-dapp'
 
 // ── Asset exports (icons for wallet adapters) ──
