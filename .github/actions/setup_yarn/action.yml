@@ -21,6 +21,13 @@ runs:
               node-version: 'v24.9.0'
               cache: 'yarn'
 
+        - name: Download build artifacts
+          id: download_build_artifacts
+          continue-on-error: true
+          uses: actions/download-artifact@v5
+          with:
+              name: build-dist-${{ github.run_id }}
+
         - name: Restore DPM cache
           id: dpm_cache
           uses: actions/cache/restore@v5
@@ -32,10 +39,6 @@ runs:
         - name: Add DPM to PATH
           shell: bash
           run: echo "$HOME/.dpm/bin" >> "$GITHUB_PATH"
-
-        - name: Install dependencies
-          shell: bash
-          run: yarn install --immutable
 
         - name: reduce DPM size
           if: ${{ steps.dpm_cache.outputs.cache-hit != 'true' }}
@@ -51,13 +54,6 @@ runs:
               key: ${{ steps.dpm_cache.outputs.cache-primary-key }}
               save_cache: ${{ inputs.save_cache }}
               initial_cache_hit: ${{ steps.dpm_cache.outputs.cache-hit }}
-
-        - name: Download build artifacts
-          id: download_build_artifacts
-          continue-on-error: true
-          uses: actions/download-artifact@v5
-          with:
-              name: build-dist-${{ github.run_id }}
 
         - name: Install dependencies
           shell: bash

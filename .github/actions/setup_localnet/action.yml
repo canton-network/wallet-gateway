@@ -28,6 +28,7 @@ runs:
           with:
               path: |
                   .localnet/docker-compose/localnet
+                  .localnet/dars
                   /tmp/docker-images
               key: ${{ runner.os }}-localnet-${{ inputs.splice_version }}
               lookup-only: ${{ inputs.lookup_only == 'true' }}
