@@ -4,19 +4,18 @@
 import { TokenStandardService } from '@canton-network/core-token-standard-service'
 import { PartyId } from '@canton-network/core-types'
 import { SDKErrorHandler } from '../../error/index.js'
-import { ParsedURL } from '../utils/url.js'
 
 export type AssetBody = {
     id: string
     displayName: string
     symbol: string
-    registryUrl: ParsedURL
+    registryUrl: URL
     admin: PartyId
 }
 
 export type AssetContext = {
     tokenStandardService: TokenStandardService
-    registries: ParsedURL[]
+    registries: URL[]
     error: SDKErrorHandler
     list: AssetBody[]
 }
@@ -28,7 +27,7 @@ export class AssetNamespace {
         return this.ctx.list
     }
 
-    public async find(id: string, registryUrl?: ParsedURL): Promise<AssetBody> {
+    public async find(id: string, registryUrl?: URL): Promise<AssetBody> {
         return await findAsset(this.list, id, this.ctx.error, registryUrl)
     }
 }
@@ -37,7 +36,7 @@ export function findAsset(
     assets: AssetBody[],
     id: string,
     error: SDKErrorHandler,
-    registryUrl?: ParsedURL
+    registryUrl?: URL
 ): AssetBody {
     const asset = registryUrl
         ? assets.filter((asset) => asset.id === id && asset.registryUrl)

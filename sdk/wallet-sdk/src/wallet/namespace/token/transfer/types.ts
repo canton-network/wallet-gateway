@@ -3,14 +3,13 @@
 
 import { PartyId } from '@canton-network/core-types'
 import { Metadata } from '@canton-network/core-token-standard'
-import { ParsedURL } from '../../utils/url'
 
 export type TransferParams = {
     sender: PartyId
     recipient: PartyId
     amount: string
     instrumentId: string
-    registryUrl: ParsedURL
+    registryUrl: URL
     inputUtxos?: string[]
     expirationDate?: Date
     meta?: Metadata
@@ -19,5 +18,5 @@ export type TransferParams = {
 
 export type TransferAllocationChoiceParams = {
     transferInstructionCid: string
-    registryUrl: ParsedURL
+    registryUrl: URL
 }
