@@ -457,8 +457,7 @@ jobs:
     wallet-sdk-scripts-e2e-multi-sync:
         name: wallet-sdk-scripts-e2e-multi-sync (${{ matrix.network }})
         runs-on: ubuntu-latest
-        needs: [build, e2e-affected]
-        if: needs.e2e-affected.outputs.affected_wallet_sdk == 'true'
+        needs: build
         strategy:
             fail-fast: false
             matrix:
@@ -513,7 +512,6 @@ jobs:
         name: test-wallet-sdk-e2e
         runs-on: ubuntu-latest
         needs: [
-                e2e-affected,
                 wallet-sdk-snippets-e2e,
                 wallet-sdk-scripts-e2e,
                 wallet-sdk-scripts-e2e-multi-sync, # TODO (#1721): remove multi-sync scripts e2e tests once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as a gate to ensure multi-sync e2e tests are not accidentally skipped without updating the main scripts e2e tests to cover multi-sync as well
@@ -523,25 +521,16 @@ jobs:
         steps:
             - name: Report wallet-sdk e2e execution
               run: |
-                  if [ "${{ needs.e2e-affected.outputs.affected_wallet_sdk }}" = "true" ]; then
-                    if [ "${{ needs.wallet-sdk-snippets-e2e.result }}" != "success" ]; then
-                      echo "wallet-sdk snippets e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    if [ "${{ needs.wallet-sdk-scripts-e2e.result }}" != "success" ]; then
-                      echo "wallet-sdk scripts e2e was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    if [ "${{ needs.wallet-sdk-scripts-e2e-multi-sync.result }}" != "success" ]; then
-                      echo "wallet-sdk scripts e2e (multi-sync) was scheduled but did not succeed"
-                      exit 1
-                    fi
-                    echo "all wallet-sdk-e2e jobs passed"
-                  else
-                    echo "wallet-sdk e2e skipped (no affected wallet-sdk dependencies)"
+                  if [ "${{ needs.wallet-sdk-snippets-e2e.result }}" != "success" ]; then
+                    echo "wallet-sdk snippets e2e did not succeed"
+                    exit 1
                   fi
                   if [ "${{ needs.wallet-sdk-scripts-e2e.result }}" != "success" ]; then
                     echo "wallet-sdk scripts e2e did not succeed"
+                    exit 1
+                  fi
+                  if [ "${{ needs.wallet-sdk-scripts-e2e-multi-sync.result }}" != "success" ]; then
+                    echo "wallet-sdk scripts e2e (multi-sync) did not succeed"
                     exit 1
                   fi
                   if [ "${{ needs.wallet-sdk-pkg.result }}" != "success" ]; then
