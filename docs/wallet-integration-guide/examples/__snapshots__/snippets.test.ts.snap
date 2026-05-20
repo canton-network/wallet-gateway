@@ -46,6 +46,8 @@ exports[`testing doc snippets > monitor-transaction-holdings.ts 1`] = `undefined
 
 exports[`testing doc snippets > party.ts 1`] = `undefined`;
 
+exports[`testing doc snippets > plugin.ts 1`] = `undefined`;
+
 exports[`testing doc snippets > prepare-incoming-command.ts 1`] = `undefined`;
 
 exports[`testing doc snippets > prepare-transfer-transaction.ts 1`] = `undefined`;

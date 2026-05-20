@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react'
 import * as sdk from '@canton-network/dapp-sdk'
 
 type Connection = {
+    initialized: boolean
     status?: sdk.dappAPI.StatusEvent
     accounts: sdk.dappAPI.Wallet[]
     error?: string

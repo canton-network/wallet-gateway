@@ -3,3 +3,4 @@
 
 export * from './initializedSDK.js'
 export * from './types/index.js'
+export { SDKPlugin } from './plugin.js'
