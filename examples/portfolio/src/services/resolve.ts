@@ -59,6 +59,23 @@ const createTokenStandardService = async ({
     return tokenStandardService
 }
 
+const DEFAULT_SCAN_PROXY_URL = 'http://localhost:2000/api/validator'
+
+const resolveScanProxyUrl = (): URL => {
+    const scanProxyUrl = new URL(
+        import.meta.env.VITE_SCAN_PROXY_URL ?? DEFAULT_SCAN_PROXY_URL
+    )
+
+    if (scanProxyUrl.protocol === 'http:') {
+        logger.warn(
+            { scanProxyUrl: scanProxyUrl.toString() },
+            'Using a non-TLS scan proxy endpoint. This is acceptable only in trusted environments. Set VITE_SCAN_PROXY_URL to an HTTPS endpoint if the scan proxy is reachable over an untrusted network.'
+        )
+    }
+
+    return scanProxyUrl
+}
+
 const createAmuletService = async ({
     sessionToken,
     tokenStandardService,
@@ -67,7 +84,7 @@ const createAmuletService = async ({
     tokenStandardService: TokenStandardService
 }): Promise<AmuletService> => {
     const scanProxyClient = new ScanProxyClient(
-        new URL('http://localhost:2000/api/validator'),
+        resolveScanProxyUrl(),
         logger,
         AuthTokenProvider.fromToken(sessionToken, logger)
     )
