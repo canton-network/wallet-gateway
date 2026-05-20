@@ -143,7 +143,7 @@ const hooks: IHooks = {
                 if (repositoryDirectory) {
                     updatedPkgObj.repository = {
                         type: 'git',
-                        url: 'git+https://github.com/canton-network/wallet-gateway.git',
+                        url: 'git+https://github.com/canton-network/wallet.git',
                         directory: repositoryDirectory,
                     }
                 }

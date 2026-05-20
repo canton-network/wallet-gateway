@@ -59,7 +59,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/canton-network/wallet-gateway.git",
+        "url": "git+https://github.com/canton-network/wallet.git",
         "directory": "core/token-standard"
     }
 }
