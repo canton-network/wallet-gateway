@@ -17,7 +17,6 @@ import {
 
 // Multi-Synchronizer DvP: Alice pays 100 Amulet on global; Bob delivers 20 TestToken from app-sync.
 // P1 = app-user (Alice), P2 = app-provider (Bob), P3 = sv (TradingApp).
-// See README.md for the full flow description.
 
 const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 

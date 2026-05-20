@@ -19,7 +19,6 @@ import {
 } from './init/types/sdk.js'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import { toURL } from './common.js'
-import { SynchronizerMap } from './namespace/state/index.js'
 import {
     ExtendedInitializedSDK,
     OfflineInitializedSDK,
@@ -170,8 +169,6 @@ export class SDK {
         return new OfflineInitializedSDK({ logger, error })
     }
 }
-
-export type { SynchronizerMap }
 
 async function getDefaultSynchronizerId(
     provider: AbstractLedgerProvider,

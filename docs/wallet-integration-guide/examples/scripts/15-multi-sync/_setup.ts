@@ -16,6 +16,7 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
+    resolveGlobalSynchronizerId,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -101,14 +102,11 @@ export async function setupMultiSyncTrade(
             `Expected at least 2 connected synchronizers (global + app), found ${allSynchronizers.length}`
         )
 
-    const globalSynchronizerId = allSynchronizers.find(
-        (s) => s.synchronizerAlias === 'global'
-    )?.synchronizerId
+    const globalSynchronizerId = resolveGlobalSynchronizerId(allSynchronizers)
     const appSynchronizerId = allSynchronizers.find(
         (s) => s.synchronizerAlias === 'app-synchronizer'
     )?.synchronizerId
 
-    if (!globalSynchronizerId) throw new Error('Global synchronizer not found')
     if (!appSynchronizerId)
         throw new Error(
             'App synchronizer not found — start localnet with --multi-sync to enable it.'
