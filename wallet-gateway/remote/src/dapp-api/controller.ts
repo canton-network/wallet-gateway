@@ -214,9 +214,11 @@ export const dappController = (
 
             notifier.emit('txChanged', { status: 'pending', commandId })
 
-            const synchronizerId =
-                network.synchronizerId ??
-                (await ledgerClient.getSynchronizerId())
+            const synchronizerId = network.synchronizerId
+            if (!synchronizerId)
+                throw new Error(
+                    'synchronizerId is not configured for this network — set it in the network settings'
+                )
 
             const response = await prepareSubmission(
                 context.userId,

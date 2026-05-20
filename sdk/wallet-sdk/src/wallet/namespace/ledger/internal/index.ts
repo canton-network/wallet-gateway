@@ -122,7 +122,7 @@ export class InternalLedgerNamespace {
     ) {
         const {
             commands,
-            synchronizerId = this.ctx.defaultSynchronizerId,
+            synchronizerId,
             disclosedContracts = [],
             readAs = [],
             actAs,
@@ -136,7 +136,7 @@ export class InternalLedgerNamespace {
             actAs,
             readAs,
             disclosedContracts,
-            synchronizerId,
+            ...(synchronizerId !== undefined && { synchronizerId }),
             packageIdSelectionPreference,
         }
 
@@ -157,7 +157,7 @@ export class InternalLedgerNamespace {
     ) {
         const {
             commands,
-            synchronizerId = this.ctx.defaultSynchronizerId,
+            synchronizerId,
             disclosedContracts = [],
             readAs = [],
             actAs,
@@ -172,7 +172,7 @@ export class InternalLedgerNamespace {
             actAs,
             readAs,
             disclosedContracts,
-            synchronizerId,
+            ...(synchronizerId !== undefined && { synchronizerId }),
             packageIdSelectionPreference,
             verboseHashing,
         }

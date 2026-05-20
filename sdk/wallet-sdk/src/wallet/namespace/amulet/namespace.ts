@@ -15,6 +15,7 @@ import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
 import { Decimal } from 'decimal.js'
+import { resolveGlobalSynchronizerId } from '../state/client.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
@@ -82,15 +83,13 @@ export class AmuletNamespace {
         options?: { partyId?: PartyId; synchronizerId?: string }
     ) {
         const partyId = options?.partyId ?? this.sdkContext.validatorParty
-        const synchronizerId =
-            options?.synchronizerId ??
-            this.sdkContext.commonCtx.defaultSynchronizerId
+        const synchronizerId = options?.synchronizerId
         const [tapCommand, disclosedContracts] = await this.tap(partyId, amount)
 
         return await this.ledger.internal.submit({
             commands: [tapCommand],
             disclosedContracts,
-            synchronizerId,
+            ...(synchronizerId !== undefined && { synchronizerId }),
             actAs: [partyId],
         })
     }
@@ -120,9 +119,9 @@ export class AmuletNamespace {
         if (featuredAppRights) {
             return featuredAppRights
         }
-        const synchronizerId =
-            options.synchronizerId ??
-            this.sdkContext.commonCtx.defaultSynchronizerId
+        const synchronizerId = await resolveGlobalSynchronizerId(
+            this.sdkContext.commonCtx.ledgerProvider
+        )
 
         const [featuredAppCommand, dc] =
             await this.sdkContext.amuletService.selfGrantFeatureAppRight(

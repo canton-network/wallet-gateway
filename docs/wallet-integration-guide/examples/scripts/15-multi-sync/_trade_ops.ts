@@ -688,10 +688,8 @@ export async function aliceSelfTransferToApp(
     )
     if (!tokenRules) throw new Error('TokenRules not found on app-synchronizer')
 
-    // Explicitly reassign Alice's token from global to app-synchronizer before the self-transfer.
-    // Canton's SUBMITTER_ALWAYS_STAKEHOLDER policy requires the submitter to be a stakeholder
-    // of a contract already on the target synchronizer. Without this, Alice has no
-    // contracts on app-synchronizer and the submission is rejected.
+    // Reassign Alice's Token to app-synchronizer so she is a stakeholder there
+    // (required for SUBMITTER_ALWAYS_STAKEHOLDER rule on the target synchronizer)
     if (aliceToken.synchronizerId !== appSynchronizerId) {
         await p1Sdk.ledger.internal.reassign({
             submitter: alice.partyId,
@@ -751,6 +749,7 @@ export async function aliceSelfTransferToApp(
         .sign(alice.keyPair.privateKey)
         .execute({ partyId: alice.partyId })
 
+    // Mark as done — the TransferFactory_Transfer created a self-transfer offer (Alice→Alice)
     logger.info(
         `Alice: ${TRADE_TOKEN_AMOUNT} TestToken self-transferred on app-synchronizer`
     )
@@ -794,8 +793,7 @@ export async function bobSelfTransferToApp(
         if (!holdingAmount)
             throw new Error('Cannot read amount from Bob Token holding')
 
-        // Explicitly reassign Bob's token to app-synchronizer before the self-transfer
-        // (same SUBMITTER_ALWAYS_STAKEHOLDER constraint as above)
+        // Reassign Bob's Token to app-synchronizer so he is a stakeholder there
         if (token.synchronizerId !== appSynchronizerId) {
             await p2Sdk.ledger.internal.reassign({
                 submitter: bob.partyId,

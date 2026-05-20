@@ -125,7 +125,7 @@ export async function setupMultiSyncTrade(
     }
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
-    // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
+    // tokenAdmin is on P2 (not P3/sv) because it operates on app-synchronizer, and sv is global-only.
     const aliceKey = p1Sdk.keys.generate()
     const bobKey = p1Sdk.keys.generate()
     const tradingAppKey = p1Sdk.keys.generate()

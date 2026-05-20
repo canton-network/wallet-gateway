@@ -19,9 +19,7 @@ const allocatedParties = await Promise.all(
     ['v1-03-alice', 'v1-03-bob'].map((partyHint) => {
         const partyKeys = sdk.keys.generate()
         return sdk.party.external
-            .create(partyKeys.publicKey, {
-                partyHint,
-            })
+            .create(partyKeys.publicKey, { partyHint })
             .sign(partyKeys.privateKey)
             .execute()
     })

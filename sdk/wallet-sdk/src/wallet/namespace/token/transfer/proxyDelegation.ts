@@ -138,7 +138,6 @@ export class ProxyDelegationNamespace {
             templateId: featuredAppRight.template_id,
             contractId: featuredAppRight.contract_id,
             createdEventBlob: featuredAppRight.created_event_blob,
-            synchronizerId: this.ctx.commonCtx.defaultSynchronizerId,
         }
     }
 }
