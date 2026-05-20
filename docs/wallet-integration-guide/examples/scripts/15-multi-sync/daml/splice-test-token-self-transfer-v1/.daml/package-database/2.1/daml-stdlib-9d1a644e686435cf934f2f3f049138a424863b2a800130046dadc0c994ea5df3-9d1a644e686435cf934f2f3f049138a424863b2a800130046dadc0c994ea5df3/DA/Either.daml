@@ -1,0 +1,102 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Either (
+        module DA.Either
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.DA.Types
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+rights ::
+  (forall a.
+   (forall b. (([] ((CurrentSdk.DA.Types.Either a) b)) -> ([] b))))
+rights _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+partitionEithers ::
+  (forall a.
+   (forall b.
+    (([] ((CurrentSdk.DA.Types.Either a) b))
+     -> (((,) ([] a)) ([] b)))))
+partitionEithers _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+optionalToEither ::
+  (forall a.
+   (forall b.
+    (a
+     -> ((CurrentSdk.DA.Internal.Prelude.Optional b)
+         -> ((CurrentSdk.DA.Types.Either a) b)))))
+optionalToEither _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+maybeToEither ::
+  (forall a.
+   (forall b.
+    (a
+     -> ((CurrentSdk.DA.Internal.Prelude.Optional b)
+         -> ((CurrentSdk.DA.Types.Either a) b)))))
+maybeToEither _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+lefts ::
+  (forall a.
+   (forall b. (([] ((CurrentSdk.DA.Types.Either a) b)) -> ([] a))))
+lefts _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isRight ::
+  (forall a.
+   (forall b.
+    (((CurrentSdk.DA.Types.Either a) b) -> CurrentSdk.GHC.Types.Bool)))
+isRight _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isLeft ::
+  (forall a.
+   (forall b.
+    (((CurrentSdk.DA.Types.Either a) b) -> CurrentSdk.GHC.Types.Bool)))
+isLeft _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromRight ::
+  (forall b.
+   (forall a. (b -> (((CurrentSdk.DA.Types.Either a) b) -> b))))
+fromRight _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromLeft ::
+  (forall a.
+   (forall b. (a -> (((CurrentSdk.DA.Types.Either a) b) -> a))))
+fromLeft _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+eitherToOptional ::
+  (forall a.
+   (forall b.
+    (((CurrentSdk.DA.Types.Either a) b)
+     -> (CurrentSdk.DA.Internal.Prelude.Optional b))))
+eitherToOptional _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+eitherToMaybe ::
+  (forall a.
+   (forall b.
+    (((CurrentSdk.DA.Types.Either a) b)
+     -> (CurrentSdk.DA.Internal.Prelude.Optional b))))
+eitherToMaybe _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

@@ -1,0 +1,658 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module Splice.Api.Token.AllocationInstructionV2 (
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction(Splice.Api.Token.AllocationInstructionV2.AIA_Withdraw,
+                                                                                  Splice.Api.Token.AllocationInstructionV2.AIA_Custom,
+                                                                                  description, id,
+                                                                                  meta),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView(Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView,
+                                                                                allocation,
+                                                                                availableActions,
+                                                                                inputHoldingCids,
+                                                                                meta,
+                                                                                originalInstructionCid,
+                                                                                requestedAt),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstruction(Splice.Api.Token.AllocationInstructionV2.AllocationInstruction),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw(Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw,
+                                                                                     actors,
+                                                                                     extraArgs),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView(Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView,
+                                                                            admin, meta),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationFactory(Splice.Api.Token.AllocationInstructionV2.AllocationFactory),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate(Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate,
+                                                                                 actors, allocation,
+                                                                                 extraArgs,
+                                                                                 inputHoldingCids,
+                                                                                 requestedAt),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch(Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch,
+                                                                                    actors),
+        Splice.Api.Token.AllocationInstructionV2.allocationFactory_publicFetchImpl,
+        Splice.Api.Token.AllocationInstructionV2.allocationFactory_allocateImpl,
+        Splice.Api.Token.AllocationInstructionV2.allocationFactory_allocateExtraObservers,
+        Splice.Api.Token.AllocationInstructionV2.allocationInstruction_withdrawExtraObservers,
+        Splice.Api.Token.AllocationInstructionV2.allocationInstruction_withdrawImpl,
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult(Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult,
+                                                                                  authorizerChangeCids,
+                                                                                  meta, output),
+        type Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output(Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Pending,
+                                                                                         Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Completed,
+                                                                                         Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Failed,
+                                                                                         allocationCid,
+                                                                                         allocationInstructionCid)
+    ) where
+import CurrentSdk.DA.Internal.Desugar
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Exception
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Fail
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+    ()
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Prelude
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record
+import CurrentSdk.DA.Internal.Template
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Map
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Monoid
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.TextMap
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Time
+    ()
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show
+import CurrentSdk.GHC.Types
+import Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2
+import Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2
+import Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1
+data AllocationInstructionResult_Output
+  = AllocationInstructionResult_Pending {allocationInstructionCid :: (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)} |
+    AllocationInstructionResult_Completed {allocationCid :: (CurrentSdk.DA.Internal.LF.ContractId Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.Allocation)} |
+    AllocationInstructionResult_Failed
+data AllocationInstructionResult
+  = AllocationInstructionResult {output :: Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output,
+                                 authorizerChangeCids :: (CurrentSdk.DA.Internal.LF.TextMap ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding))),
+                                 meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data AllocationFactory_PublicFetch
+  = AllocationFactory_PublicFetch {actors :: ([] CurrentSdk.DA.Internal.LF.Party)}
+data AllocationFactory_Allocate
+  = AllocationFactory_Allocate {allocation :: Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification,
+                                requestedAt :: CurrentSdk.DA.Internal.LF.Time,
+                                inputHoldingCids :: ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)),
+                                extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs,
+                                actors :: ([] CurrentSdk.DA.Internal.LF.Party)}
+data AllocationFactoryView
+  = AllocationFactoryView {admin :: CurrentSdk.DA.Internal.LF.Party,
+                           meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data AllocationInstruction_Withdraw
+  = AllocationInstruction_Withdraw {actors :: ([] CurrentSdk.DA.Internal.LF.Party),
+                                    extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs}
+data AllocationInstructionView
+  = AllocationInstructionView {originalInstructionCid :: (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)),
+                               allocation :: Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification,
+                               requestedAt :: CurrentSdk.DA.Internal.LF.Time,
+                               inputHoldingCids :: ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)),
+                               availableActions :: ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction)),
+                               meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data AllocationInstructionAction
+  = AIA_Withdraw |
+    AIA_Custom {id :: CurrentSdk.GHC.Types.Text,
+                description :: CurrentSdk.GHC.Types.Text,
+                meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data CurrentSdk.GHC.Types.DamlInterface => AllocationFactory
+  = AllocationFactory CurrentSdk.GHC.Types.Opaque
+data CurrentSdk.GHC.Types.DamlInterface => AllocationInstruction
+  = AllocationInstruction CurrentSdk.GHC.Types.Opaque
+allocationInstruction_withdrawImpl ::
+  (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)
+       -> (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult))))
+allocationInstruction_withdrawImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+allocationInstruction_withdrawExtraObservers ::
+  (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction
+   -> (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+allocationInstruction_withdrawExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+allocationFactory_publicFetchImpl ::
+  (Splice.Api.Token.AllocationInstructionV2.AllocationFactory
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationFactory)
+       -> (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView))))
+allocationFactory_publicFetchImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+allocationFactory_allocateImpl ::
+  (Splice.Api.Token.AllocationInstructionV2.AllocationFactory
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationFactory)
+       -> (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult))))
+allocationFactory_allocateImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+allocationFactory_allocateExtraObservers ::
+  (Splice.Api.Token.AllocationInstructionV2.AllocationFactory
+   -> (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+allocationFactory_allocateExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.AllocationInstructionV2.AllocationFactory "allocationFactory_allocateExtraObservers" (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate
+                                                                                                                                                         -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.AllocationInstructionV2.AllocationFactory "allocationFactory_allocateImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationFactory)
+                                                                                                                                               -> (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate
+                                                                                                                                                   -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.AllocationInstructionV2.AllocationFactory "allocationFactory_publicFetchImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationFactory)
+                                                                                                                                                  -> (Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch
+                                                                                                                                                      -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.AllocationInstructionV2.AllocationInstruction "allocationInstruction_withdrawExtraObservers" (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw
+                                                                                                                                                                 -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.AllocationInstructionV2.AllocationInstruction "allocationInstruction_withdrawImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)
+                                                                                                                                                       -> (Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw
+                                                                                                                                                           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult)))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "requestedAt" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "requestedAt" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "output" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "originalInstructionCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "inputHoldingCids" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "inputHoldingCids" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "id" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "description" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "availableActions" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "authorizerChangeCids" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult (CurrentSdk.DA.Internal.LF.TextMap ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding))))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "allocationInstructionCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "allocationCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.Allocation))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "allocation" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "allocation" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "admin" Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView CurrentSdk.DA.Internal.LF.Party)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasToInterface Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _toInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasToInterface Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _toInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyTemplate Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _toAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyTemplate Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _toAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasTemplateTypeRep Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _templateTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasTemplateTypeRep Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _templateTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasSignatory Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  signatory _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasSignatory Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  signatory _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasObserver Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  observer _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasObserver Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  observer _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar.HasIsInterfaceType Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _isInterfaceType _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar.HasIsInterfaceType Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _isInterfaceType _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceView Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView) where
+  _view _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceView Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  _view _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceTypeRep Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _interfaceTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceTypeRep Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _interfaceTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasFromInterface Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  fromInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  unsafeFromInterface _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasFromInterface Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  fromInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  unsafeFromInterface _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView.HasFromAnyView Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView) where
+  _fromAnyView _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView.HasFromAnyView Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  _fromAnyView _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyTemplate Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  _fromAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyTemplate Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  _fromAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFetch Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  fetch _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFetch Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  fetch _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.AllocationInstructionV2.AllocationInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.AllocationInstructionV2.AllocationInstruction Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.AllocationInstructionV2.AllocationFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.AllocationInstructionV2.AllocationFactory Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasCreate Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  create _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasCreate Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  create _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasArchive Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  archive _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasArchive Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  archive _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "requestedAt" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "requestedAt" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "output" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "originalInstructionCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "inputHoldingCids" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "inputHoldingCids" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "id" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "description" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "availableActions" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "authorizerChangeCids" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult (CurrentSdk.DA.Internal.LF.TextMap ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding))))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "allocationInstructionCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.AllocationInstructionV2.AllocationInstruction))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "allocationCid" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.Allocation))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "allocation" Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "allocation" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate Pkg_0730d651b4406f3efcf0945841e0278c31e2d227112bf3d11833ab7a74997e9a.Splice.Api.Token.AllocationV2.AllocationSpecification)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "admin" Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView CurrentSdk.DA.Internal.LF.Party)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstruction_Withdraw) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstructionView) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult_Output) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstructionResult) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstructionAction) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationInstruction) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationFactory_PublicFetch) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationFactory_Allocate) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationFactoryView) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.AllocationInstructionV2.AllocationFactory) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))

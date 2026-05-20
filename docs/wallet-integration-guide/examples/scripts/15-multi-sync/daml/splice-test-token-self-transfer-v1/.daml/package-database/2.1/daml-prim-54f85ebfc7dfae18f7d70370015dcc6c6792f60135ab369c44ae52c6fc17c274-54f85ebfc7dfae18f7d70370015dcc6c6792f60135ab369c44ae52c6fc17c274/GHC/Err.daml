@@ -1,0 +1,19 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module GHC.Err (
+        module GHC.Err
+    ) where
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+error :: (forall a. (CurrentSdk.GHC.Types.Text -> a))
+error _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

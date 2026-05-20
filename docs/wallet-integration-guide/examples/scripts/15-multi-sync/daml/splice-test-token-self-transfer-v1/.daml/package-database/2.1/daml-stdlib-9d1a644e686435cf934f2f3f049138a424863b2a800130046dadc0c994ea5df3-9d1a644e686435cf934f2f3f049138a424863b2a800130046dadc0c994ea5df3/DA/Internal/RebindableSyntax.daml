@@ -1,0 +1,13 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Internal.RebindableSyntax (
+        module DA.Internal.RebindableSyntax
+    ) where
+import DA.Internal.Prelude ()

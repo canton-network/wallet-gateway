@@ -1,0 +1,164 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Set (
+        module DA.Set, type CurrentSdk.DA.Set.Types.Set()
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.LF
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Map ()
+import DA.Monoid ()
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Set
+import CurrentSdk.DA.Set.Types
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+union ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((CurrentSdk.DA.Set.Types.Set k)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+union _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toMap ::
+  (forall k.
+   ((CurrentSdk.DA.Set.Types.Set k)
+    -> ((CurrentSdk.DA.Internal.LF.Map k) ())))
+toMap _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toList :: (forall k. ((CurrentSdk.DA.Set.Types.Set k) -> ([] k)))
+toList _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+size ::
+  (forall k.
+   ((CurrentSdk.DA.Set.Types.Set k) -> CurrentSdk.GHC.Types.Int))
+size _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+singleton ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (k -> (CurrentSdk.DA.Set.Types.Set k))))
+singleton _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+null ::
+  (forall k.
+   ((CurrentSdk.DA.Set.Types.Set k) -> CurrentSdk.GHC.Types.Bool))
+null _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+member ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (k
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> CurrentSdk.GHC.Types.Bool))))
+member _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+notMember ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (k
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> CurrentSdk.GHC.Types.Bool))))
+notMember _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isSubsetOf ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((CurrentSdk.DA.Set.Types.Set k)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> CurrentSdk.GHC.Types.Bool))))
+isSubsetOf _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+insert ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (k
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+insert _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromMap ::
+  (forall k.
+   (((CurrentSdk.DA.Internal.LF.Map k) ())
+    -> (CurrentSdk.DA.Set.Types.Set k)))
+fromMap _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromList ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (([] k) -> (CurrentSdk.DA.Set.Types.Set k))))
+fromList _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+filter ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((k -> CurrentSdk.GHC.Types.Bool)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+filter _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+intersection ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((CurrentSdk.DA.Set.Types.Set k)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+intersection _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+empty :: (forall k. (CurrentSdk.DA.Set.Types.Set k))
+empty
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+difference ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((CurrentSdk.DA.Set.Types.Set k)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+difference _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+delete ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    (k
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> (CurrentSdk.DA.Set.Types.Set k)))))
+delete _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isProperSubsetOf ::
+  (forall k.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+    ((CurrentSdk.DA.Set.Types.Set k)
+     -> ((CurrentSdk.DA.Set.Types.Set k)
+         -> CurrentSdk.GHC.Types.Bool))))
+isProperSubsetOf _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

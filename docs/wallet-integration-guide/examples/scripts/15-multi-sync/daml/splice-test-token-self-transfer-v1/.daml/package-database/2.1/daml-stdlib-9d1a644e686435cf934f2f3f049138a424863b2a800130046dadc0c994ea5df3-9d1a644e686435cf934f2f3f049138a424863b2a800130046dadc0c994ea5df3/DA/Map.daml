@@ -1,0 +1,230 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Map (
+        module DA.Map
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Map
+import DA.Monoid ()
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+values ::
+  (forall k.
+   (forall v. (((CurrentSdk.DA.Internal.LF.Map k) v) -> ([] v))))
+values _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+size ::
+  (forall k.
+   (forall v.
+    (((CurrentSdk.DA.Internal.LF.Map k) v)
+     -> CurrentSdk.GHC.Types.Int)))
+size _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+null ::
+  (forall k.
+   (forall v.
+    (((CurrentSdk.DA.Internal.LF.Map k) v)
+     -> CurrentSdk.GHC.Types.Bool)))
+null _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+lookup ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (k
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> (CurrentSdk.DA.Internal.Prelude.Optional v))))))
+lookup _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+member ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (k
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> CurrentSdk.GHC.Types.Bool)))))
+member _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+keys ::
+  (forall k.
+   (forall v. (((CurrentSdk.DA.Internal.LF.Map k) v) -> ([] k))))
+keys _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toList ::
+  (forall k.
+   (forall v.
+    (((CurrentSdk.DA.Internal.LF.Map k) v) -> ([] (((,) k) v)))))
+toList _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+insert ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (k
+      -> (v
+          -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+              -> ((CurrentSdk.DA.Internal.LF.Map k) v)))))))
+insert _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+insertWith ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> (v -> v))
+      -> (k
+          -> (v
+              -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+                  -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))))
+insertWith _ _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+union ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (((CurrentSdk.DA.Internal.LF.Map k) v)
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+union _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+unionWith ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> (v -> v))
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+              -> ((CurrentSdk.DA.Internal.LF.Map k) v)))))))
+unionWith _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+empty ::
+  (forall k. (forall v. ((CurrentSdk.DA.Internal.LF.Map k) v)))
+empty
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromList ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (([] (((,) k) v)) -> ((CurrentSdk.DA.Internal.LF.Map k) v)))))
+fromList _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+filterWithKey ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((k -> (v -> CurrentSdk.GHC.Types.Bool))
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+filterWithKey _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+filter ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> CurrentSdk.GHC.Types.Bool)
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+filter _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromListWithL ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> (v -> v))
+      -> (([] (((,) k) v)) -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+fromListWithL _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromListWithR ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> (v -> v))
+      -> (([] (((,) k) v)) -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+fromListWithR _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromListWith ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((v -> (v -> v))
+      -> (([] (((,) k) v)) -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+fromListWith _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+merge ::
+  (forall k.
+   (forall a.
+    (forall b.
+     (forall c.
+      ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+       ((k -> (a -> (CurrentSdk.DA.Internal.Prelude.Optional c)))
+        -> ((k -> (b -> (CurrentSdk.DA.Internal.Prelude.Optional c)))
+            -> ((k
+                 -> (a -> (b -> (CurrentSdk.DA.Internal.Prelude.Optional c))))
+                -> (((CurrentSdk.DA.Internal.LF.Map k) a)
+                    -> (((CurrentSdk.DA.Internal.LF.Map k) b)
+                        -> ((CurrentSdk.DA.Internal.LF.Map k) c)))))))))))
+merge _ _ _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+singleton ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (k -> (v -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+singleton _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+delete ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (k
+      -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+          -> ((CurrentSdk.DA.Internal.LF.Map k) v))))))
+delete _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+alter ::
+  (forall k.
+   (forall v.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     (((CurrentSdk.DA.Internal.Prelude.Optional v)
+       -> (CurrentSdk.DA.Internal.Prelude.Optional v))
+      -> (k
+          -> (((CurrentSdk.DA.Internal.LF.Map k) v)
+              -> ((CurrentSdk.DA.Internal.LF.Map k) v)))))))
+alter _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

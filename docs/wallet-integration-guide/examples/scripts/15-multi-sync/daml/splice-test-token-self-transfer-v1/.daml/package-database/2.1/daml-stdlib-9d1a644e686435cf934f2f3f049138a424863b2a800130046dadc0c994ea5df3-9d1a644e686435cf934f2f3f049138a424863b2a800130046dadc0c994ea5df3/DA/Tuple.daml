@@ -1,0 +1,74 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Tuple (
+        module DA.Tuple
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+uncurry3 ::
+  (forall a.
+   (forall b.
+    (forall c.
+     (forall d. ((a -> (b -> (c -> d))) -> (((((,,) a) b) c) -> d))))))
+uncurry3 _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+thd3 :: (forall a. (forall b. (forall c. (((((,,) a) b) c) -> c))))
+thd3 _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+swap :: (forall a. (forall b. ((((,) a) b) -> (((,) b) a))))
+swap _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+snd3 :: (forall a. (forall b. (forall c. (((((,,) a) b) c) -> b))))
+snd3 _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+second ::
+  (forall b.
+   (forall b'.
+    (forall a. ((b -> b') -> ((((,) a) b) -> (((,) a) b'))))))
+second _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fst3 :: (forall a. (forall b. (forall c. (((((,,) a) b) c) -> a))))
+fst3 _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+first ::
+  (forall a.
+   (forall a'.
+    (forall b. ((a -> a') -> ((((,) a) b) -> (((,) a') b))))))
+first _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dupe :: (forall a. (a -> (((,) a) a)))
+dupe _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+curry3 ::
+  (forall a.
+   (forall b.
+    (forall c.
+     (forall d. ((((((,,) a) b) c) -> d) -> (a -> (b -> (c -> d))))))))
+curry3 _ _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+both ::
+  (forall a. (forall b. ((a -> b) -> ((((,) a) a) -> (((,) b) b)))))
+both _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

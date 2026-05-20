@@ -1,0 +1,24 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Exception (
+        module DA.Exception,
+        type CurrentSdk.DA.Exception.PreconditionFailed.PreconditionFailed(CurrentSdk.DA.Exception.PreconditionFailed.PreconditionFailed),
+        type CurrentSdk.DA.Exception.AssertionFailed.AssertionFailed(CurrentSdk.DA.Exception.AssertionFailed.AssertionFailed),
+        type CurrentSdk.DA.Exception.ArithmeticError.ArithmeticError(CurrentSdk.DA.Exception.ArithmeticError.ArithmeticError),
+        type CurrentSdk.DA.Exception.GeneralError.GeneralError(CurrentSdk.DA.Exception.GeneralError.GeneralError)
+    ) where
+import CurrentSdk.DA.Exception.ArithmeticError
+import CurrentSdk.DA.Exception.AssertionFailed
+import CurrentSdk.DA.Exception.GeneralError
+import CurrentSdk.DA.Exception.PreconditionFailed
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()

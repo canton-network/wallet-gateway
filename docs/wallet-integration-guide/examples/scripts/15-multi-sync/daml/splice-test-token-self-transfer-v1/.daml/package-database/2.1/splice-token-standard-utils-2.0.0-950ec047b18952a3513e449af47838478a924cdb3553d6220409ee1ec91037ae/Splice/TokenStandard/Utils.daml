@@ -1,0 +1,125 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module Splice.TokenStandard.Utils (
+        Splice.TokenStandard.Utils.Internal.Choices.require,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationFactoryV2_privateAsset_allocateExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationFactoryV2_publicAsset_allocateExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_withdrawDefaultImplV2Only,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_rejectDefaultImplV2Only,
+        Splice.TokenStandard.Utils.Internal.Conversions.ensureBasicAccount,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_acceptDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_withdrawDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_rejectDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_acceptDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV1_withdrawDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV1_rejectDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_withdrawDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationRequestV2_rejectDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationV2_availableActionsDefault,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationV1_availableActionsDefault,
+        Splice.TokenStandard.Utils.Internal.Conversions.ensureNoAccountMeta,
+        Splice.TokenStandard.Utils.Internal.Allocations.upcast_v1_v2_Allocation,
+        Splice.TokenStandard.Utils.Internal.Allocations.upcast_v1_v2_TransferLeg,
+        Splice.TokenStandard.Utils.Internal.Allocations.validateAndPrepareAllocations,
+        Splice.TokenStandard.Utils.Internal.Allocations.settlementFactoryV2_defaultCreateReceiptAllocation,
+        Splice.TokenStandard.Utils.Internal.Allocations.settlementFactoryV2_settleBatchDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.settlementFactoryV2_privateAsset_settleBatchExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.settlementFactoryV2_publicAsset_settleBatchExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationV2_cancelDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationV2_withdrawDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationV2_settleDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Conversions.accountParties,
+        Splice.TokenStandard.Utils.Internal.Allocations.isValidAllocationSpecificationV2,
+        Splice.TokenStandard.Utils.Internal.Allocations.isValidSettlementInfoV2,
+        Splice.TokenStandard.Utils.Internal.Allocations.isValidAllocationSpecificationV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.isValidSettlementInfoV1,
+        Splice.TokenStandard.Utils.Internal.Allocations.netAllocationCreditAmounts,
+        Splice.TokenStandard.Utils.Internal.Allocations.splitLegsByAdmin,
+        Splice.TokenStandard.Utils.Internal.Allocations.splitLegsByAuthorizer,
+        Splice.TokenStandard.Utils.Internal.Allocations.filterLegsForAccount,
+        Splice.TokenStandard.Utils.Internal.Allocations.allocationAdmin,
+        type Splice.TokenStandard.Utils.Internal.Allocations.PreparedAllocations(Splice.TokenStandard.Utils.Internal.Allocations.PreparedAllocations,
+                                                                                 existingAllocationsToSettle,
+                                                                                 receiptAllocationsToCreate),
+        Splice.TokenStandard.Utils.Internal.Conversions.isBasicAccount,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_withdrawDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_rejectDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_acceptDefaultExtraObservers,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferFactoryV2_privateAsset_transferExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferFactoryV2_publicAsset_transferExtraObserversDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferFactory_v2_senderActor_transferImpl,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_v2_senderActor_withdrawDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_v2_receiverActor_rejectDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Transfers.transferInstruction_v2_receiverActor_acceptDefaultImplUsingV1,
+        Splice.TokenStandard.Utils.Internal.Transfers.isValidTransferV2,
+        Splice.TokenStandard.Utils.Internal.Conversions.basicAccount,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapTraverseWithKey,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapZipWithDefault,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapZip,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapUnionWith,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapKeys,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapValues,
+        Splice.TokenStandard.Utils.Internal.Choices.textMapSingleton,
+        Splice.TokenStandard.Utils.Internal.Choices.publicFetchDefaultImpl,
+        Splice.TokenStandard.Utils.Internal.Choices.mkMetaTransferFrom,
+        Splice.TokenStandard.Utils.Internal.Choices.reasonToMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.toAnyContractId,
+        Splice.TokenStandard.Utils.Internal.Choices.reasonFromMeta,
+        Splice.TokenStandard.Utils.Internal.Choices.senderMetaKey,
+        Splice.TokenStandard.Utils.Internal.Choices.txKindMetaKey,
+        Splice.TokenStandard.Utils.Internal.Choices.reasonMetaKey,
+        Splice.TokenStandard.Utils.Internal.Choices.archiveAndCheckActors,
+        Splice.TokenStandard.Utils.Internal.Choices.checkActors,
+        Splice.TokenStandard.Utils.Internal.Choices.checkActor,
+        Splice.TokenStandard.Utils.Internal.Choices.requireUnique,
+        Splice.TokenStandard.Utils.Internal.Choices.requireMatchExpected,
+        Splice.TokenStandard.Utils.Internal.Choices.notR,
+        Splice.TokenStandard.Utils.Internal.Conversions.fromAnyContractId,
+        Splice.TokenStandard.Utils.Internal.Choices.oneOfR,
+        Splice.TokenStandard.Utils.Internal.Choices.isEqualSetR,
+        Splice.TokenStandard.Utils.Internal.Choices.isSubsetOfR,
+        Splice.TokenStandard.Utils.Internal.Choices.isMemberR,
+        Splice.TokenStandard.Utils.Internal.Choices.isLessOrEqualR,
+        Splice.TokenStandard.Utils.Internal.Choices.isLessR,
+        Splice.TokenStandard.Utils.Internal.Choices.isGreaterR,
+        Splice.TokenStandard.Utils.Internal.Choices.isGreaterOrEqualR,
+        Splice.TokenStandard.Utils.Internal.Choices.isEqualR,
+        Splice.TokenStandard.Utils.Internal.Choices.require',
+        type Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible(Splice.TokenStandard.Utils.Internal.Conversions.upcast),
+        type Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible(Splice.TokenStandard.Utils.Internal.Conversions.downcast)
+    ) where
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Date
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Exception
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Fail
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Prelude
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Map
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Monoid
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Set
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.TextMap
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Time
+    ()
+import Splice.TokenStandard.Utils.Internal.Allocations
+import Splice.TokenStandard.Utils.Internal.Allocations ()
+import Splice.TokenStandard.Utils.Internal.Choices
+import Splice.TokenStandard.Utils.Internal.Conversions
+import Splice.TokenStandard.Utils.Internal.Transfers
+import Splice.TokenStandard.Utils.Internal.Transfers ()

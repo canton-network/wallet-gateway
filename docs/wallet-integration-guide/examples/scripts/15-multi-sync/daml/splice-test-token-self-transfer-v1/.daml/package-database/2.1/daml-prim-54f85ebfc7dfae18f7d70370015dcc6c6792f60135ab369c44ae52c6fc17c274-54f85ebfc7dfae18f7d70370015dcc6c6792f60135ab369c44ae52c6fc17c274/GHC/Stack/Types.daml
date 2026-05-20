@@ -1,0 +1,45 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module GHC.Stack.Types (
+        module GHC.Stack.Types
+    ) where
+import CurrentSdk.Data.String
+import GHC.Classes
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+type HasCallStack =
+    (GHC.Classes.IP "callStack" GHC.Stack.Types.CallStack)
+data CallStack
+  = EmptyCallStack |
+    PushCallStack ((((,,) CurrentSdk.GHC.Types.Text) GHC.Stack.Types.SrcLoc) GHC.Stack.Types.CallStack) |
+    FreezeCallStack GHC.Stack.Types.CallStack
+data SrcLoc
+  = SrcLoc {srcLocPackage :: CurrentSdk.GHC.Types.Text,
+            srcLocModule :: CurrentSdk.GHC.Types.Text,
+            srcLocFile :: CurrentSdk.GHC.Types.Text,
+            srcLocStartLine :: CurrentSdk.GHC.Types.Int,
+            srcLocStartCol :: CurrentSdk.GHC.Types.Int,
+            srcLocEndLine :: CurrentSdk.GHC.Types.Int,
+            srcLocEndCol :: CurrentSdk.GHC.Types.Int}
+pushCallStack ::
+  ((((,) CurrentSdk.GHC.Types.Text) GHC.Stack.Types.SrcLoc)
+   -> (GHC.Stack.Types.CallStack -> GHC.Stack.Types.CallStack))
+pushCallStack _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+popCallStack ::
+  (GHC.Stack.Types.CallStack -> GHC.Stack.Types.CallStack)
+popCallStack _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+emptyCallStack :: GHC.Stack.Types.CallStack
+emptyCallStack
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

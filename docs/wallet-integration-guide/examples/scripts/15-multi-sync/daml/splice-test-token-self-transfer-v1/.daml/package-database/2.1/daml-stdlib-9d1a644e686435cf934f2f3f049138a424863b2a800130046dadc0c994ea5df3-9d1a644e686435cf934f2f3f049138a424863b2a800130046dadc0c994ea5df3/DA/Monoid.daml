@@ -1,0 +1,27 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Monoid (
+        module DA.Monoid,
+        type CurrentSdk.DA.Monoid.Types.All(CurrentSdk.DA.Monoid.Types.All,
+                                            getAll),
+        type CurrentSdk.DA.Monoid.Types.Any(CurrentSdk.DA.Monoid.Types.Any,
+                                            getAny),
+        type CurrentSdk.DA.Monoid.Types.Endo(CurrentSdk.DA.Monoid.Types.Endo,
+                                             appEndo),
+        type CurrentSdk.DA.Monoid.Types.Sum(CurrentSdk.DA.Monoid.Types.Sum),
+        type CurrentSdk.DA.Monoid.Types.Product(CurrentSdk.DA.Monoid.Types.Product)
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Monoid
+import CurrentSdk.DA.Monoid.Types

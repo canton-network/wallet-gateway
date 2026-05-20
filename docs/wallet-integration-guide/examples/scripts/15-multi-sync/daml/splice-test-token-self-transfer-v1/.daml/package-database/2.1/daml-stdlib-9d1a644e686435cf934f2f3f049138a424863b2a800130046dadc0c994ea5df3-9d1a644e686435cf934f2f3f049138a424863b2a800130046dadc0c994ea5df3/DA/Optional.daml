@@ -1,0 +1,95 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Optional (
+        module DA.Optional
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+whenSome ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Applicative m) =>
+     ((CurrentSdk.DA.Internal.Prelude.Optional a)
+      -> ((a -> (m ())) -> (m ()))))))
+whenSome _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+optionalToList ::
+  (forall a. ((CurrentSdk.DA.Internal.Prelude.Optional a) -> ([] a)))
+optionalToList _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+mapOptional ::
+  (forall a.
+   (forall b.
+    ((a -> (CurrentSdk.DA.Internal.Prelude.Optional b))
+     -> (([] a) -> ([] b)))))
+mapOptional _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+listToOptional ::
+  (forall a. (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a)))
+listToOptional _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isSome ::
+  (forall a.
+   ((CurrentSdk.DA.Internal.Prelude.Optional a)
+    -> CurrentSdk.GHC.Types.Bool))
+isSome _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isNone ::
+  (forall a.
+   ((CurrentSdk.DA.Internal.Prelude.Optional a)
+    -> CurrentSdk.GHC.Types.Bool))
+isNone _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromSomeNote ::
+  (forall a.
+   (CurrentSdk.GHC.Types.Text
+    -> ((CurrentSdk.DA.Internal.Prelude.Optional a) -> a)))
+fromSomeNote _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromSome ::
+  (forall a. ((CurrentSdk.DA.Internal.Prelude.Optional a) -> a))
+fromSome _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromOptional ::
+  (forall a.
+   (a -> ((CurrentSdk.DA.Internal.Prelude.Optional a) -> a)))
+fromOptional _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+findOptional ::
+  (forall a.
+   (forall b.
+    ((a -> (CurrentSdk.DA.Internal.Prelude.Optional b))
+     -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional b)))))
+findOptional _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+catOptionals ::
+  (forall a.
+   (([] (CurrentSdk.DA.Internal.Prelude.Optional a)) -> ([] a)))
+catOptionals _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

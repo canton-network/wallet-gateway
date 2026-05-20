@@ -1,0 +1,127 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Math (
+        module DA.Math, DA.Numeric.pi
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Map ()
+import DA.Monoid ()
+import DA.Numeric
+import DA.Numeric ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+type Sci =
+    (((,) (CurrentSdk.GHC.Types.Numeric 10)) CurrentSdk.GHC.Types.Int)
+e10 ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Int -> (CurrentSdk.GHC.Types.Numeric 10)))
+e10 _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+to36dig ::
+  ((((,) (CurrentSdk.GHC.Types.Numeric 10)) CurrentSdk.GHC.Types.Int)
+   -> (((,) (CurrentSdk.GHC.Types.Numeric 10)) CurrentSdk.GHC.Types.Int))
+to36dig _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+cordicInner ::
+  (CurrentSdk.GHC.Types.Int
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> ((((,) (CurrentSdk.GHC.Types.Numeric 10)) (CurrentSdk.GHC.Types.Numeric 10))
+           -> ((CurrentSdk.GHC.Types.Numeric 10)
+               -> (([] (CurrentSdk.GHC.Types.Numeric 10))
+                   -> (((,) (CurrentSdk.GHC.Types.Numeric 10)) (CurrentSdk.GHC.Types.Numeric 10)))))))
+cordicInner _ _ _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+cordic ::
+  (CurrentSdk.GHC.Types.Int
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> (((,) (CurrentSdk.GHC.Types.Numeric 10)) (CurrentSdk.GHC.Types.Numeric 10))))
+cordic _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+cos ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+cos _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+sin ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+sin _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+tan ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+tan _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+expInner ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> ((CurrentSdk.GHC.Types.Numeric 10)
+           -> (((,) (CurrentSdk.GHC.Types.Numeric 10)) CurrentSdk.GHC.Types.Int))))
+expInner _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+exp ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+exp _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+logt10kInner ::
+  (CurrentSdk.GHC.Types.Int
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> (CurrentSdk.GHC.Types.Numeric 10)))
+logt10kInner _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+logt10k ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+logt10k _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+log ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+log _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(**) ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> (CurrentSdk.GHC.Types.Numeric 10)))
+(**) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+sqrt ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> (CurrentSdk.GHC.Types.Numeric 10))
+sqrt _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+logBase ::
+  ((CurrentSdk.GHC.Types.Numeric 10)
+   -> ((CurrentSdk.GHC.Types.Numeric 10)
+       -> (CurrentSdk.GHC.Types.Numeric 10)))
+logBase _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infixr 8 **

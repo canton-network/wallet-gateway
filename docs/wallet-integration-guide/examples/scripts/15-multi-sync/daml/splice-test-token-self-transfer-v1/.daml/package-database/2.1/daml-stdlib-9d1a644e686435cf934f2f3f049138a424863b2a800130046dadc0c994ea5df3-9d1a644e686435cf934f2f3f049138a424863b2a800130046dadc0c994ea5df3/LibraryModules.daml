@@ -1,0 +1,30 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module LibraryModules (
+        module LibraryModules
+    ) where
+import DA.Action.State ()
+import DA.Date ()
+import DA.Fail ()
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Logic ()
+import DA.Map ()
+import DA.Monoid ()
+import DA.NonEmpty ()
+import DA.Numeric ()
+import DA.Semigroup ()
+import DA.Set ()
+import DA.TextMap ()
+import DA.Time ()
+import DA.Validation ()

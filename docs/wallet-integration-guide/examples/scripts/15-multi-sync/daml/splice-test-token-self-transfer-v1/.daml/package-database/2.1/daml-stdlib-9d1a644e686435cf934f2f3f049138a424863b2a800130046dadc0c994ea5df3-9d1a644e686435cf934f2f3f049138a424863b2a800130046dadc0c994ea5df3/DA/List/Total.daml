@@ -1,0 +1,122 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.List.Total (
+        module DA.List.Total, DA.List.dedupBy, DA.List.dedup,
+        DA.List.groupOn, DA.List.groupBy, DA.List.group, DA.List.findIndex,
+        DA.List.elemIndex, DA.List.singleton, (DA.List.\\),
+        DA.List.deleteBy, DA.List.delete, DA.List.chunksOf,
+        DA.List.combinePairs, DA.List.repeatedly, DA.List.wordsBy,
+        DA.List.linesBy, DA.List.breakOnEnd, DA.List.breakOn,
+        DA.List.breakEnd, DA.List.transpose, DA.List.takeWhileEnd,
+        DA.List.dropWhileEnd, DA.List.tails, DA.List.mergeBy,
+        DA.List.intercalate, DA.List.intersperse, DA.List.inits,
+        DA.List.mapWithIndex, DA.List.mapAccumL, DA.List.isInfixOf,
+        DA.List.isSuffixOf, DA.List.isPrefixOf, DA.List.stripInfix,
+        DA.List.stripSuffix, DA.List.sortOn, DA.List.stripPrefix,
+        DA.List.dropSuffix, DA.List.dropPrefix, DA.List.replace,
+        DA.List.uniqueOn, DA.List.uniqueBy, DA.List.unique,
+        DA.List.dedupSortBy, DA.List.dedupSort, DA.List.dedupOn,
+        DA.List.sortBy, DA.List.sort
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.List
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+tail ::
+  (forall a.
+   (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional ([] a))))
+tail _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+minimumOn ::
+  (forall k.
+   (forall a.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((a -> k)
+      -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))))
+minimumOn _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+minimumBy ::
+  (forall a.
+   ((a -> (a -> CurrentSdk.GHC.Types.Ordering))
+    -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+minimumBy _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+maximumOn ::
+  (forall k.
+   (forall a.
+    ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Ord k) =>
+     ((a -> k)
+      -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))))
+maximumOn _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+maximumBy ::
+  (forall a.
+   ((a -> (a -> CurrentSdk.GHC.Types.Ordering))
+    -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+maximumBy _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+init ::
+  (forall a.
+   (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional ([] a))))
+init _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+head ::
+  (forall a. (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a)))
+head _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldl1 ::
+  (forall a.
+   ((a -> (a -> a))
+    -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+foldl1 _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldr1 ::
+  (forall a.
+   ((a -> (a -> a))
+    -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+foldr1 _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+last ::
+  (forall a. (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a)))
+last _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldBalanced1 ::
+  (forall a.
+   ((a -> (a -> a))
+    -> (([] a) -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+foldBalanced1 _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(!!) ::
+  (forall a.
+   (([] a)
+    -> (CurrentSdk.GHC.Types.Int
+        -> (CurrentSdk.DA.Internal.Prelude.Optional a))))
+(!!) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infixl 9 !!

@@ -1,0 +1,78 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module Control.Exception.Base (
+        module Control.Exception.Base
+    ) where
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+typeError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+typeError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+runtimeError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+runtimeError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+break ::
+  (forall a.
+   ((a -> CurrentSdk.GHC.Types.Bool)
+    -> (([] a) -> (((,) ([] a)) ([] a)))))
+break _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+untangle ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+untangle _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+noMethodBindingError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+noMethodBindingError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+nonExhaustiveGuardsError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+nonExhaustiveGuardsError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+patError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+patError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+recConError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+recConError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+append ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+append _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+recSelError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+recSelError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+absentError ::
+  (forall liftedRep. (forall r. (CurrentSdk.GHC.Types.Text -> r)))
+absentError _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+absentSumFieldError :: (forall a. a)
+absentSumFieldError
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

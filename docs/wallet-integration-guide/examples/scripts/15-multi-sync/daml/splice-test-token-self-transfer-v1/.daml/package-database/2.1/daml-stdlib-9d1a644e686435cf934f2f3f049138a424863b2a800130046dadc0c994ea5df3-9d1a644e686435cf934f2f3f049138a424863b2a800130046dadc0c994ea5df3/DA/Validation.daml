@@ -1,0 +1,81 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Validation (
+        module DA.Validation,
+        type CurrentSdk.DA.Validation.Types.Validation(CurrentSdk.DA.Validation.Types.Errors,
+                                                       CurrentSdk.DA.Validation.Types.Success)
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Monoid ()
+import DA.NonEmpty ()
+import CurrentSdk.DA.NonEmpty.Types
+import CurrentSdk.DA.Types
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Validation
+import CurrentSdk.DA.Validation.Types
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+runWithDefault ::
+  (forall a.
+   (forall err.
+    (a -> (((CurrentSdk.DA.Validation.Types.Validation err) a) -> a))))
+runWithDefault _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+run1 ::
+  (forall err.
+   (forall a.
+    (((CurrentSdk.DA.Validation.Types.Validation err) a)
+     -> ((CurrentSdk.DA.Types.Either err) a))))
+run1 _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+run ::
+  (forall err.
+   (forall a.
+    (((CurrentSdk.DA.Validation.Types.Validation err) a)
+     -> ((CurrentSdk.DA.Types.Either (CurrentSdk.DA.NonEmpty.Types.NonEmpty err)) a))))
+run _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+ok ::
+  (forall a.
+   (forall err.
+    (a -> ((CurrentSdk.DA.Validation.Types.Validation err) a))))
+ok _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+invalid ::
+  (forall err.
+   (forall a.
+    (err -> ((CurrentSdk.DA.Validation.Types.Validation err) a))))
+invalid _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+validate ::
+  (forall err.
+   (forall a.
+    (((CurrentSdk.DA.Types.Either err) a)
+     -> ((CurrentSdk.DA.Validation.Types.Validation err) a))))
+validate _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(<?>) ::
+  (forall b.
+   (forall err.
+    ((CurrentSdk.DA.Internal.Prelude.Optional b)
+     -> (err -> ((CurrentSdk.DA.Validation.Types.Validation err) b)))))
+(<?>) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
