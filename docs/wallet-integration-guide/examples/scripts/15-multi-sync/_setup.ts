@@ -68,8 +68,10 @@ export interface MultiSyncSetup {
  * Bootstraps a fresh multi-synchronizer environment:
  *   - Creates SDK instances for P1 (app-user), P2 (app-provider), P3 (sv)
  *   - Discovers global + app synchronizer IDs from P1
- *   - Allocates alice (P1), bob (P2), tradingApp (P3) on global synchronizer
- *   - Registers alice and bob on app-synchronizer; tradingApp is global-only
+ *   - Allocates alice (P1), bob (P2), tradingApp + tokenAdmin (P3) on global synchronizer
+ *   - Registers alice (P1) and bob (P2) on app-synchronizer
+ *   - Registers tokenAdmin (P3) on app-synchronizer (secondary — needed so tokenAdmin
+ *     is a valid informee for app-sync transactions; P3 is connected to both synchronizers)
  *   - Connects the scan proxy and returns the Amulet admin party ID
  */
 export async function setupMultiSyncTrade(
@@ -173,12 +175,14 @@ export async function setupMultiSyncTrade(
     )
     logger.info('DARs vetted: P1+P2+P3 on both synchronizers')
 
-    // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
-    // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
+    // Allocate parties on global synchronizer: alice on P1, bob on P2, tradingApp + tokenAdmin on P3.
+    // tokenAdmin is primary on P3/global; a secondary registration on P3/app-sync follows below,
+    // because participant connectivity ≠ party registration — tokenAdmin must be explicitly
+    // registered on app-sync to be a valid informee for transactions targeting that synchronizer.
     const aliceKey = p1Sdk.keys.generate()
     const bobKey = p1Sdk.keys.generate()
     const tradingAppKey = p1Sdk.keys.generate()
-    const tokenAdminKey = p2Sdk.keys.generate()
+    const tokenAdminKey = p3Sdk.keys.generate()
 
     const [
         allocatedAlice,
@@ -207,7 +211,7 @@ export async function setupMultiSyncTrade(
             })
             .sign(tradingAppKey.privateKey)
             .execute(),
-        p2Sdk.party.external
+        p3Sdk.party.external
             .create(tokenAdminKey.publicKey, {
                 partyHint: PARTY_HINT_TOKEN_ADMIN,
                 synchronizerId: globalSynchronizerId,
@@ -231,6 +235,15 @@ export async function setupMultiSyncTrade(
         `Parties allocated — alice: ${alice.partyId} (P1), bob: ${bob.partyId} (P2), tradingApp: ${tradingApp.partyId} (P3), tokenAdmin: ${tokenAdmin.partyId} (P3)`
     )
 
+    // Register alice (P1) and bob (P2) on app-synchronizer, and tokenAdmin on P3/app-sync.
+    // Participant connectivity ≠ party registration: even though P3 (sv) is connected to
+    // app-synchronizer, tokenAdmin must be explicitly registered there for it to be a valid
+    // informee in transactions targeting app-sync (TokenRules creation, mint, transfer).
+    //
+    // alice + bob can be registered in parallel (different participants).
+    // tokenAdmin's P3 registrations must be sequential: the primary on global runs first
+    // (in the Promise.all above), then the secondary on app-sync here — Canton rejects
+    // concurrent allocations of the same party on the same participant.
     await Promise.all([
         p1Sdk.party.external
             .create(alice.keyPair.publicKey, {
@@ -246,8 +259,12 @@ export async function setupMultiSyncTrade(
             })
             .sign(bob.keyPair.privateKey)
             .execute({ grantUserRights: false }),
-        // tokenAdmin must be registered via P2 (app-provider) — sv (P3) is global-only
-        p2Sdk.party.external
+        // tokenAdmin secondary on P3 for app-sync.
+        // grantUserRights: false — actAs rights already granted by the P3 primary on global.
+        // Required so tokenAdmin is a valid informee for app-sync transactions, and so P3
+        // qualifies as a reassigning participant (hosts tokenAdmin on both syncs) for the
+        // Bob Token reassignment (app-sync → global) before the DvP allocation.
+        p3Sdk.party.external
             .create(tokenAdmin.keyPair.publicKey, {
                 partyHint: tokenAdmin.partyId.split('::')[0],
                 synchronizerId: appSynchronizerId,

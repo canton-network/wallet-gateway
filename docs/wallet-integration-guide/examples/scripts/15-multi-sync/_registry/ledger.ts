@@ -5,8 +5,9 @@
  * Ledger access helpers for the TestToken registry server.
  *
  * Reads `TokenRules` contracts from P3 (sv participant, port 4975) on behalf of the
- * tokenAdmin party, and caches results for a configurable TTL to avoid hammering the ledger on
- * every incoming HTTP request.
+ * tokenAdmin party. P3 is connected to both synchronizers (global + app) and hosts tokenAdmin
+ * on both, so it can return TokenRules for either. Results are cached for a configurable TTL
+ * to avoid hammering the ledger on every incoming HTTP request.
  */
 
 import { LedgerClient } from '@canton-network/core-ledger-client'
@@ -53,8 +54,9 @@ export function buildLedgerClient(
 }
 
 /**
- * Returns all `TokenRules` contracts visible to `tokenAdminPartyId`, served from a
- * short-lived cache so each HTTP request does not cause a ledger round-trip.
+ * Reads `TokenRules` contracts visible to `tokenAdminPartyId` from P3 (sv participant,
+ * port 4975) — the participant that hosts tokenAdmin on both synchronizers. Caches results
+ * for a configurable TTL to
  */
 export async function readTokenRules(
     client: LedgerClient,

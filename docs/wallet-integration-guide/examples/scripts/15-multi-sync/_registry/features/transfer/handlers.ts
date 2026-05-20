@@ -13,10 +13,9 @@
  *  - 'offer' otherwise (creates a TokenTransferOffer the receiver must accept)
  *
  * Synchronizer selection:
- *  - Self-transfers target the app synchronizer, so the app-sync TokenRules is
- *    returned as the factory.
- *  - Other transfers use the first available TokenRules (falls back gracefully
- *    when only one TokenRules exists).
+ *  - All transfers (self or offer) use the app-synchronizer TokenRules as the factory,
+ *    because Token holdings live on app-sync. Disclosed TokenRules must match the
+ *    transaction target synchronizer to avoid PRESCRIBED_SYNCHRONIZER_ID_MISMATCH.
  *
  * Accept/reject/withdraw context endpoints return an empty context — no extra
  * contracts need to be disclosed for those choices.

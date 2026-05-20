@@ -7,7 +7,7 @@
  * Port layout (PARTICIPANT_JSON_API_PORT_SUFFIX = 975):
  *   2975 — app-user     (P1): global + app-synchronizer
  *   3975 — app-provider (P2): global + app-synchronizer
- *   4975 — sv           (P3): global only
+ *   4975 — sv           (P3): global + app-synchronizer
  *
  */
 

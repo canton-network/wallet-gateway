@@ -52,7 +52,7 @@ export function buildContractReadSpec(setup: MultiSyncSetup): ContractSpec[] {
         },
         {
             label: PARTY_HINT_TOKEN_ADMIN,
-            sdk: p2Sdk,
+            sdk: p3Sdk,
             templateIds: [`${TEST_TOKEN_PREFIX}:TokenRules`],
             parties: [tokenAdmin.partyId],
         },
@@ -146,9 +146,11 @@ export async function createTokenRulesAndMintForBob(
         globalSynchronizerId,
     } = setup
 
-    // tokenAdmin is hosted on P2; use p2Sdk for all tokenAdmin submissions
+    // Create TokenRules on both synchronizers in parallel via p3Sdk.
+    // P3 (sv) is connected to both global and app-synchronizer, so p3Sdk can submit
+    // as tokenAdmin (primary on P3) to either synchronizer without any secondary registrations.
     await Promise.all([
-        p2Sdk.ledger
+        p3Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -162,7 +164,7 @@ export async function createTokenRulesAndMintForBob(
             })
             .sign(tokenAdmin.keyPair.privateKey)
             .execute({ partyId: tokenAdmin.partyId }),
-        p2Sdk.ledger
+        p3Sdk.ledger
             .prepare({
                 partyId: tokenAdmin.partyId,
                 commands: {
@@ -178,8 +180,8 @@ export async function createTokenRulesAndMintForBob(
             .execute({ partyId: tokenAdmin.partyId }),
     ])
 
-    // Mint Token on app-synchronizer via P2 (sv/P3 is global-only)
-    await p2Sdk.ledger
+    // Mint Token on app-synchronizer via p3Sdk (P3/sv is connected to both synchronizers).
+    await p3Sdk.ledger
         .prepare({
             partyId: tokenAdmin.partyId,
             commands: [
@@ -216,6 +218,8 @@ export async function createTokenRulesAndMintForBob(
     if (!adminTokenCid)
         throw new Error('TokenAdmin Token holding not found after mint')
 
+    // Transfer Token from tokenAdmin to Bob on app-synchronizer.
+    // The registry returns the app-sync TokenRules as the transfer factory.
     const [transferCommand, transferDisclosed] =
         await p3Sdk.token.transfer.create({
             sender: tokenAdmin.partyId,
@@ -473,6 +477,8 @@ export async function allocateTokenForBob(
     // Canton requires the submitter to be a stakeholder of a contract already on the
     // target synchronizer (SUBMITTER_ALWAYS_STAKEHOLDER policy). Without this step,
     // Bob has no contracts on global, so the allocation submission would be rejected.
+    // P2 qualifies as the reassigning participant: it hosts both bob and tokenAdmin
+    // on both synchronizers.
     if (tokenHolding.synchronizerId !== globalSynchronizerId) {
         await p2Sdk.ledger.internal.reassign({
             submitter: bob.partyId,
@@ -648,19 +654,10 @@ export async function aliceSelfTransferToApp(
             inputUtxos: [aliceTokenCid],
         })
 
-    // Explicitly reassign Alice's token from global to app-synchronizer before the self-transfer.
-    // Canton's SUBMITTER_ALWAYS_STAKEHOLDER policy requires the submitter to be a stakeholder
-    // of a contract already on the target synchronizer. Without this, Alice has no
-    // contracts on app-synchronizer and the submission is rejected.
-    if (aliceTokens[0]!.synchronizerId !== appSynchronizerId) {
-        await p1Sdk.ledger.internal.reassign({
-            submitter: alice.partyId,
-            contractId: aliceTokens[0]!.contractId,
-            source: aliceTokens[0]!.synchronizerId,
-            target: appSynchronizerId,
-        })
-    }
-
+    // Alice's Token is on global after settlement; targeting app-sync causes Canton to
+    // auto-reassign it. Alice is the owner/stakeholder of her Token, so this is allowed.
+    // The registry returns the app-sync TokenRules as the factory, which is already on
+    // app-sync — no PRESCRIBED_SYNCHRONIZER_ID_MISMATCH.
     await p1Sdk.ledger
         .prepare({
             partyId: alice.partyId,
@@ -712,6 +709,9 @@ export async function bobSelfTransferToApp(
                 inputUtxos: [token.contractId],
             })
 
+        // Bob's Token is on global after the allocation reassignment; targeting app-sync causes
+        // Canton to auto-reassign it. Bob is the owner/stakeholder, so this is allowed.
+        // The registry returns the app-sync TokenRules as the factory.
         await p2Sdk.ledger
             .prepare({
                 partyId: bob.partyId,
@@ -723,8 +723,5 @@ export async function bobSelfTransferToApp(
             .execute({ partyId: bob.partyId })
     }
 
-    logger.info(
-        `Bob: TestToken self-transferred on app-synchronizer ` +
-            `(Canton auto-reassigned Bob's Token from global → app)`
-    )
+    logger.info(`Bob: TestToken self-transferred on app-synchronizer`)
 }

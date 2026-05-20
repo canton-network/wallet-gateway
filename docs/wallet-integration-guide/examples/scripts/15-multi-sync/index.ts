@@ -18,14 +18,14 @@ import {
 } from './_trade_ops.js'
 
 // Multi-Synchronizer DvP: Alice pays 100 Amulet on global; Bob delivers 20 TestToken from app-sync.
-// P1 = app-user (Alice), P2 = app-provider (Bob), P3 = sv (TradingApp).
+// P1 = app-user (Alice), P2 = app-provider (Bob), P3 = sv (TradingApp + TokenAdmin).
 // See README.md for the full flow description.
 
 const logger = pino({ name: 'v1-15-multi-sync-trade', level: 'info' })
 
 // ── Setup: create SDKs, discover synchronizers, vet DARs, allocate parties ───
 // Step 1: Create SDKs for all 3 participants (P1, P2, P3) and discover global + app synchronizers
-// Step 2: Vet DARs on both synchronizers for P1+P2; global only for P3 (sv is not connected to app-synchronizer)
+// Step 2: Vet DARs on both synchronizers for P1+P2+P3 (sv is connected to both synchronizers)
 // Step 3: Allocate parties for Alice (P1), Bob (P2), TradingApp (P3), and TokenAdmin (P3)
 const setup = await setupMultiSyncTrade(logger)
 const {
@@ -41,6 +41,8 @@ const {
 
 // Start the Token Standard registry server now that tokenAdmin party ID is known.
 // The server must be up before wallet-SDK calls for allocation and transfer factory.
+// The registry uses P3's ledger URL: P3 (sv) hosts tokenAdmin on both synchronizers,
+// so it can read TokenRules on both global and app-synchronizer.
 const REGISTRY_PORT = parseInt(process.env['REGISTRY_PORT'] ?? '5975', 10)
 const registry = await startRegistry({
     tokenAdminPartyId: tokenAdmin.partyId,
