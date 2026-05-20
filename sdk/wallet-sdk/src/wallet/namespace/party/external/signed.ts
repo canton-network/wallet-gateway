@@ -50,7 +50,14 @@ export class SignedPartyCreationService {
                 type: 'SDKOperationUnsupported',
             })
 
-        if (await this.checkIfPartyExists(party.partyId)) {
+        // When a specific synchronizerId is provided, check whether the party
+        // is already registered on that synchronizer (not just on the participant).
+        if (
+            await this.checkIfPartyExists(
+                party.partyId,
+                this.createPartyOptions?.synchronizerId
+            )
+        ) {
             this.ctx.logger.info('Party already created.')
             return party
         }
@@ -144,7 +151,9 @@ export class SignedPartyCreationService {
         } = options
         const ledgerProvider = defaultLedgerProvider ?? this.ctx.ledgerProvider
         try {
-            const synchronizerId = this.ctx.defaultSynchronizerId
+            const synchronizerId =
+                this.createPartyOptions?.synchronizerId ??
+                this.ctx.defaultSynchronizerId
 
             await this.allocate(
                 ledgerProvider,
@@ -185,8 +194,30 @@ export class SignedPartyCreationService {
         }
     }
 
-    private async checkIfPartyExists(partyId: PartyId): Promise<boolean> {
+    private async checkIfPartyExists(
+        partyId: PartyId,
+        synchronizerId?: string
+    ): Promise<boolean> {
         try {
+            if (synchronizerId) {
+                const response =
+                    await this.ctx.ledgerProvider.request<Ops.GetV2StateConnectedSynchronizers>(
+                        {
+                            method: 'ledgerApi',
+                            params: {
+                                resource: '/v2/state/connected-synchronizers',
+                                requestMethod: 'get',
+                                query: { party: partyId },
+                            },
+                        }
+                    )
+                return (
+                    response.connectedSynchronizers?.some(
+                        (s) => s.synchronizerId === synchronizerId
+                    ) ?? false
+                )
+            }
+
             const party =
                 await this.ctx.ledgerProvider.request<Ops.GetV2PartiesParty>({
                     method: 'ledgerApi',

@@ -88,7 +88,7 @@ jobs:
               run: yarn script:test:examples-stress
 
             - uses: ./.github/actions/check_resources
-
+            # TODO (#1721): make multi-sync the default and remove the flag once multi-sync is fully supported and tested in the main scripts e2e tests, but for now we want to keep it as an option to avoid accidentally running multi-sync e2e tests without updating the main scripts e2e tests to cover multi-sync as well
             - name: Stop localnet (${{ github.event.inputs.network || 'devnet' }})
               if: always()
               run: yarn stop:localnet -- --network=${{ github.event.inputs.network || 'devnet' }}

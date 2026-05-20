@@ -37,3 +37,10 @@ export type InternalOperationParams<Operation extends AllowedOperation> =
                 UnusedParams<Operation> & RequiredParamsFor<Operation>
             >
         >
+
+export interface ReassignParams {
+    submitter: string
+    contractId: string
+    source: string
+    target: string
+}

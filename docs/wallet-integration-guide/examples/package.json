@@ -26,6 +26,7 @@
         "run-12": "tsx ./scripts/12-subscribe-to-events.ts | pino-pretty",
         "run-13": "tsx ./scripts/13-rewards-for-deposits/index.ts | pino-pretty",
         "run-14": "tsx ./scripts/14-offline-signing.ts | pino-pretty",
+        "run-15": "tsx ./scripts/15-multi-sync/index.ts | pino-pretty",
         "stress-run-01": "tsx ./scripts/stress/01-merge-utxos.ts | pino-pretty",
         "stress-run-02": "tsx ./scripts/stress/02-merge-utxos-delegate.ts | pino-pretty",
         "stress-run-03": "tsx ./scripts/stress/03-acs-cache.ts | pino-pretty"
