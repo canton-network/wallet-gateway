@@ -1,0 +1,116 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Action (
+        module DA.Action, DA.Functor.void
+    ) where
+import DA.Functor
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+when ::
+  (forall (f :: (* -> *)).
+   ((DA.Internal.Prelude.Applicative f) =>
+    (CurrentSdk.GHC.Types.Bool -> ((f ()) -> (f ())))))
+when _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+unless ::
+  (forall (f :: (* -> *)).
+   ((DA.Internal.Prelude.Applicative f) =>
+    (CurrentSdk.GHC.Types.Bool -> ((f ()) -> (f ())))))
+unless _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+replicateA_ ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Applicative m) =>
+     (CurrentSdk.GHC.Types.Int -> ((m a) -> (m ()))))))
+replicateA_ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+replicateA ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Applicative m) =>
+     (CurrentSdk.GHC.Types.Int -> ((m a) -> (m ([] a)))))))
+replicateA _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldrA ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     ((DA.Internal.Prelude.Action m) =>
+      ((a -> (b -> (m b))) -> (b -> (([] a) -> (m b))))))))
+foldrA _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldr1A ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Action m) =>
+     ((a -> (a -> (m a))) -> (([] a) -> (m a))))))
+foldr1A _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldlA ::
+  (forall (m :: (* -> *)).
+   (forall b.
+    (forall a.
+     ((DA.Internal.Prelude.Action m) =>
+      ((b -> (a -> (m b))) -> (b -> (([] a) -> (m b))))))))
+foldlA _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldl1A ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Action m) =>
+     ((a -> (a -> (m a))) -> (([] a) -> (m a))))))
+foldl1A _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+filterA ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Prelude.Applicative m) =>
+     ((a -> (m CurrentSdk.GHC.Types.Bool)) -> (([] a) -> (m ([] a)))))))
+filterA _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(>=>) ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     (forall c.
+      ((DA.Internal.Prelude.Action m) =>
+       ((a -> (m b)) -> ((b -> (m c)) -> (a -> (m c)))))))))
+(>=>) _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(<=<) ::
+  (forall (m :: (* -> *)).
+   (forall b.
+    (forall c.
+     (forall a.
+      ((DA.Internal.Prelude.Action m) =>
+       ((b -> (m c)) -> ((a -> (m b)) -> (a -> (m c)))))))))
+(<=<) _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infixr 1 >=>
+infixr 1 <=<

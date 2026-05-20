@@ -1,0 +1,262 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module Splice.TokenStandard.Utils.Internal.Conversions (
+        Splice.TokenStandard.Utils.Internal.Conversions.accountParties,
+        Splice.TokenStandard.Utils.Internal.Conversions.isBasicAccount,
+        Splice.TokenStandard.Utils.Internal.Conversions.basicAccount,
+        Splice.TokenStandard.Utils.Internal.Conversions.timeFromMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.timeToMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.toAnyContractId,
+        Splice.TokenStandard.Utils.Internal.Conversions.fromAnyContractId,
+        Splice.TokenStandard.Utils.Internal.Conversions.maxTime,
+        Splice.TokenStandard.Utils.Internal.Conversions.partiesFromMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.partiesToMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.dropMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.validateNoMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.validateNoAccountMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.ensureBasicAccount,
+        Splice.TokenStandard.Utils.Internal.Conversions.ensureNoAccountMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.dropAccountMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.accountFromMeta,
+        Splice.TokenStandard.Utils.Internal.Conversions.accountToMeta,
+        type Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible(Splice.TokenStandard.Utils.Internal.Conversions.upcast),
+        type Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible(Splice.TokenStandard.Utils.Internal.Conversions.downcast)
+    ) where
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Date
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Exception
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Fail
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+    ()
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Prelude
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Monoid
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.TextMap
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Time
+    ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+import Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1
+import Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2
+import Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1
+class ForwardCompatible v1 v2 where
+  downcast :: (v2 -> v1)
+class BackwardCompatible v1 v2 where
+  upcast :: (v1 -> v2)
+v2Namespace :: CurrentSdk.GHC.Types.Text
+v2Namespace
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+validateNoMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> CurrentSdk.GHC.Types.Bool))
+validateNoMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toAnyContractId ::
+  (forall t.
+   ((CurrentSdk.DA.Internal.LF.ContractId t)
+    -> (CurrentSdk.DA.Internal.LF.ContractId Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.AnyContract)))
+toAnyContractId _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+providerKey ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+providerKey _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+partiesToMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (([] CurrentSdk.DA.Internal.LF.Party)
+       -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+           -> Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)))
+partiesToMeta _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+partiesFromMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+partiesFromMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+maxTime :: CurrentSdk.DA.Internal.LF.Time
+maxTime
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isBasicAccount ::
+  (Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account
+   -> CurrentSdk.GHC.Types.Bool)
+isBasicAccount _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+insertOptional ::
+  (forall a.
+   (CurrentSdk.GHC.Types.Text
+    -> ((CurrentSdk.DA.Internal.Prelude.Optional a)
+        -> ((CurrentSdk.DA.Internal.LF.TextMap a)
+            -> (CurrentSdk.DA.Internal.LF.TextMap a)))))
+insertOptional _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+idKey :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+idKey _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+validateNoAccountMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> CurrentSdk.GHC.Types.Bool))
+validateNoAccountMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromAnyContractId ::
+  (forall t.
+   ((CurrentSdk.DA.Internal.LF.ContractId Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.AnyContract)
+    -> (CurrentSdk.DA.Internal.LF.ContractId t)))
+fromAnyContractId _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+epoch :: CurrentSdk.DA.Internal.LF.Time
+epoch
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+ensureNoAccountMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text
+       -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+           -> (CurrentSdk.DA.Internal.LF.Update ()))))
+ensureNoAccountMeta _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+ensureBasicAccount ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account
+       -> (CurrentSdk.DA.Internal.LF.Update ())))
+ensureBasicAccount _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+encodeTime ::
+  (CurrentSdk.DA.Internal.LF.Time -> CurrentSdk.GHC.Types.Text)
+encodeTime _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+timeToMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.DA.Internal.LF.Time
+       -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+           -> Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)))
+timeToMeta _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata))
+dropMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropAccountMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata))
+dropAccountMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+decodeTime ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.DA.Internal.LF.Time)
+decodeTime _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+timeFromMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+       -> (CurrentSdk.DA.Internal.Prelude.Optional CurrentSdk.DA.Internal.LF.Time)))
+timeFromMeta _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+basicAccount ::
+  (CurrentSdk.DA.Internal.LF.Party
+   -> Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)
+basicAccount _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+accountToMeta ::
+  (CurrentSdk.GHC.Types.Text
+   -> (Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account
+       -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+           -> Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)))
+accountToMeta _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+accountParties ::
+  (Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account
+   -> ([] CurrentSdk.DA.Internal.LF.Party))
+accountParties _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+accountFromMeta ::
+  (CurrentSdk.DA.Internal.LF.Party
+   -> (CurrentSdk.GHC.Types.Text
+       -> (Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata
+           -> Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)))
+accountFromMeta _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.Lock Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Lock) where
+  downcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.InstrumentId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.InstrumentId) where
+  downcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.HoldingView Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.HoldingView) where
+  downcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.ForwardCompatible (CurrentSdk.DA.Internal.LF.ContractId Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.Holding) (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)) where
+  downcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.Lock Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Lock) where
+  upcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.InstrumentId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.InstrumentId) where
+  upcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.HoldingView Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.HoldingView) where
+  upcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Splice.TokenStandard.Utils.Internal.Conversions.BackwardCompatible (CurrentSdk.DA.Internal.LF.ContractId Pkg_718a0f77e505a8de22f188bd4c87fe74101274e9d4cb1bfac7d09aec7158d35b.Splice.Api.Token.HoldingV1.Holding) (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)) where
+  upcast _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))

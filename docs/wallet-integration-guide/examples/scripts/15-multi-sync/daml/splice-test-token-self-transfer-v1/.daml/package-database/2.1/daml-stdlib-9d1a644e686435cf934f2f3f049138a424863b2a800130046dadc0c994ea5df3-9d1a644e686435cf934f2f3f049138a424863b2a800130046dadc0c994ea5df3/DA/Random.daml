@@ -1,0 +1,45 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Random (
+        module DA.Random, type CurrentSdk.DA.Random.Types.Minstd()
+    ) where
+import DA.Date ()
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.LF
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.DA.Random.Types
+import DA.Time ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+next :: (CurrentSdk.GHC.Types.Int -> CurrentSdk.GHC.Types.Int)
+next _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+minstd_rand ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.DA.Random.Types.Minstd
+       -> (((,) CurrentSdk.DA.Random.Types.Minstd) CurrentSdk.GHC.Types.Int)))
+minstd_rand _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+minstd_initFromTime ::
+  (CurrentSdk.DA.Internal.LF.Update CurrentSdk.DA.Random.Types.Minstd)
+minstd_initFromTime
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+minstd_init ::
+  (CurrentSdk.GHC.Types.Int -> CurrentSdk.DA.Random.Types.Minstd)
+minstd_init _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

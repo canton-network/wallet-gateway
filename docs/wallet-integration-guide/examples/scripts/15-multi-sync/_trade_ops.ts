@@ -742,14 +742,9 @@ export async function aliceSelfTransferToApp(
                     createdEventBlob: tokenRules.createdEventBlob!,
                     synchronizerId: tokenRules.synchronizerId,
                 },
-                // Disclose Alice's token so Canton can verify her as a stakeholder
-                // when auto-reassigning it from global to app-synchronizer
-                {
-                    templateId: aliceToken.templateId,
-                    contractId: aliceToken.contractId,
-                    createdEventBlob: aliceToken.createdEventBlob!,
-                    synchronizerId: aliceToken.synchronizerId,
-                },
+                // Alice's token is in her own ACS (she is a stakeholder) and has
+                // already been reassigned to app-synchronizer above, so no
+                // disclosure is needed for it.
             ],
             synchronizerId: appSynchronizerId,
         })
@@ -853,14 +848,9 @@ export async function bobSelfTransferToApp(
                         createdEventBlob: tokenRules.createdEventBlob!,
                         synchronizerId: tokenRules.synchronizerId,
                     },
-                    // Disclose the token so Canton can verify Bob as a stakeholder
-                    // when auto-reassigning it from global to app-synchronizer
-                    {
-                        templateId: token.templateId,
-                        contractId: token.contractId,
-                        createdEventBlob: token.createdEventBlob!,
-                        synchronizerId: token.synchronizerId,
-                    },
+                    // Bob's token is in his own ACS (he is a stakeholder) and has
+                    // already been reassigned to app-synchronizer above, so no
+                    // disclosure is needed for it.
                 ],
                 synchronizerId: appSynchronizerId,
             })

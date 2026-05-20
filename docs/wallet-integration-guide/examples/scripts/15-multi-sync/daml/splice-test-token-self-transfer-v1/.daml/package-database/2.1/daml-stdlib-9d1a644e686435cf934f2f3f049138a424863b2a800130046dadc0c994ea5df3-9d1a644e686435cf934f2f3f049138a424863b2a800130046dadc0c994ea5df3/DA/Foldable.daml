@@ -1,0 +1,106 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Foldable (
+        module DA.Foldable,
+        Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable(..)
+    ) where
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Monoid ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+mapA_ ::
+  (forall (t :: (* -> *)).
+   (forall (f :: (* -> *)).
+    (forall a.
+     (forall b.
+      ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+       ((DA.Internal.Prelude.Applicative f) =>
+        ((a -> (f b)) -> ((t a) -> (f ())))))))))
+mapA_ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+forA_ ::
+  (forall (t :: (* -> *)).
+   (forall (f :: (* -> *)).
+    (forall a.
+     (forall b.
+      ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+       ((DA.Internal.Prelude.Applicative f) =>
+        ((t a) -> ((a -> (f b)) -> (f ())))))))))
+forA_ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+forM_ ::
+  (forall (t :: (* -> *)).
+   (forall (f :: (* -> *)).
+    (forall a.
+     (forall b.
+      ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+       ((DA.Internal.Prelude.Applicative f) =>
+        ((t a) -> ((a -> (f b)) -> (f ())))))))))
+forM_ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+sequence_ ::
+  (forall (t :: (* -> *)).
+   (forall (m :: (* -> *)).
+    (forall a.
+     ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+      ((DA.Internal.Prelude.Action m) => ((t (m a)) -> (m ())))))))
+sequence_ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+or ::
+  (forall (t :: (* -> *)).
+   ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+    ((t CurrentSdk.GHC.Types.Bool) -> CurrentSdk.GHC.Types.Bool)))
+or _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+concat ::
+  (forall (t :: (* -> *)).
+   (forall a.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+     ((t ([] a)) -> ([] a)))))
+concat _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+any ::
+  (forall (t :: (* -> *)).
+   (forall a.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+     ((a -> CurrentSdk.GHC.Types.Bool)
+      -> ((t a) -> CurrentSdk.GHC.Types.Bool)))))
+any _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+and ::
+  (forall (t :: (* -> *)).
+   ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+    ((t CurrentSdk.GHC.Types.Bool) -> CurrentSdk.GHC.Types.Bool)))
+and _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+all ::
+  (forall (t :: (* -> *)).
+   (forall a.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Foldable.Foldable t) =>
+     ((a -> CurrentSdk.GHC.Types.Bool)
+      -> ((t a) -> CurrentSdk.GHC.Types.Bool)))))
+all _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

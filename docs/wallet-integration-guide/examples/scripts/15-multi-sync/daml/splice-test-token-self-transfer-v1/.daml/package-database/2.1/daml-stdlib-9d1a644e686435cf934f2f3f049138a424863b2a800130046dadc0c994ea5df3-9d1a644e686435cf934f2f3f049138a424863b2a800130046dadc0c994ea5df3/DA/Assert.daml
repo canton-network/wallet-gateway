@@ -1,0 +1,105 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Assert (
+        module DA.Assert,
+        type CurrentSdk.DA.Exception.AssertionFailed.AssertionFailed(CurrentSdk.DA.Exception.AssertionFailed.AssertionFailed)
+    ) where
+import CurrentSdk.DA.Exception.AssertionFailed
+import DA.Fail ()
+import DA.Internal.Assert
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.LF
+import DA.Internal.LF
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import DA.Monoid ()
+import DA.TextMap ()
+import DA.Time ()
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show
+import CurrentSdk.GHC.Types
+assertWithinDeadline ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.DA.Internal.LF.Time
+       -> (CurrentSdk.DA.Internal.LF.Update ())))
+assertWithinDeadline _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+assertNotEq ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Assert.CanAssert m) =>
+     ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show a) =>
+      ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq a) =>
+       (a -> (a -> (m ()))))))))
+assertNotEq _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+assertEq ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Assert.CanAssert m) =>
+     ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show a) =>
+      ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq a) =>
+       (a -> (a -> (m ()))))))))
+assertEq _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+assertDeadlineExceeded ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.DA.Internal.LF.Time
+       -> (CurrentSdk.DA.Internal.LF.Update ())))
+assertDeadlineExceeded _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+assertBeforeMsg ::
+  (forall (m :: (* -> *)).
+   ((DA.Internal.Assert.CanAssert m) =>
+    ((DA.Internal.LF.HasTime m) =>
+     (CurrentSdk.GHC.Types.Text
+      -> (CurrentSdk.DA.Internal.LF.Time -> (m ()))))))
+assertBeforeMsg _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+assertAfterMsg ::
+  (forall (m :: (* -> *)).
+   ((DA.Internal.Assert.CanAssert m) =>
+    ((DA.Internal.LF.HasTime m) =>
+     (CurrentSdk.GHC.Types.Text
+      -> (CurrentSdk.DA.Internal.LF.Time -> (m ()))))))
+assertAfterMsg _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(===) ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Assert.CanAssert m) =>
+     ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show a) =>
+      ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq a) =>
+       (a -> (a -> (m ()))))))))
+(===) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(=/=) ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    ((DA.Internal.Assert.CanAssert m) =>
+     ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show a) =>
+      ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq a) =>
+       (a -> (a -> (m ()))))))))
+(=/=) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infix 4 ===
+infix 4 =/=

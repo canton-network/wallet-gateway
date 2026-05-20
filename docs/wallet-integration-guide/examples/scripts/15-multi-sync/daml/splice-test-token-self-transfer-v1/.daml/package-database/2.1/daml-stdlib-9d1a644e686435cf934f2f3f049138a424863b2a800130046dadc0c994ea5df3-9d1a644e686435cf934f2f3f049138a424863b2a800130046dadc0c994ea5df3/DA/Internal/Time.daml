@@ -1,0 +1,39 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Internal.Time (
+        module DA.Internal.Time
+    ) where
+import CurrentSdk.DA.Internal.LF
+import DA.Internal.Prelude ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+timeToMicrosecondsSinceEpoch ::
+  (CurrentSdk.DA.Internal.LF.Time -> CurrentSdk.GHC.Types.Int)
+timeToMicrosecondsSinceEpoch _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+microsecondsSinceEpochToTime ::
+  (CurrentSdk.GHC.Types.Int -> CurrentSdk.DA.Internal.LF.Time)
+microsecondsSinceEpochToTime _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+microsecondsPerDay :: CurrentSdk.GHC.Types.Int
+microsecondsPerDay
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+time ::
+  (CurrentSdk.DA.Internal.LF.Date
+   -> (CurrentSdk.GHC.Types.Int
+       -> (CurrentSdk.GHC.Types.Int
+           -> (CurrentSdk.GHC.Types.Int -> CurrentSdk.DA.Internal.LF.Time))))
+time _ _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

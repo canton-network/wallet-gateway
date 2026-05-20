@@ -1,0 +1,115 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Internal.Compatible (
+        module DA.Internal.Compatible
+    ) where
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Num
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show
+import CurrentSdk.GHC.Types
+type Maybe = CurrentSdk.DA.Internal.Prelude.Optional
+type Num =
+    (Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Num.Number)
+type MonadFail = (DA.Internal.Prelude.ActionFail)
+type String = CurrentSdk.GHC.Types.Text
+type Monad = (DA.Internal.Prelude.Action)
+type Integer = CurrentSdk.GHC.Types.Int
+type List a = ([] a)
+type Tuple3 a b c = ((((,,) a) b) c)
+type Tuple a b = (((,) a) b)
+type Datetime = CurrentSdk.DA.Internal.LF.Time
+tuple3 ::
+  (forall a.
+   (forall b. (forall c. (a -> (b -> (c -> ((((,,) a) b) c)))))))
+tuple3 _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+tuple :: (forall a. (forall b. (a -> (b -> (((,) a) b)))))
+tuple _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toText ::
+  (forall a.
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show a) =>
+    (a -> CurrentSdk.GHC.Types.Text)))
+toText _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toInteger ::
+  ((CurrentSdk.GHC.Types.Numeric 10) -> CurrentSdk.GHC.Types.Int)
+toInteger _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+nil :: (forall a. ([] a))
+nil
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+maybe ::
+  (forall b.
+   (forall a.
+    (b
+     -> ((a -> b)
+         -> ((CurrentSdk.DA.Internal.Prelude.Optional a) -> b)))))
+maybe _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+mapU ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     ((DA.Internal.Prelude.Applicative m) =>
+      ((a -> (m b)) -> (([] a) -> (m ([] b))))))))
+mapU _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+mapM ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     ((DA.Internal.Prelude.Applicative m) =>
+      ((a -> (m b)) -> (([] a) -> (m ([] b))))))))
+mapM _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+forU ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     ((DA.Internal.Prelude.Applicative m) =>
+      (([] a) -> ((a -> (m b)) -> (m ([] b))))))))
+forU _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+forM ::
+  (forall (m :: (* -> *)).
+   (forall a.
+    (forall b.
+     ((DA.Internal.Prelude.Applicative m) =>
+      (([] a) -> ((a -> (m b)) -> (m ([] b))))))))
+forM _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+does ::
+  (forall a.
+   (CurrentSdk.DA.Internal.LF.Party
+    -> ((CurrentSdk.DA.Internal.LF.Update a)
+        -> (CurrentSdk.DA.Internal.LF.Update a))))
+does _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+cons :: (forall a. (a -> (([] a) -> ([] a))))
+cons _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

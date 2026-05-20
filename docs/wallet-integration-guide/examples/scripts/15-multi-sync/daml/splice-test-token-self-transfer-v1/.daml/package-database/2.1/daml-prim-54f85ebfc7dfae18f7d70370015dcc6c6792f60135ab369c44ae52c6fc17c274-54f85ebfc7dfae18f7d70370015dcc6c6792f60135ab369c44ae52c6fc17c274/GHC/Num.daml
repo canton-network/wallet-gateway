@@ -1,0 +1,36 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module GHC.Num (
+        module GHC.Num,
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Additive(..),
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Divisible(..),
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Fractional(..),
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Multiplicative(..),
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Number(..),
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Signed(..)
+    ) where
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num
+import CurrentSdk.GHC.Types
+subtract ::
+  (forall a.
+   ((Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Num.Additive a) =>
+    (a -> (a -> a))))
+subtract _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(%) ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.GHC.Types.Int -> CurrentSdk.GHC.Types.Int))
+(%) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infixl 7 %

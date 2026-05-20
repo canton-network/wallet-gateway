@@ -1,0 +1,285 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Text (
+        module DA.Text
+    ) where
+import DA.Internal.Exception ()
+import DA.Internal.Fail ()
+import DA.Internal.Interface.AnyView ()
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions ()
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+toCodePoints ::
+  (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Int))
+toCodePoints _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+sha256 :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+sha256 _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+parseNumeric ::
+  (forall (n :: CurrentSdk.GHC.Types.Nat).
+   ((Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.NumericScale n) =>
+    (CurrentSdk.GHC.Types.Text
+     -> (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.GHC.Types.Numeric n)))))
+parseNumeric _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+parseInt ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.DA.Internal.Prelude.Optional CurrentSdk.GHC.Types.Int))
+parseInt _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+parseDecimal ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.GHC.Types.Numeric 10)))
+parseDecimal _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isNotEmpty ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isNotEmpty _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isEmpty :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isEmpty _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+implode ::
+  (([] CurrentSdk.GHC.Types.Text) -> CurrentSdk.GHC.Types.Text)
+implode _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+intercalate ::
+  (CurrentSdk.GHC.Types.Text
+   -> (([] CurrentSdk.GHC.Types.Text) -> CurrentSdk.GHC.Types.Text))
+intercalate _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+unwords ::
+  (([] CurrentSdk.GHC.Types.Text) -> CurrentSdk.GHC.Types.Text)
+unwords _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+splitOnHelper ::
+  (([] CurrentSdk.GHC.Types.Text)
+   -> (([] CurrentSdk.GHC.Types.Text)
+       -> ([] CurrentSdk.GHC.Types.Text)))
+splitOnHelper _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+unlines ::
+  (([] CurrentSdk.GHC.Types.Text) -> CurrentSdk.GHC.Types.Text)
+unlines _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromCodePoints ::
+  (([] CurrentSdk.GHC.Types.Int) -> CurrentSdk.GHC.Types.Text)
+fromCodePoints _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+explode ::
+  (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text))
+explode _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isInfixOf ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool))
+isInfixOf _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isPred ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool))
+isPred _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isAlpha :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isAlpha _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isAlphaNum ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isAlphaNum _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isDigit :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isDigit _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isLower :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isLower _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isNewLine ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isNewLine _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isSpace :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isSpace _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isUpper :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+isUpper _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isPrefixOf ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool))
+isPrefixOf _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+isSuffixOf ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool))
+isSuffixOf _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+length :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Int)
+length _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+lines ::
+  (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text))
+lines _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+linesBy ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text)))
+linesBy _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+replace ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text
+       -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)))
+replace _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+reverse :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+reverse _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+splitAt ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.GHC.Types.Text
+       -> (((,) CurrentSdk.GHC.Types.Text) CurrentSdk.GHC.Types.Text)))
+splitAt _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+splitOn ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text)))
+splitOn _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+stripPrefix ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text
+       -> (CurrentSdk.DA.Internal.Prelude.Optional CurrentSdk.GHC.Types.Text)))
+stripPrefix _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+stripSuffix ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text
+       -> (CurrentSdk.DA.Internal.Prelude.Optional CurrentSdk.GHC.Types.Text)))
+stripSuffix _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+substring ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.GHC.Types.Int
+       -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)))
+substring _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+take ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+take _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+takeWhile ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+takeWhile _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+takeWhileEnd ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+takeWhileEnd _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+trim :: (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+trim _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+words ::
+  (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text))
+words _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+wordsBy ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> ([] CurrentSdk.GHC.Types.Text)))
+wordsBy _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropWhileEnd ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+dropWhileEnd _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropWhile ::
+  ((CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Bool)
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+dropWhile _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropSuffix ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+dropSuffix _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+dropPrefix ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+dropPrefix _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+drop ::
+  (CurrentSdk.GHC.Types.Int
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+drop _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+asciiToUpper ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+asciiToUpper _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+asciiToLower ::
+  (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text)
+asciiToLower _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

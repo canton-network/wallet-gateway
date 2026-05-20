@@ -1,0 +1,100 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module DA.Internal.Interface (
+        module DA.Internal.Interface,
+        Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasFromInterface(..),
+        Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceTypeRep(..),
+        Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceView(..),
+        Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasToInterface(..)
+    ) where
+import CurrentSdk.DA.Internal.Any
+import Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import DA.Internal.Prelude ()
+import DA.Internal.Template.Functions
+import DA.Internal.Template.Functions ()
+import CurrentSdk.Data.String
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+type Implements t i =
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceTypeRep i),
+     (Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasToInterface t i),
+     (Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasFromInterface t i))
+toInterfaceContractId ::
+  (forall i.
+   (forall t.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasToInterface t i) =>
+     ((CurrentSdk.DA.Internal.LF.ContractId t)
+      -> (CurrentSdk.DA.Internal.LF.ContractId i)))))
+toInterfaceContractId _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fromInterfaceContractId ::
+  (forall t.
+   (forall i.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasFromInterface t i) =>
+     ((CurrentSdk.DA.Internal.LF.ContractId i)
+      -> (CurrentSdk.DA.Internal.LF.ContractId t)))))
+fromInterfaceContractId _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+fetchFromInterface ::
+  (forall t.
+   (forall i.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasFromInterface t i) =>
+     ((DA.Internal.Template.Functions.HasFetch i) =>
+      ((CurrentSdk.DA.Internal.LF.ContractId i)
+       -> (CurrentSdk.DA.Internal.LF.Update (CurrentSdk.DA.Internal.Prelude.Optional (((,) (CurrentSdk.DA.Internal.LF.ContractId t)) t))))))))
+fetchFromInterface _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+coerceInterfaceContractId ::
+  (forall j.
+   (forall i.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceTypeRep i) =>
+     ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceTypeRep j) =>
+      ((CurrentSdk.DA.Internal.LF.ContractId i)
+       -> (CurrentSdk.DA.Internal.LF.ContractId j))))))
+coerceInterfaceContractId _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+view ::
+  (forall i.
+   (forall v.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceView i v) =>
+     (i -> v))))
+view _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+toInterface ::
+  (forall i.
+   (forall t.
+    ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasToInterface t i) =>
+     (t -> i))))
+toInterface _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+interfaceTypeRep ::
+  (forall i.
+   ((Pkg_3b25c9b08ac6d895417c604fc0ee4b7e47ef974ff8fa43f139daa43bb431fefc.DA.Internal.Interface.HasInterfaceTypeRep i) =>
+    (i -> CurrentSdk.DA.Internal.Any.TemplateTypeRep)))
+interfaceTypeRep _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+_exerciseInterfaceGuard ::
+  (forall t.
+   (forall i.
+    (forall a.
+     (forall b.
+      (forall c. (a -> (b -> (c -> CurrentSdk.GHC.Types.Bool))))))))
+_exerciseInterfaceGuard _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))

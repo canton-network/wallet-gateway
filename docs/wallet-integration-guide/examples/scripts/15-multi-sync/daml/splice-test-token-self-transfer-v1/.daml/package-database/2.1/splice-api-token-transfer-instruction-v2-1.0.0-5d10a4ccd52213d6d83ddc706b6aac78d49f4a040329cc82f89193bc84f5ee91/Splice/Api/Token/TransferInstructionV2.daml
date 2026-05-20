@@ -1,0 +1,837 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module Splice.Api.Token.TransferInstructionV2 (
+        type Splice.Api.Token.TransferInstructionV2.TransferInstructionAction(Splice.Api.Token.TransferInstructionV2.TIA_Accept,
+                                                                              Splice.Api.Token.TransferInstructionV2.TIA_Reject,
+                                                                              Splice.Api.Token.TransferInstructionV2.TIA_Withdraw,
+                                                                              Splice.Api.Token.TransferInstructionV2.TIA_Custom,
+                                                                              description, id,
+                                                                              meta),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstructionView(Splice.Api.Token.TransferInstructionV2.TransferInstructionView,
+                                                                            availableActions, meta,
+                                                                            originalInstructionCid,
+                                                                            transfer),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstruction(Splice.Api.Token.TransferInstructionV2.TransferInstruction),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept(Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept,
+                                                                               actors, extraArgs),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject(Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject,
+                                                                               actors, extraArgs),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw(Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw,
+                                                                                 actors, extraArgs),
+        type Splice.Api.Token.TransferInstructionV2.TransferFactory(Splice.Api.Token.TransferInstructionV2.TransferFactory),
+        Splice.Api.Token.TransferInstructionV2.transferFactory_publicFetchImpl,
+        Splice.Api.Token.TransferInstructionV2.transferFactory_transferImpl,
+        type Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer(Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer,
+                                                                             actors, extraArgs,
+                                                                             transfer),
+        Splice.Api.Token.TransferInstructionV2.transferFactory_transferExtraObservers,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_withdrawExtraObservers,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_rejectExtraObservers,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_acceptExtraObservers,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_withdrawImpl,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_rejectImpl,
+        Splice.Api.Token.TransferInstructionV2.transferInstruction_acceptImpl,
+        type Splice.Api.Token.TransferInstructionV2.Transfer(Splice.Api.Token.TransferInstructionV2.Transfer,
+                                                             amount, executeBefore,
+                                                             inputHoldingCids, instrumentId, meta,
+                                                             receiver, requestedAt, sender),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstructionResult(Splice.Api.Token.TransferInstructionV2.TransferInstructionResult,
+                                                                              meta, output,
+                                                                              senderChangeCids),
+        type Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output(Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Pending,
+                                                                                     Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Completed,
+                                                                                     Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Failed,
+                                                                                     receiverHoldingCids,
+                                                                                     transferInstructionCid),
+        type Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch(Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch,
+                                                                                actors),
+        type Splice.Api.Token.TransferInstructionV2.TransferFactoryView(Splice.Api.Token.TransferInstructionV2.TransferFactoryView,
+                                                                        admin, meta)
+    ) where
+import CurrentSdk.DA.Internal.Desugar
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Exception
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Fail
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView
+    ()
+import CurrentSdk.DA.Internal.LF
+import CurrentSdk.DA.Internal.Prelude
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Prelude
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record
+import CurrentSdk.DA.Internal.Template
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Map
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Monoid
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.TextMap
+    ()
+import Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Time
+    ()
+import CurrentSdk.Data.String
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes
+import CurrentSdk.GHC.Err
+import Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show
+import CurrentSdk.GHC.Types
+import Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2
+import Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1
+data TransferFactoryView
+  = TransferFactoryView {admin :: CurrentSdk.DA.Internal.LF.Party,
+                         meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data TransferFactory_PublicFetch
+  = TransferFactory_PublicFetch {actors :: ([] CurrentSdk.DA.Internal.LF.Party)}
+data TransferFactory_Transfer
+  = TransferFactory_Transfer {transfer :: Splice.Api.Token.TransferInstructionV2.Transfer,
+                              actors :: ([] CurrentSdk.DA.Internal.LF.Party),
+                              extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs}
+data TransferInstruction_Withdraw
+  = TransferInstruction_Withdraw {actors :: ([] CurrentSdk.DA.Internal.LF.Party),
+                                  extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs}
+data TransferInstruction_Reject
+  = TransferInstruction_Reject {actors :: ([] CurrentSdk.DA.Internal.LF.Party),
+                                extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs}
+data TransferInstruction_Accept
+  = TransferInstruction_Accept {actors :: ([] CurrentSdk.DA.Internal.LF.Party),
+                                extraArgs :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs}
+data TransferInstructionView
+  = TransferInstructionView {originalInstructionCid :: (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)),
+                             transfer :: Splice.Api.Token.TransferInstructionV2.Transfer,
+                             availableActions :: ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.TransferInstructionV2.TransferInstructionAction)),
+                             meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data TransferInstructionAction
+  = TIA_Accept |
+    TIA_Reject |
+    TIA_Withdraw |
+    TIA_Custom {id :: CurrentSdk.GHC.Types.Text,
+                description :: CurrentSdk.GHC.Types.Text,
+                meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data TransferInstructionResult_Output
+  = TransferInstructionResult_Pending {transferInstructionCid :: (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)} |
+    TransferInstructionResult_Completed {receiverHoldingCids :: ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding))} |
+    TransferInstructionResult_Failed
+data TransferInstructionResult
+  = TransferInstructionResult {output :: Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output,
+                               senderChangeCids :: ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)),
+                               meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data Transfer
+  = Transfer {sender :: Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account,
+              receiver :: Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account,
+              amount :: (CurrentSdk.GHC.Types.Numeric 10),
+              instrumentId :: Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.InstrumentId,
+              requestedAt :: CurrentSdk.DA.Internal.LF.Time,
+              executeBefore :: CurrentSdk.DA.Internal.LF.Time,
+              inputHoldingCids :: ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)),
+              meta :: Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata}
+data CurrentSdk.GHC.Types.DamlInterface => TransferFactory
+  = TransferFactory CurrentSdk.GHC.Types.Opaque
+data CurrentSdk.GHC.Types.DamlInterface => TransferInstruction
+  = TransferInstruction CurrentSdk.GHC.Types.Opaque
+transferInstruction_withdrawImpl ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+       -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult))))
+transferInstruction_withdrawImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferInstruction_withdrawExtraObservers ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+transferInstruction_withdrawExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferInstruction_rejectImpl ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+       -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult))))
+transferInstruction_rejectImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferInstruction_rejectExtraObservers ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+transferInstruction_rejectExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferInstruction_acceptImpl ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+       -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult))))
+transferInstruction_acceptImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferInstruction_acceptExtraObservers ::
+  (Splice.Api.Token.TransferInstructionV2.TransferInstruction
+   -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+transferInstruction_acceptExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferFactory_transferImpl ::
+  (Splice.Api.Token.TransferInstructionV2.TransferFactory
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferFactory)
+       -> (Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult))))
+transferFactory_transferImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferFactory_transferExtraObservers ::
+  (Splice.Api.Token.TransferInstructionV2.TransferFactory
+   -> (Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer
+       -> ([] CurrentSdk.DA.Internal.LF.Party)))
+transferFactory_transferExtraObservers _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+transferFactory_publicFetchImpl ::
+  (Splice.Api.Token.TransferInstructionV2.TransferFactory
+   -> ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferFactory)
+       -> (Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch
+           -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferFactoryView))))
+transferFactory_publicFetchImpl _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferFactory "transferFactory_publicFetchImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferFactory)
+                                                                                                                                            -> (Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch
+                                                                                                                                                -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferFactoryView)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferFactory "transferFactory_transferExtraObservers" (Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer
+                                                                                                                                                   -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferFactory "transferFactory_transferImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferFactory)
+                                                                                                                                         -> (Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer
+                                                                                                                                             -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_acceptExtraObservers" (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept
+                                                                                                                                                         -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_acceptImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+                                                                                                                                               -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept
+                                                                                                                                                   -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_rejectExtraObservers" (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject
+                                                                                                                                                         -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_rejectImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+                                                                                                                                               -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject
+                                                                                                                                                   -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult)))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_withdrawExtraObservers" (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw
+                                                                                                                                                           -> ([] CurrentSdk.DA.Internal.LF.Party))
+instance CurrentSdk.DA.Internal.Desugar.HasMethod Splice.Api.Token.TransferInstructionV2.TransferInstruction "transferInstruction_withdrawImpl" ((CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)
+                                                                                                                                                 -> (Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw
+                                                                                                                                                     -> (CurrentSdk.DA.Internal.LF.Update Splice.Api.Token.TransferInstructionV2.TransferInstructionResult)))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstructionView) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferInstructionAction) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Show.Show Splice.Api.Token.TransferInstructionV2.Transfer) where
+  showsPrec _ _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  show _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  showList _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "transferInstructionCid" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "transfer" Splice.Api.Token.TransferInstructionV2.TransferInstructionView Splice.Api.Token.TransferInstructionV2.Transfer)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "transfer" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Splice.Api.Token.TransferInstructionV2.Transfer)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "senderChangeCids" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "sender" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "requestedAt" Splice.Api.Token.TransferInstructionV2.Transfer CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "receiverHoldingCids" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "receiver" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "output" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "originalInstructionCid" Splice.Api.Token.TransferInstructionV2.TransferInstructionView (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "meta" Splice.Api.Token.TransferInstructionV2.TransferFactoryView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "instrumentId" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.InstrumentId)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "inputHoldingCids" Splice.Api.Token.TransferInstructionV2.Transfer ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "id" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "executeBefore" Splice.Api.Token.TransferInstructionV2.Transfer CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "description" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "availableActions" Splice.Api.Token.TransferInstructionV2.TransferInstructionView ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.TransferInstructionV2.TransferInstructionAction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "amount" Splice.Api.Token.TransferInstructionV2.Transfer (CurrentSdk.GHC.Types.Numeric 10))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "admin" Splice.Api.Token.TransferInstructionV2.TransferFactoryView CurrentSdk.DA.Internal.LF.Party)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.SetField "actors" Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasToInterface Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _toInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasToInterface Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _toInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyTemplate Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _toAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyTemplate Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _toAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasToAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  _toAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasTemplateTypeRep Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _templateTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasTemplateTypeRep Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _templateTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasSignatory Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  signatory _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasSignatory Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  signatory _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasObserver Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  observer _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasObserver Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  observer _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar.HasIsInterfaceType Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _isInterfaceType _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Desugar.HasIsInterfaceType Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _isInterfaceType _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceView Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstructionView) where
+  _view _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceView Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  _view _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceTypeRep Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _interfaceTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasInterfaceTypeRep Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _interfaceTypeRep _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasFromInterface Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  fromInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  unsafeFromInterface _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.HasFromInterface Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  fromInterface _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  unsafeFromInterface _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView.HasFromAnyView Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstructionView) where
+  _fromAnyView _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Interface.AnyView.HasFromAnyView Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  _fromAnyView _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyTemplate Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  _fromAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyTemplate Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  _fromAnyTemplate _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFromAnyChoice Splice.Api.Token.TransferInstructionV2.TransferFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  _fromAnyChoice _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFetch Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  fetch _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasFetch Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  fetch _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferInstruction Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferInstruction CurrentSdk.DA.Internal.Template.Archive ()) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferFactory Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasExercise Splice.Api.Token.TransferInstructionV2.TransferFactory CurrentSdk.DA.Internal.Template.Archive ()) where
+  exercise _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasCreate Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  create _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasCreate Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  create _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasArchive Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  archive _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Template.Functions.HasArchive Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  archive _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "transferInstructionCid" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "transfer" Splice.Api.Token.TransferInstructionV2.TransferInstructionView Splice.Api.Token.TransferInstructionV2.Transfer)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "transfer" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Splice.Api.Token.TransferInstructionV2.Transfer)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "senderChangeCids" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "sender" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "requestedAt" Splice.Api.Token.TransferInstructionV2.Transfer CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "receiverHoldingCids" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "receiver" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Account)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "output" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "originalInstructionCid" Splice.Api.Token.TransferInstructionV2.TransferInstructionView (CurrentSdk.DA.Internal.Prelude.Optional (CurrentSdk.DA.Internal.LF.ContractId Splice.Api.Token.TransferInstructionV2.TransferInstruction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionResult Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "meta" Splice.Api.Token.TransferInstructionV2.TransferFactoryView Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.Metadata)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "instrumentId" Splice.Api.Token.TransferInstructionV2.Transfer Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.InstrumentId)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "inputHoldingCids" Splice.Api.Token.TransferInstructionV2.Transfer ([] (CurrentSdk.DA.Internal.LF.ContractId Pkg_c3fa123e155ae04332cecd072a68299ddc1e98eb1a7fb89bed017b7107daa72a.Splice.Api.Token.HoldingV2.Holding)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "id" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "extraArgs" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer Pkg_4ded6b668cb3b64f7a88a30874cd41c75829f5e064b3fbbadf41ec7e8363354f.Splice.Api.Token.MetadataV1.ExtraArgs)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "executeBefore" Splice.Api.Token.TransferInstructionV2.Transfer CurrentSdk.DA.Internal.LF.Time)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "description" Splice.Api.Token.TransferInstructionV2.TransferInstructionAction CurrentSdk.GHC.Types.Text)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "availableActions" Splice.Api.Token.TransferInstructionV2.TransferInstructionView ((CurrentSdk.DA.Internal.LF.Map ([] CurrentSdk.DA.Internal.LF.Party)) ([] Splice.Api.Token.TransferInstructionV2.TransferInstructionAction)))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "amount" Splice.Api.Token.TransferInstructionV2.Transfer (CurrentSdk.GHC.Types.Numeric 10))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "admin" Splice.Api.Token.TransferInstructionV2.TransferFactoryView CurrentSdk.DA.Internal.LF.Party)
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_9d1a644e686435cf934f2f3f049138a424863b2a800130046dadc0c994ea5df3.DA.Internal.Record.GetField "actors" Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch ([] CurrentSdk.DA.Internal.LF.Party))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstruction_Withdraw) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstruction_Reject) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstruction_Accept) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstructionView) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstructionResult_Output) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstructionResult) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstructionAction) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferInstruction) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferFactory_Transfer) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferFactory_PublicFetch) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferFactoryView) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.TransferFactory) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+instance (() =>
+          Pkg_54f85ebfc7dfae18f7d70370015dcc6c6792f60135ab369c44ae52c6fc17c274.GHC.Classes.Eq Splice.Api.Token.TransferInstructionV2.Transfer) where
+  (==) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))
+  (/=) _ _
+    = (CurrentSdk.GHC.Err.error
+         (CurrentSdk.Data.String.fromString "data-dependency stub"))

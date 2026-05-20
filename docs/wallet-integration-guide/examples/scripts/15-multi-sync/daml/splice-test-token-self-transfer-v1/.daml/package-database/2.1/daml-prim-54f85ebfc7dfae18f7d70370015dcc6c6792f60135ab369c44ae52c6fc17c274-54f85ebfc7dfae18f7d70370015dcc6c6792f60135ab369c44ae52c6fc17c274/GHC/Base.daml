@@ -1,0 +1,53 @@
+{-# LANGUAGE NoDamlSyntax #-}
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoOverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DatatypeContexts #-}
+{-# OPTIONS_GHC -Wno-unused-imports -Wno-missing-methods -Wno-deprecations -Wno-x-crypto -Wno-x-exceptions #-}
+module GHC.Base (
+        module GHC.Base,
+        Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Base.Functor(..)
+    ) where
+import CurrentSdk.Data.String
+import Pkg_7cff38e34bd192d498d5a7606aa3b893e35b0f632d582b273f66dab90f2f14ef.GHC.Base
+import CurrentSdk.GHC.Err
+import CurrentSdk.GHC.Types
+otherwise :: CurrentSdk.GHC.Types.Bool
+otherwise
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+foldr ::
+  (forall a. (forall b. ((a -> (b -> b)) -> (b -> (([] a) -> b)))))
+foldr _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+map :: (forall a. (forall b. ((a -> b) -> (([] a) -> ([] b)))))
+map _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+const :: (forall a. (forall b. (a -> (b -> a))))
+const _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(.) ::
+  (forall b.
+   (forall c. (forall a. ((b -> c) -> ((a -> b) -> (a -> c))))))
+(.) _ _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+(++) ::
+  (CurrentSdk.GHC.Types.Text
+   -> (CurrentSdk.GHC.Types.Text -> CurrentSdk.GHC.Types.Text))
+(++) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+($) :: (forall r. (forall a. (forall b. ((a -> b) -> (a -> b)))))
+($) _ _
+  = (CurrentSdk.GHC.Err.error
+       (CurrentSdk.Data.String.fromString "data-dependency stub"))
+infixr 9 .
+infixr 5 ++
+infixr 0 $
