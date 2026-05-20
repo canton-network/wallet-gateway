@@ -1,9 +1,6 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import path from 'path'
-import { fileURLToPath } from 'url'
-import fs from 'fs/promises'
 import type { Logger } from 'pino'
 import {
     localNetStaticConfig,
@@ -19,7 +16,6 @@ import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
 import {
     TOKEN_NAMESPACE_CONFIG,
     TOKEN_PROVIDER_CONFIG_DEFAULT,
-    vetDar,
 } from '../utils/index.js'
 import type { SynchronizerMap } from '../utils/index.js'
 import {
@@ -38,10 +34,6 @@ export type PartyInfo = Omit<
     topologyTransactions?: string[] | undefined
     keyPair: KeyPair
 }
-
-const DARS_PATH = '../../../../../.localnet/dars'
-const TRADING_APP_DAR = 'splice-token-test-trading-app-1.0.0.dar'
-const TEST_TOKEN_V1_DAR = 'splice-test-token-v1-1.0.0.dar'
 
 export interface MultiSyncSetup {
     p1Sdk: SDKInterface<'token'>
@@ -133,44 +125,6 @@ export async function setupMultiSyncTrade(
         globalSynchronizerId,
         appSynchronizerId,
     }
-
-    // Load DARs bundled alongside this script and vet on all participants × both synchronizers.
-    const here = path.dirname(fileURLToPath(import.meta.url))
-    const darsDir = path.join(here, DARS_PATH)
-    for (const [darPath, darName] of [
-        [path.join(darsDir, TRADING_APP_DAR), TRADING_APP_DAR],
-        [path.join(here, TEST_TOKEN_V1_DAR), TEST_TOKEN_V1_DAR],
-    ] as [string, string][]) {
-        try {
-            await fs.stat(darPath)
-        } catch {
-            throw new Error(
-                `Required DAR not found: ${darPath}\n` +
-                    `  "${darName}" must be present in .localnet/dars/.`
-            )
-        }
-    }
-
-    const [tradingAppDar, testTokenV1Dar] = await Promise.all([
-        fs.readFile(path.join(darsDir, TRADING_APP_DAR)),
-        fs.readFile(path.join(here, TEST_TOKEN_V1_DAR)),
-    ])
-
-    // P1 and P2 vet DARs on both synchronizers; P3 (sv) is global-only and
-    // cannot upload to app-synchronizer.
-    await Promise.all([
-        ...[p1SdkCtx, p2SdkCtx].flatMap((ctx) =>
-            [globalSynchronizerId, appSynchronizerId].flatMap((sid) =>
-                [tradingAppDar, testTokenV1Dar].map((dar) =>
-                    vetDar(ctx.ledgerProvider, dar, sid)
-                )
-            )
-        ),
-        ...[tradingAppDar, testTokenV1Dar].map((dar) =>
-            vetDar(p3SdkCtx.ledgerProvider, dar, globalSynchronizerId)
-        ),
-    ])
-    logger.info('DARs vetted: P1+P2 on both synchronizers, P3 on global only')
 
     // Allocate parties: alice on P1, bob on P2, tradingApp on P3, tokenAdmin on P2 (all on global synchronizer)
     // tokenAdmin is on P2 (app-provider), not P3 (sv), because sv is global-only
