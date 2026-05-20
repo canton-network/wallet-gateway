@@ -84,7 +84,7 @@ Note that you need to adjust the ``auth-token``, ``update-id`` and ``treasury-pa
 .. literalinclude:: 1-step-transfer.json
     :language: json
 
-You can parse such transactions using the `token standard history parser <https://github.com/canton-network/wallet-gateway/blob/main/core/ledger-client/src/txparse/parser.ts>`_ provided in the wallet SDK to extract the deposit amount, account and holding contract ids. Note that one-step deposits are more complex to parse than two-step transfers as the token standard does not provide an interface choice visible to the receiver. If you prefer implementing your own implementation, you can parse this as follows:
+You can parse such transactions using the `token standard history parser <https://github.com/canton-network/wallet/blob/main/core/ledger-client/src/txparse/parser.ts>`_ provided in the wallet SDK to extract the deposit amount, account and holding contract ids. Note that one-step deposits are more complex to parse than two-step transfers as the token standard does not provide an interface choice visible to the receiver. If you prefer implementing your own implementation, you can parse this as follows:
 
 1. Go over the list of events ordered by ``nodeId`` that you see in the transaction.
 2. For each exercised event, check the exercise result. If it has a
@@ -197,7 +197,7 @@ Note that you need to adjust the ``auth-token``, ``update-id`` and ``treasury-pa
 .. literalinclude:: transfer-instruction-create.json
     :language: json
 
-You can parse such transactions using the `token standard history parser <https://github.com/canton-network/wallet-gateway/blob/main/core/ledger-client/src/txparse/parser.ts>`_ provided in the wallet SDK to extract the deposit amount, account and holding contract ids. If you prefer implementing your own implementation, you can parse this as follows:
+You can parse such transactions using the `token standard history parser <https://github.com/canton-network/wallet/blob/main/core/ledger-client/src/txparse/parser.ts>`_ provided in the wallet SDK to extract the deposit amount, account and holding contract ids. If you prefer implementing your own implementation, you can parse this as follows:
 
 1. Go over the list of events ordered by ``nodeId`` that you see in the transaction.
 2. Look for all ``CreatedEvents`` of the ``TransferInstruction`` interface with ``"receiver": "<treasury-party>"``. Each of these represents a deposit offer that can be accepted or rejected.

@@ -1,26 +1,28 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-import { SDKContext, LedgerTypes } from '../../sdk.js'
+import { LedgerTypes, SDKContext } from '../../sdk.js'
 import { v4 } from 'uuid'
 import { PrepareOptions, ExecuteOptions, AcsRequestOptions } from './types.js'
 import { PreparedTransaction } from '../transactions/prepared.js'
 import { SignedTransaction } from '../transactions/signed.js'
 import { Ops } from '@canton-network/core-provider-ledger'
 import { DarNamespace } from './dar/client.js'
-import { AcsOptions } from '@canton-network/core-acs-reader'
 import { InternalLedgerNamespace } from './internal/index.js'
 import { PreparedTransactionNamespace } from './hash/namespace.js'
+import { AcsOptions, ACSReader } from '@canton-network/core-acs-reader'
 
 export class LedgerNamespace {
     public readonly dar: DarNamespace
     public readonly internal: InternalLedgerNamespace
     public readonly preparedTransaction: PreparedTransactionNamespace
+    public readonly acsReader: ACSReader
 
     constructor(private readonly sdkContext: SDKContext) {
         this.dar = new DarNamespace(sdkContext)
         this.internal = new InternalLedgerNamespace(sdkContext)
         this.preparedTransaction = new PreparedTransactionNamespace(sdkContext)
+        this.acsReader = new ACSReader(sdkContext.ledgerProvider)
     }
 
     public async ledgerEnd() {
@@ -40,7 +42,7 @@ export class LedgerNamespace {
      * Performs the prepare step of the interactive submission flow.
      * @returns PreparedTransaction which includes the response from the ledger and an execute function that can be called with a SignedTransaction to perform the execute step of the interactive submission flow.
      */
-    prepare(options: PrepareOptions): PreparedTransaction {
+    public prepare(options: PrepareOptions): PreparedTransaction {
         const preparePromise = async () => {
             const synchronizerId =
                 options.synchronizerId || this.sdkContext.defaultSynchronizerId
@@ -76,7 +78,7 @@ export class LedgerNamespace {
      * @param options The options for executing the transaction, including userId, partyId, and an optional submissionId.
      * @returns The submissionId of the executed transaction.
      */
-    async execute(
+    public async execute(
         signed: SignedTransaction,
         options: ExecuteOptions
     ): Promise<
@@ -140,6 +142,30 @@ export class LedgerNamespace {
         )
     }
 
+    /**
+     * For offline signing workflows, construct a SignedTransaction from an externally produced signature.
+     * @param response The prepare response from a previous prepare call
+     * @param signature The externally produced signature
+     * @returns A SignedTransaction that can be passed to execute()
+     */
+    public fromSignature(
+        response: Ops.PostV2InteractiveSubmissionPrepare['ledgerApi']['result'],
+        signature: string
+    ): SignedTransaction {
+        const signPromise = Promise.resolve({
+            response,
+            signature,
+        })
+        return new SignedTransaction(
+            this.sdkContext,
+            signPromise,
+            (signed, opts) => this.execute(signed, opts)
+        )
+    }
+
+    /**
+     * @deprecated use `acsReader` namespace instead
+     */
     acs = {
         /**
          *
@@ -163,9 +189,7 @@ export class LedgerNamespace {
                 `Querying acs with options:`
             )
 
-            return await this.sdkContext.acsReader.getActiveContracts(
-                resolvedOptions
-            )
+            return await this.acsReader.raw.read(resolvedOptions)
         },
         /**
          * Queries the ACS and filters for JsActiveContracts
@@ -195,6 +219,9 @@ export class LedgerNamespace {
         },
     }
 
+    /**
+     * @deprecated
+     */
     private async resolveAcsOptions(
         options: AcsRequestOptions
     ): Promise<AcsOptions> {
@@ -213,26 +240,5 @@ export class LedgerNamespace {
             ).offset!
 
         return { ...options, offset }
-    }
-
-    /**
-     * For offline signing workflows, construct a SignedTransaction from an externally produced signature.
-     * @param response The prepare response from a previous prepare call
-     * @param signature The externally produced signature
-     * @returns A SignedTransaction that can be passed to execute()
-     */
-    fromSignature(
-        response: Ops.PostV2InteractiveSubmissionPrepare['ledgerApi']['result'],
-        signature: string
-    ): SignedTransaction {
-        const signPromise = Promise.resolve({
-            response,
-            signature,
-        })
-        return new SignedTransaction(
-            this.sdkContext,
-            signPromise,
-            (signed, opts) => this.execute(signed, opts)
-        )
     }
 }

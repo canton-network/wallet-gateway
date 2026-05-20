@@ -174,7 +174,7 @@ are compromised, your party is still secured. Common setups are:
 Party Setup
 ^^^^^^^^^^^
 
-.. TODO:: https://github.com/canton-network/wallet-gateway/issues/272 Update this when wallet SDK support is available
+.. TODO:: https://github.com/canton-network/wallet/issues/272 Update this when wallet SDK support is available
 
 As part of the :ref:`initial treasury party setup
 <create-an-external-party>`, you generate the ``PartyToParticipant``
@@ -219,7 +219,7 @@ is only performed by the executing node so if you submit across nodes
 you cannot rely on it. It is therefore recommend _not_ to rely on
 command deduplication at all in favor of :ref:`UTXO and max record time based deuplication <withdrawal-automation>`.
 
-.. TODO:: Link to recommended deduplication strategy https://github.com/canton-network/wallet-gateway/issues/423
+.. TODO:: Link to recommended deduplication strategy https://github.com/canton-network/wallet/issues/423
 
 Changing the set of Confirming Nodes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

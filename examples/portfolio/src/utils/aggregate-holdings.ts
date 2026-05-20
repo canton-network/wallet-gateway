@@ -6,12 +6,18 @@ import { TokenStandardService } from '@canton-network/core-token-standard-servic
 import { type Holding } from '@canton-network/core-tx-parser'
 import type { Instruments } from '../services/registry-service'
 
+export interface AggregatedWalletBalance {
+    owner: string
+    totalAmount: string
+}
+
 export interface AggregatedHolding {
     instrumentId: { admin: string; id: string }
     totalAmount: string
     lockedAmount: string
     availableAmount: string
     numOfHoldings: number
+    walletBalances: AggregatedWalletBalance[]
     instrument?: {
         name: string
         symbol: string
@@ -44,6 +50,7 @@ export function aggregateHoldings(
             existing.lockedAmount = newLocked.toString()
             existing.availableAmount = newTotal.minus(newLocked).toString()
             existing.numOfHoldings += 1
+            addWalletBalance(existing.walletBalances, holding.owner, amount)
         } else {
             const lockedAmount = isLocked ? amount : new Decimal(0)
             aggregated.set(key, {
@@ -52,11 +59,34 @@ export function aggregateHoldings(
                 lockedAmount: lockedAmount.toString(),
                 availableAmount: amount.minus(lockedAmount).toString(),
                 numOfHoldings: 1,
+                walletBalances: [
+                    {
+                        owner: holding.owner,
+                        totalAmount: amount.toString(),
+                    },
+                ],
             })
         }
     }
 
     return aggregated
+}
+
+function addWalletBalance(
+    balances: AggregatedWalletBalance[],
+    owner: string,
+    amount: Decimal
+) {
+    const existing = balances.find((balance) => balance.owner === owner)
+
+    if (existing) {
+        existing.totalAmount = new Decimal(existing.totalAmount)
+            .plus(amount)
+            .toString()
+        return
+    }
+
+    balances.push({ owner, totalAmount: amount.toString() })
 }
 
 export function enrichWithInstrumentInfo(

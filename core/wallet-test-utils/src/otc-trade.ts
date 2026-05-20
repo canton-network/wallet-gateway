@@ -151,13 +151,14 @@ export class OTCTrade {
         await this.acceptProposal(this.charlie, 'Charlie')
 
         // Venue initiates settlement of OTCTradeProposal
-        const activeTradeProposals2 = await this.sdk.ledger.acs.read({
-            templateIds: [
-                '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
-            ],
-            parties: [this.venue],
-            filterByParty: true,
-        })
+        const activeTradeProposals2 =
+            await this.sdk.ledger.acsReader.readJsContracts({
+                templateIds: [
+                    '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
+                ],
+                parties: [this.venue],
+                filterByParty: true,
+            })
         const now = new Date()
         const prepareUntil = new Date(
             now.getTime() + 60 * 60 * 1000
@@ -187,7 +188,7 @@ export class OTCTrade {
 
         this.logger.info('Venue initated settlement of OTCTradeProposal')
 
-        const otcTrades = await this.sdk.ledger.acs.read({
+        const otcTrades = await this.sdk.ledger.acsReader.readJsContracts({
             templateIds: [
                 '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTrade',
             ],
@@ -212,13 +213,14 @@ export class OTCTrade {
     ): Promise<string> {
         if (!this.sdk) throw new Error('SDK not initialized')
 
-        const activeTradeProposals = await this.sdk.ledger.acs.read({
-            templateIds: [
-                '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
-            ],
-            parties: [approver],
-            filterByParty: true,
-        })
+        const activeTradeProposals =
+            await this.sdk.ledger.acsReader.readJsContracts({
+                templateIds: [
+                    '#splice-token-test-trading-app:Splice.Testing.Apps.TradingApp:OTCTradeProposal',
+                ],
+                parties: [approver],
+                filterByParty: true,
+            })
 
         const otcpCid = activeTradeProposals[0].contractId
 

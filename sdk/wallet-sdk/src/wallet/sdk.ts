@@ -8,7 +8,6 @@ import {
     LedgerProvider,
     Ops,
 } from '@canton-network/core-provider-ledger'
-import { AcsReader } from '@canton-network/core-acs-reader'
 import {
     EXTENDED_SDK_OPTION_KEYS,
     ExtendedSDKOptions,
@@ -35,6 +34,7 @@ export type * from './namespace/amulet/index.js'
 export { type TokenProviderConfig } from '@canton-network/core-wallet-auth'
 export { LedgerProvider } from '@canton-network/core-provider-ledger'
 export { type Event } from './namespace/events/index.js'
+export type * from './namespace/transactions/types.js'
 export {
     signTransactionHash,
     getPublicKeyFromPrivate,
@@ -43,7 +43,6 @@ export type LedgerTypes = LedgerCommonSchemas
 
 export type SDKContext = {
     ledgerProvider: AbstractLedgerProvider
-    acsReader: AcsReader
     userId: string
     logger: SDKLogger
     error: SDKErrorHandler
@@ -55,7 +54,7 @@ export type OfflineSDKContext = {
     error: SDKErrorHandler
 }
 
-export type * from './init/index.js'
+export * from './init/index.js'
 export { PrepareOptions, ExecuteOptions } from './namespace/ledger/index.js'
 export * from './namespace/transactions/prepared.js'
 export * from './namespace/transactions/signed.js'
@@ -99,7 +98,8 @@ export class SDK {
                 if (
                     //this is only the cause if authentication is completely disabled on the ledger.
                     err?.cause &&
-                    (err.cause as string).includes(
+                    typeof err.cause === 'string' &&
+                    err.cause.includes(
                         'The submitted request is missing a user-id'
                     )
                 ) {
@@ -128,11 +128,8 @@ export class SDK {
             logger
         )
 
-        const acsReader = new AcsReader(ledgerProvider)
-
         const ctx: SDKContext = {
             ledgerProvider,
-            acsReader,
             userId: userId!,
             logger,
             error,

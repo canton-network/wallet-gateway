@@ -1,6 +1,6 @@
 # provider-ledger
 
-This package provides a SpliceProvider (see https://github.com/canton-network/wallet-gateway/tree/main/core/splice-provider) implementation intended for direct Ledger usage. It is suitable for both NodeJS and browser environments, but if you are building a Canton dApp, then you likely want to use the [`dapp-sdk`](https://www.npmjs.com/package/@canton-network/dapp-sdk) instead, which gives a `DappProvider`.
+This package provides a SpliceProvider (see https://github.com/canton-network/wallet/tree/main/core/splice-provider) implementation intended for direct Ledger usage. It is suitable for both NodeJS and browser environments, but if you are building a Canton dApp, then you likely want to use the [`dapp-sdk`](https://www.npmjs.com/package/@canton-network/dapp-sdk) instead, which gives a `DappProvider`.
 
 This provider only supports a single method, `ledgerApi`, which proxies request through to an underlying Ledger JSON-API client. Due to the nature of the Canton Ledger JSON-API, the only supported transport is HTTP.
 

@@ -4,4 +4,4 @@ This directory contains configuration for a local Canton setup. It starts a part
 
 ## Usage
 
-To run the Canton setup yourself, follow the steps from the [canton](https://github.com/canton-network/wallet-gateway/blob/main/docs/CONTRIBUTING.md#canton) section of the CONTRIBUTING.md guide.
+To run the Canton setup yourself, follow the steps from the [canton](https://github.com/canton-network/wallet/blob/main/docs/CONTRIBUTING.md#canton) section of the CONTRIBUTING.md guide.
