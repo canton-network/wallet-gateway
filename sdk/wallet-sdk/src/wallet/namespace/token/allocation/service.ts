@@ -18,7 +18,7 @@ import {
     AllocationContextParams,
 } from './types.js'
 import { TokenNamespaceConfig } from '../../../sdk.js'
-import { toURL } from '../../../common.js'
+import { ParsedURL } from '../../utils/url.js'
 
 export class AllocationNamespace {
     constructor(private readonly sdkContext: TokenNamespaceConfig) {}
@@ -44,7 +44,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createExecuteTransferAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -55,7 +55,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createWithdrawAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -66,7 +66,7 @@ export class AllocationNamespace {
         const [command, disclosedConctracts] =
             await this.sdkContext.tokenStandardService.allocation.createCancelAllocation(
                 params.allocationCid,
-                params.asset.registryUrl,
+                params.asset.registryUrl.href,
                 params.prefetchedRegistryChoiceContext
             )
 
@@ -77,19 +77,22 @@ export class AllocationNamespace {
         execute: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchExecuteTransferChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
         withdraw: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchWithdrawAllocationChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
         cancel: async (params: AllocationContextParams) => {
             return this.sdkContext.tokenStandardService.allocation.fetchCancelAllocationChoiceContext(
                 params.allocationCid,
-                toURL(params.registryUrl, this.sdkContext.commonCtx.error).href
+                new ParsedURL(this.sdkContext.commonCtx, params.registryUrl)
+                    .href
             )
         },
     }
@@ -122,7 +125,7 @@ export class AllocationNamespace {
                     await this.sdkContext.tokenStandardService.allocation.createAllocationInstruction(
                         params.allocationSpecification,
                         params.asset.admin,
-                        params.asset.registryUrl,
+                        params.asset.registryUrl.href,
                         params.inputUtxos,
                         params.requestedAt,
                         params.prefetchedRegistryChoiceContext

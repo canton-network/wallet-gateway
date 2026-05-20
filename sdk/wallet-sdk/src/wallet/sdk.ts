@@ -18,7 +18,6 @@ import {
     SDKInterface,
 } from './init/types/sdk.js'
 import { AuthTokenProvider } from '@canton-network/core-wallet-auth'
-import { toURL } from './common.js'
 import {
     ExtendedInitializedSDK,
     OfflineInitializedSDK,
@@ -80,9 +79,8 @@ export class SDK {
                           logger
                       )
 
-                      const ledgerApiUrl = toURL(options.ledgerClientUrl, error)
                       return new LedgerProvider({
-                          baseUrl: ledgerApiUrl,
+                          baseUrl: options.ledgerClientUrl,
                           accessTokenProvider: authTokenProvider,
                       })
                   })()

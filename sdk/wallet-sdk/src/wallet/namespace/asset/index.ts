@@ -9,7 +9,7 @@ export type AssetBody = {
     id: string
     displayName: string
     symbol: string
-    registryUrl: string
+    registryUrl: URL
     admin: PartyId
 }
 
@@ -27,10 +27,7 @@ export class AssetNamespace {
         return this.ctx.list
     }
 
-    public async find(
-        id: string,
-        registryUrl?: URL | string
-    ): Promise<AssetBody> {
+    public async find(id: string, registryUrl?: URL): Promise<AssetBody> {
         return await findAsset(this.list, id, this.ctx.error, registryUrl)
     }
 }
@@ -39,17 +36,10 @@ export function findAsset(
     assets: AssetBody[],
     id: string,
     error: SDKErrorHandler,
-    registryUrl?: URL | string
+    registryUrl?: URL
 ): AssetBody {
     const asset = registryUrl
-        ? assets.filter(
-              (asset) =>
-                  asset.id === id &&
-                  asset.registryUrl ===
-                      (registryUrl instanceof URL
-                          ? registryUrl?.href
-                          : registryUrl)
-          )
+        ? assets.filter((asset) => asset.id === id && asset.registryUrl)
         : assets.filter((asset) => asset.id === id)
 
     if (asset.length === 0) {

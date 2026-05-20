@@ -21,7 +21,7 @@ export class EventsNamespace {
         })
 
         this.websocketClient = new WebSocketClient({
-            baseUrl: eventsContext.websocketURL,
+            baseUrl: eventsContext.websocketURL.toString(),
             accessTokenProvider: eventsContext.auth,
         })
     }

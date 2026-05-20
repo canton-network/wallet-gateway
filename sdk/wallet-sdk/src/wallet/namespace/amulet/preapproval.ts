@@ -16,10 +16,7 @@ export class PreapprovalNamespace {
      * Transfer preapprovals allow receivers to automatically accept incoming transfers.
      */
     public readonly command: {
-        create: (args: {
-            parties: PreapprovalParties
-            // registryUrl?: URL
-        }) => Promise<{
+        create: (args: { parties: PreapprovalParties }) => Promise<{
             CreateCommand: LedgerTypes['CreateCommand']
         }>
         cancel: (args: {

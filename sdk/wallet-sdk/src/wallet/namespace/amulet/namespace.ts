@@ -15,13 +15,14 @@ import { TrafficNamespace } from './traffic.js'
 import { LedgerNamespace } from '../ledger/namespace.js'
 import { PreapprovalNamespace } from './preapproval.js'
 import { Decimal } from 'decimal.js'
+import { parseAssets, ParsedURL } from '../utils/url.js'
 
 const defaultMaxRetries = 10
 const defaultDelayMs = 5000
 
 export type AmuletNamespaceConfig = {
     commonCtx: SDKContext
-    registry: URL | AssetBody
+    registry: ParsedURL | AssetBody
     amuletService: AmuletService
     tokenStandardService: TokenStandardService
     validatorParty: PartyId
@@ -38,13 +39,16 @@ export class AmuletNamespace {
     }
 
     private async amulet(): Promise<AssetBody> {
-        return this.sdkContext.registry instanceof URL
-            ? (
-                  await this.sdkContext.tokenStandardService.registriesToAssets(
-                      [this.sdkContext.registry.href]
-                  )
-              )[0]
-            : this.sdkContext.registry
+        if (this.sdkContext.registry instanceof ParsedURL) {
+            return parseAssets(
+                this.sdkContext.commonCtx,
+                await this.sdkContext.tokenStandardService.registriesToAssets([
+                    this.sdkContext.registry.href,
+                ])
+            )[0]
+        } else {
+            return this.sdkContext.registry
+        }
     }
 
     /**
@@ -62,7 +66,7 @@ export class AmuletNamespace {
                 new Decimal(amount).toFixed(10),
                 amulet.admin,
                 amulet.id,
-                amulet.registryUrl
+                amulet.registryUrl.toString()
             )
         return [{ ExerciseCommand: tapCommand }, disclosedContracts]
     }
@@ -198,11 +202,14 @@ interface FeaturedAppNamespace {
 export async function fetchAmulet(
     amuletCtx: AmuletNamespaceConfig
 ): Promise<AssetBody> {
-    return amuletCtx.registry instanceof URL
-        ? (
-              await amuletCtx.tokenStandardService.registriesToAssets([
-                  amuletCtx.registry.href,
-              ])
-          )[0]
-        : amuletCtx.registry
+    if (amuletCtx.registry instanceof ParsedURL) {
+        return parseAssets(
+            amuletCtx.commonCtx,
+            await amuletCtx.tokenStandardService.registriesToAssets([
+                amuletCtx.registry.href,
+            ])
+        )[0]
+    } else {
+        return amuletCtx.registry
+    }
 }

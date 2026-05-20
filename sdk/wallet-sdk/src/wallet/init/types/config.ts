@@ -1,27 +1,28 @@
 // Copyright (c) 2025-2026 Digital Asset (Switzerland) GmbH and/or its affiliates. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import { URLInput } from '../../namespace/utils/url.js'
 import { TokenProviderConfig } from '@canton-network/core-wallet-auth'
 
 export type AmuletConfig = {
-    validatorUrl: string | URL
-    scanApiUrl: string | URL
+    validatorUrl: URLInput
+    scanApiUrl: URLInput
     auth: TokenProviderConfig
-    registryUrl: URL
+    registryUrl: URLInput
 }
 
 export type TokenConfig = {
-    validatorUrl: string | URL
+    validatorUrl: URLInput
     auth: TokenProviderConfig
-    registries: URL[] | string[]
+    registries: URLInput[]
 }
 
 export type AssetConfig = {
     auth: TokenProviderConfig
-    registries: URL[]
+    registries: URLInput[]
 }
 
 export type EventsConfig = {
-    websocketURL: string
+    websocketURL: URLInput
     auth: TokenProviderConfig
 }

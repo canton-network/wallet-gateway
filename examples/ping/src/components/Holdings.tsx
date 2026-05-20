@@ -6,9 +6,7 @@ import { useState } from 'react'
 export default function Holdings(props: {
     connectResult?: sdk.dappAPI.ConnectResult
 }) {
-    const [urls, setUrls] = useState<{ validator?: string; registry?: string }>(
-        {}
-    )
+    const [urls, setUrls] = useState<{ validator?: URL; registry?: URL }>({})
 
     const [inputValidator, setInputValidator] = useState('')
     const [inputRegistry, setInputRegistry] = useState('')
@@ -32,8 +30,8 @@ export default function Holdings(props: {
                     onSubmit={(e) => {
                         e.preventDefault()
                         setUrls({
-                            validator: inputValidator,
-                            registry: inputRegistry,
+                            validator: new URL(inputValidator),
+                            registry: new URL(inputRegistry),
                         })
                     }}
                 >
