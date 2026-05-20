@@ -23,7 +23,8 @@ export default async function () {
             }
 
             myMethod() {
-                console.log("It's working!")
+                // do some logic
+                return
             }
         },
     })
