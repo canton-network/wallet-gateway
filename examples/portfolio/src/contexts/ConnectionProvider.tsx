@@ -18,6 +18,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
     const queryClient = useQueryClient()
+    const [initialized, setInitialized] = useState(false)
     const [connectionStatus, setConnectionStatus] = useState<
         sdk.dappAPI.StatusEvent | undefined
     >()
@@ -72,6 +73,11 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
 
                 if (active) {
                     setError(`failed to get status: ${message}`)
+                }
+            })
+            .finally(() => {
+                if (active) {
+                    setInitialized(true)
                 }
             })
 
@@ -145,6 +151,7 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({
     return (
         <ConnectionContext.Provider
             value={{
+                initialized,
                 status: connectionStatus,
                 accounts,
                 error,

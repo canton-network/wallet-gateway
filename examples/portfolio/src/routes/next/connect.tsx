@@ -11,7 +11,7 @@ function RouteComponent() {
     const { connect, status } = useConnection()
 
     if (status?.connection?.isConnected) {
-        return <Navigate to="/" />
+        return <Navigate to="/next/dashboard" />
     }
 
     return (
